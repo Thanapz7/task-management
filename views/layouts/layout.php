@@ -118,7 +118,7 @@
             justify-content: end;
             margin-right: 100px;
         }
-        .btn{
+        .btn-d{
             font-size: 20px;
             font-weight: bold;
             padding: 10px;
@@ -127,7 +127,7 @@
             border: 1px solid #ffffff;
             margin: 5px;
         }
-        .btn:hover{
+        .btn-d:hover{
             opacity: 0.9;
         }
         .btn-show{

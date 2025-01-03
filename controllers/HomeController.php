@@ -27,4 +27,16 @@ class HomeController extends Controller
         $this->layout = 'layout';
         return $this->render('add-form');
     }
+
+    public function actionLogin2()
+    {
+        $this->layout = 'blank';
+        return $this->render('login2');
+    }
+
+    public function actionEachWork()
+    {
+        $this->layout = 'layout';
+        return $this->render('each-work');
+    }
 }

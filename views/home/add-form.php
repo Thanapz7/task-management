@@ -41,6 +41,6 @@ $this->title='Add Forms';
     </div>
 </div>
 <div class="group-btn">
-    <button type="submit" class="btn btn-show">แสดง</button>
-    <button type="submit" class="btn btn-add">เพิ่ม</button>
+    <button type="submit" class="btn-d btn-show">แสดง</button>
+    <button type="submit" class="btn-d btn-add">เพิ่ม</button>
 </div>

@@ -15,4 +15,16 @@ class HomeController extends Controller
     {
         return $this->render('home');
     }
+
+    public function actionWork()
+    {
+        $this->layout = 'layout';
+        return $this->render('work');
+    }
+
+    public function actionAddForm()
+    {
+        $this->layout = 'layout';
+        return $this->render('add-form');
+    }
 }

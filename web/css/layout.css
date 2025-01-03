@@ -1,0 +1,96 @@
+body{
+    font-family: "Noto Sans Thai", serif;
+}
+/* Set height of the grid so .sidenav can be 100% (adjust if needed) */
+.row.content {height: 100vh}
+
+/* Set gray background color and 100% height */
+.sidenav {
+    background-color: #f1f1f1;
+    height: 100%;
+}
+.nav .nav-pills .nav-stacked li a{
+    color:#ffffff ;
+    font-weight: bold;
+}
+.logout{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: #FF1317;
+    margin-top: 200px;
+    cursor: pointer;
+}
+.text-header{
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 100px;
+    margin-left: 30px;
+}
+.folder{
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 15px;
+    width:210px;
+    height: 110px;
+    margin:25px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+.folder:hover{
+    background-color: #B7E0FF;
+}
+.folders{
+    margin: 30px;
+}
+.actived{
+    background-color: #95D2B3;
+    border-radius: 10px;
+    font-size: 19px;
+}
+.logo {
+    color: #95D2B3;
+    margin: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+}
+.user-info{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px ;
+}
+.folder-head{
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+}
+.folder-head i{
+    font-size: 30px;
+}
+.folder-head h5{
+    font-size: 19px;
+    margin-left: 15px;
+    font-weight: bold;
+}
+.nav-fonts{
+    color: #ffffff; !important;
+    font-size: 19px;
+    font-weight: bold;
+}
+.department{
+    font-size: 20px;
+}
+
+
+/* On small screens, set height to 'auto' for sidenav and grid */
+@media screen and (max-width: 767px) {
+    .sidenav {
+        height: auto;
+        padding: 15px;
+    }
+    .row.content {height: auto;}
+}

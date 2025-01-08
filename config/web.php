@@ -48,8 +48,13 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                // กฎการกำหนด URL ที่เป็นมิตร
+                'user/update/<id:\d+>' => 'user/update',
+//                'user/view/<id:\d+>' => 'user/view',
+                'user/view-all' => 'user/view-all',
             ],
         ],
+
 
     ],
     'params' => $params,

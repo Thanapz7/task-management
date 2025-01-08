@@ -1,30 +1,25 @@
 <?php
 
-use app\assets\AppAsset;
-AppAsset::register($this);
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
 
+$this->title = 'Login';
+//$this->params['breadcrumbs'][] = $this->title;
 ?>
-<?php $this->beginPage() ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>login</title>
-</head>
-<body>
-<div class="container">
-    <div>
-<!--            <span class="arcticons--jobbkk"></span>-->
-            <h3>เข้าสู่ระบบ</h3>
-            <form action="login.php" method="POST">
-                username: <input type="text" name="username" placeholder="Enter your name"> <br>
-                password: <input type="password" name="password" placeholder="Enter your password"> <br>
-                <button type="submit">Login</button>
-            </form>
+<div class="site-login">
+    <h1><?= Html::encode($this->title) ?></h1>
+
+    <div class="form">
+        <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
+
+        <?= $form->field($model, 'username')->textInput(['autofocus' => true]) ?>
+        <?= $form->field($model, 'password')->passwordInput() ?>
+
+        <div class="form-group">
+            <?= Html::submitButton('Login', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
+        </div>
+
+        <?php ActiveForm::end(); ?>
     </div>
-
 </div>
-</body>>
-</html>

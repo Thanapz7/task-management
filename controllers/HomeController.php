@@ -2,15 +2,12 @@
 
 namespace app\controllers;
 
+use app\models\LoginForm;
+use Yii;
 use yii\web\Controller;
 
 class HomeController extends Controller
 {
-    public function actionIndex()
-    {
-        return $this->render('login');
-    }
-
     public function actionHome()
     {
         return $this->render('home');
@@ -39,4 +36,27 @@ class HomeController extends Controller
         $this->layout = 'layout';
         return $this->render('each-work');
     }
+
+    public function actionCreateForm()
+    {
+        $this->layout = 'blank_page';
+        return $this->render('create-form');
+    }
+
+    public function actionIndex()
+    {
+        $model = new LoginForm();
+
+        // ตรวจสอบการกรอกข้อมูลจากฟอร์ม
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            // ถ้าล็อกอินสำเร็จ, ไปที่หน้า home/home
+            return $this->redirect(['home/work']);
+        }
+
+        // หากไม่สำเร็จ, กลับไปที่หน้า login
+        return $this->render('login', [
+            'model' => $model,
+        ]);
+    }
+
 }

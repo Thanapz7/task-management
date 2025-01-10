@@ -10,7 +10,7 @@ class User extends ActiveRecord implements IdentityInterface
 {
     public static function tableName()
     {
-        return 'user';
+        return 'users';
     }
 
     public function rules()
@@ -32,6 +32,8 @@ class User extends ActiveRecord implements IdentityInterface
             'username' => 'Username',
             'password_hash' => 'Password',
             'role' => 'Role', // เพิ่มข้อความแสดงผลสำหรับ role
+            'auth_key' => 'Auth Key',
+            'department' => 'Department',
         ];
     }
 

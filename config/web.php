@@ -54,6 +54,16 @@ $config = [
                 'user/view-all' => 'user/view-all',
             ],
         ],
+        'view' => [
+            'class' => 'yii\web\View',
+            'on beforeRender' => function($event) {
+                $user = Yii::$app->user->identity;
+                $username = $user->username;
+                $department = $user->department;
+                Yii::$app->view->params['username'] = $username;
+                Yii::$app->view->params['department'] = $department;
+            }
+        ]
 
 
     ],

@@ -1,5 +1,6 @@
 <?php
 use app\assets\AppAsset;
+use yii\helpers\Html;
 AppAsset::register($this);
 
 $this->title='work';
@@ -62,4 +63,8 @@ $this->title='work';
         </div>
     </div>
 </div>
+<?= Html::a(
+    '<button type="submit" style="background: none; border: none"><i class="fa-solid fa-power-off" style="color: #cc5555"></i></button>',
+    ['each-work']
+) ?>
 

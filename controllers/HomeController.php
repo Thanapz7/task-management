@@ -19,6 +19,24 @@ class HomeController extends Controller
         return $this->render('work');
     }
 
+    public function actionEachWorkList()
+    {
+        $this->layout = 'layout';
+        return $this->render('each-work-list');
+    }
+
+    public function actionEachWorkGallery()
+    {
+        $this->layout = 'layout';
+        return $this->render('each-work-gallery');
+    }
+
+    public function actionEachWorkCalendar()
+    {
+        $this->layout = 'layout';
+        return $this->render('each-work-calendar');
+    }
+
     public function actionAddForm()
     {
         $this->layout = 'layout';
@@ -41,6 +59,12 @@ class HomeController extends Controller
     {
         $this->layout = 'blank_page';
         return $this->render('create-form');
+    }
+
+    public function actionFormSetting()
+    {
+        $this->layout = 'blank_page';
+        return $this->render('form-setting');
     }
 
     public function actionIndex()

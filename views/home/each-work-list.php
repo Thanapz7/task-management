@@ -1,5 +1,5 @@
 <?php
-$this->title='Each Work';
+$this->title='Each Work List-view';
 ?>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
@@ -140,6 +140,23 @@ $this->title='Each Work';
     table th, table td {
         border: 1px solid #ddd; /* กำหนดขอบของ cell */
     }
+    .each-list{
+        padding: 5px;
+        border-bottom: 1px solid #cccccc;
+    }
+    .list-item{
+        font-size: 18px;
+    }
+    .list-item a{
+        color: #000000;
+        transition: 0.3s;
+    }
+    .list-item a:hover{
+        text-decoration: none;
+        background-color: rgba(109, 178, 229, 0.27);
+        padding: 10px;
+        border-radius: 20px;
+    }
 </style>
 
 <i class="fa-solid fa-arrow-left back-btn"></i>
@@ -274,37 +291,16 @@ $this->title='Each Work';
         </ul>
     </div>
 </div>
-<div class="grid" style="margin-left: 20px; margin-top: 20px;">
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>วันที่มอบหมาย</th>
-            <th>ผู้มอบหมาย</th>
-            <th>ชื่องาน</th>
-            <th>ราละเอียด</th>
-            <th>วันครบกำหนด</th>
-            <th>จัดการ</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>John</td>
-            <td>Doe</td>
-            <td>john@example.com</td>
-            <td>Doe</td>
-            <td>Doe</td>
-            <td><i class="fa-regular fa-file"></i><span> </span><i class="fa-solid fa-circle-down"></i></td>
-        </tr>
-        <tr>
-            <td>John</td>
-            <td>Doe</td>
-            <td>john@example.com</td>
-            <td>Doe</td>
-            <td>Doe</td>
-            <td><i class="fa-regular fa-file"></i><span> </span><i class="fa-solid fa-circle-down"></i></td>
-        </tr>
-        </tbody>
-    </table>
+<div class="list" style="margin-left: 20px; margin-top: 20px;">
+    <div class="each-list">
+        <label for="" class="list-item"><a href="">ในรายการลิสต์จะแสดงเฉพาะชื่อรายการที่ผู้ใช้เลือกแสดงได้ 1ฟิลด์ เท่านั้น</a></label>
+    </div>
+    <div class="each-list">
+        <label for="" class="list-item"><a href="">รายงานการใช้จ่ายประจำปี 2024</a></label>
+    </div>
+    <div class="each-list">
+        <label for="" class="list-item"><a href="">รายงานการสมัครงานประจำเดือนมกราคม 2025</a></label>
+    </div>
 </div>
 
 
@@ -320,3 +316,4 @@ $this->title='Each Work';
 
     });
 </script>
+

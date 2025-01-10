@@ -2,6 +2,9 @@
 
 use yii\helpers\Html;
 
+$username = isset($this->params['username']) ? $this->params['username'] : 'Guest';
+$department = isset($this->params['department']) ? $this->params['department'] : 'บุคคลภายนอก';
+
 ?>
 
 <!DOCTYPE html>
@@ -13,6 +16,7 @@ use yii\helpers\Html;
     <title><?= Html::encode($this->title) ?></title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -163,17 +167,20 @@ use yii\helpers\Html;
         <div class="col-sm-2 sidenav" style="background-color:#55AD9B;">
             <a class="logo"><i class="fa-solid fa-briefcase"></i></a>
             <div class="user-info">
-                <p class="nav-fonts">ชื่อ ธนพล</p>
-                <p class="nav-fonts">แผนก ABC</p>
+                <p class="nav-fonts"><?= htmlspecialchars($username)?></p>
+                <p class="nav-fonts">แผนก <?= htmlspecialchars($department)?></p>
             </div>
             <ul class="nav nav-pills nav-stacked">
-                <li class="actived"><a href="#" class="nav-fonts">งาน<i class="fa-regular fa-clipboard" style="margin-left: 10px;"></i></a></li>
-                <li><a href="#" class="nav-fonts">สร้างฟอร์ม<i class="fa-regular fa-folder-open" style="margin-left: 10px;"></i></a></li>
-                <li><a href="#" class="nav-fonts">งานที่มอบหมาย<i class="fa-solid fa-paper-plane" style="margin-left: 10px;"></i></a></li>
-                <li><a href="#" class="nav-fonts">เพิ่มงาน<i class="fa-solid fa-circle-plus" style="margin-left: 10px;"></i></a></li>
+                <li class="actived"><a href="#" class="nav-fonts"><i class="fa-regular fa-clipboard" style="margin-right: 10px;"></i>งาน</a></li>
+                <li><a href="#" class="nav-fonts"><i class="fa-regular fa-folder-open" style="margin-right: 10px;"></i>สร้างฟอร์ม</a></li>
+                <li><a href="#" class="nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>งานที่มอบหมาย</a></li>
+                <li><a href="#" class="nav-fonts"><i class="fa-solid fa-circle-plus" style="margin-right: 10px;"></i>เพิ่มงาน</a></li>
             </ul>
             <div class="logout">
-                <button type="submit" style="background: none; border: none"><i class="fa-solid fa-power-off"></i></button>
+                <?= Html::a(
+                        '<button type="submit" style="background: none; border: none"><i class="fa-solid fa-power-off" style="color: #cc5555"></i></button>',
+                    ['home']
+                ) ?>
 
             </div>
         </div>
@@ -183,5 +190,17 @@ use yii\helpers\Html;
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function() {
+        // เมื่อคลิกที่เมนู
+        $('.nav-pills li a').click(function() {
+            // ลบคลาส active จากเมนูทั้งหมด
+            $('.nav-pills li').removeClass('actived');
+
+            // เพิ่มคลาส active ไปยังเมนูที่ถูกคลิก
+            $(this).parent().addClass('actived');
+        });
+    });
+</script>
 </body>
 </html>

@@ -52,4 +52,10 @@ class Department extends \yii\db\ActiveRecord
     {
         return new DepartmentQuery(get_called_class());
     }
+
+    public function getUsers()
+    {
+        return $this->hasMany(User::class, ['department' => 'id']);
+    }
+
 }

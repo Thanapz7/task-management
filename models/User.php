@@ -100,5 +100,10 @@ class User extends ActiveRecord implements IdentityInterface
         return $this->_password;
     }
 
+    public function getDepartment()
+    {
+        return $this->hasone(Department::className(), ['id' => 'department']);
+    }
+
 }
 

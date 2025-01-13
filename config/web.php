@@ -57,11 +57,17 @@ $config = [
         'view' => [
             'class' => 'yii\web\View',
             'on beforeRender' => function($event) {
-                $user = Yii::$app->user->identity;
-                $username = $user->username;
-                $department = $user->department;
-                Yii::$app->view->params['username'] = $username;
-                Yii::$app->view->params['department'] = $department;
+                if (!Yii::$app->user->isGuest) {
+                    $user = Yii::$app->user->identity;
+                    $username = $user->username;
+                    $department = $user->department;
+                    Yii::$app->view->params['username'] = $username;
+                    Yii::$app->view->params['department'] = $department;
+                } else {
+                    // Default values for guests
+                    Yii::$app->view->params['username'] = 'Guest';
+                    Yii::$app->view->params['department'] = 'Guest';
+                }
             }
         ]
 

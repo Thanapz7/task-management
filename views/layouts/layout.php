@@ -168,7 +168,19 @@ $department = isset($this->params['department']) ? $this->params['department'] :
             <a class="logo"><i class="fa-solid fa-briefcase"></i></a>
             <div class="user-info">
                 <p class="nav-fonts"><?= htmlspecialchars($username)?></p>
-                <p class="nav-fonts">แผนก <?= htmlspecialchars($department)?></p>
+                <p class="nav-fonts">แผนก
+                    <?php
+                    if ($department == 1) {
+                        echo 'Sale';
+                    } elseif ($department == 2) {
+                        echo 'DDS';
+                    } elseif ($department == 3) {
+                        echo 'HR';
+                    }else{
+                        echo 'บุคคลภายนอก';
+                    }
+                    ?>
+                </p>
             </div>
             <ul class="nav nav-pills nav-stacked">
                 <li class="actived"><a href="#" class="nav-fonts"><i class="fa-regular fa-clipboard" style="margin-right: 10px;"></i>งาน</a></li>

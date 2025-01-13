@@ -1,12 +1,23 @@
 <?php
 use app\assets\AppAsset;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
 AppAsset::register($this);
 ?>
 <style>
     body {
         background-color: #cccccc;
-        color: white;
+        color: #000000;
         font-family: "Noto Sans Thai", serif;
+    }
+    .forgot-pass{
+        text-decoration: underline;
+        font-size: 16px;
+        color: #656565cc;
+        cursor: pointer;
+    }
+    .forgot-pass:hover{
+        color: #cc5555;
     }
 </style>
 <div class="container-fluid">
@@ -17,23 +28,27 @@ AppAsset::register($this);
         </div>
         <div class="col-md-1 divider"></div>
         <div class="col-md-5 login">
+            <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
             <form class="login-form">
                 <h2 class="logo"><i class="fa-solid fa-briefcase"></i></h2>
                 <div class="form-group w-100">
-                    <label for="email">ชื่อผู้ใช้ หรือ อีเมล <span class="needed">*</span></label>
-                    <input type="email" class="form-control" id="email" placeholder="ชื่อผู้ใช้ หรือ อีเมล">
+                    <?= $form->field($model, 'username', [
+                        'inputOptions' => ['placeholder' => 'ชื่อผู้ใช้ หรือ อีเมล', 'class' => 'form-control']
+                    ])
+                        ->textInput(['autofocus' => true])
+                    ?>
                 </div>
                 <br>
                 <div class="form-group w-100 password-input">
-                    <label for="password">รหัสผ่าน <span class="needed">*</span></label>
-                    <input type="password" class="form-control" id="password" placeholder="รหัสผ่าน">
+                    <?= $form->field($model, 'password')->passwordInput() ?>
                     <i class="fa-solid fa-eye-slash login-eye"></i>
                 </div>
                 <div class="form-group w-100 forgot-pass">
-                    <p>ลืมรหัสผ่าน</p>
+                    <?= Html::a('ลืมรหัสผ่าน', ['./user'],['class'=>'forgot-pass']) ?>
                 </div>
-                <button type="submit" class="btn btn-custom">เข้าสู่ระบบ</button>
+                <?= Html::submitButton('Login', ['class' => 'btn btn-custom', 'name'=>'login-button']) ?>
             </form>
+            <?php ActiveForm::end(); ?>
         </div>
     </div>
 </div>

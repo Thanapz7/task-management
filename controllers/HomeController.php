@@ -43,10 +43,21 @@ class HomeController extends Controller
         return $this->render('add-form');
     }
 
-    public function actionLogin2()
+    public function actionIndex()
     {
         $this->layout = 'blank';
-        return $this->render('login2');
+        $model = new LoginForm();
+
+        // ตรวจสอบการกรอกข้อมูลจากฟอร์ม
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            // ถ้าล็อกอินสำเร็จ, ไปที่หน้า home/home
+            return $this->redirect(['home/work']);
+        }
+
+        // หากไม่สำเร็จ, กลับไปที่หน้า login
+        return $this->render('login2', [
+            'model' => $model,
+        ]);
     }
 
     public function actionEachWork()
@@ -67,7 +78,7 @@ class HomeController extends Controller
         return $this->render('form-setting');
     }
 
-    public function actionIndex()
+    public function actionLogin()
     {
         $model = new LoginForm();
 

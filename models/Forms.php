@@ -58,4 +58,19 @@ class Forms extends \yii\db\ActiveRecord
     {
         return new FormsQuery(get_called_class());
     }
+
+    public function getRecords()
+    {
+        return $this->hasMany(Records::className(), ['form_id' => 'id']);
+    }
+
+    public function getFields()
+    {
+        return $this->hasMany(Fields::className(), ['form_id' => 'id']);
+    }
+
+    public function getUsers()
+    {
+        return $this-> hasOne(User::className(), ['id' => 'user_id']);
+    }
 }

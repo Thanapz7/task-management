@@ -102,8 +102,17 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getDepartment()
     {
-        return $this->hasone(Department::className(), ['id' => 'department']);
+        return $this->hasOne(Department::className(), ['id' => 'department']);
     }
 
+    public function getRecords()
+    {
+        return $this->hasMany(Records::className(), ['user_id' => 'id']);
+    }
+
+    public function getForms()
+    {
+        return $this->hasMany(Forms::className(), ['user_id' => 'id']);
+    }
 }
 

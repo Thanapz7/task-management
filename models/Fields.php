@@ -63,6 +63,6 @@ class Fields extends \yii\db\ActiveRecord
 
     public function getFieldValues()
     {
-        return $this->hasMany(FieldValues::className(), ['field_id' => 'id']);
+        return $this->hasOne(FieldValues::className(), ['field_id' => 'id']);
     }
 }

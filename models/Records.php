@@ -57,4 +57,9 @@ class Records extends \yii\db\ActiveRecord
     {
         return new RecordsQuery(get_called_class());
     }
+
+    public function getFields()
+    {
+        return $this->hasMany(Fields::class, ['form_id' => 'id']);
+    }
 }

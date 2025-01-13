@@ -2,9 +2,12 @@
 
 namespace app\controllers;
 
+use app\models\Forms;
 use app\models\LoginForm;
+use app\models\User;
 use Yii;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 
 class HomeController extends Controller
 {
@@ -16,7 +19,20 @@ class HomeController extends Controller
     public function actionWork()
     {
         $this->layout = 'layout';
-        return $this->render('work');
+
+        // ตรวจสอบว่าผู้ใช้ล็อกอินหรือไม่
+        $user = Yii::$app->user->identity;
+        $departmentName = $user->department;
+
+        // ดึงข้อมูลของผู้ใช้ที่ล็อกอิน พร้อมข้อมูล Forms และ Department ที่เกี่ยวข้อง
+        $data = User::find()
+            ->joinWith(['forms', 'department']) // ความสัมพันธ์ต้องกำหนดในโมเดล User
+            ->select(['users.id', 'forms.form_name', 'department.department_name']) // เลือกเฉพาะฟิลด์ที่ต้องการ
+            ->where(['department.id' => $departmentName])
+            ->asArray()
+            ->all();
+
+        return $this->render('work', ['data' => $data]);
     }
 
     public function actionEachWorkList()

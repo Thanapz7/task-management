@@ -54,6 +54,6 @@ class Department extends \yii\db\ActiveRecord
     }
     public function getUser()
     {
-        return $this->hasOne(User::class, ['id' => 'id']);
+        return $this->hasOne(User::class, ['department' => 'id']);
     }
 }

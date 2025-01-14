@@ -30,19 +30,19 @@ $this->title='Add Forms';
     </div>
     <?php endforeach; ?>
 
-    <div class="col-sm-3 folder" style="cursor: pointer">
-        <form method="post" action="<?= \yii\helpers\Url::to(['home/add-form']) ?>">
-            <?= \yii\helpers\Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->getCsrfToken()) ?>
-            <div style="margin: 10px">
-                <button type="submit" name="createForm" style="border:none; background-color: white;">
-                    <div class="folder-head-add">
-                        <i class="fa-solid fa-folder-plus"></i>
-                        <h5>สร้างฟอร์ม</h5>
-                    </div>
-                </button>
+    <form method="post" action="<?= \yii\helpers\Url::to(['home/add-form']) ?>">
+        <?= \yii\helpers\Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->getCsrfToken()) ?>
+        <button type="submit" name="createForm" style="border:none; background-color: white;">
+            <div class="col-sm-3 folder" style="cursor: pointer">
+                <div style="margin: 10px">
+                        <div class="folder-head-add">
+                            <i class="fa-solid fa-folder-plus"></i>
+                            <h5>สร้างฟอร์ม</h5>
+                        </div>
+                </div>
             </div>
-        </form>
-    </div>
+        </button>
+    </form>
 
 </div>
 <!--<div class="group-btn">-->

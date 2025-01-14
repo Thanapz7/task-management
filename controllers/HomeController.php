@@ -11,6 +11,7 @@ use yii\web\ForbiddenHttpException;
 
 class HomeController extends Controller
 {
+
     public function actionHome()
     {
         return $this->render('home');
@@ -33,6 +34,14 @@ class HomeController extends Controller
             ->all();
 
         return $this->render('work', ['data' => $data]);
+    }
+
+    public function actionWorkDetailPreview() //id
+    {
+        $this->layout = 'blank_page';
+        return $this->render('work-detail-preview', [
+
+        ]);
     }
 
     public function actionEachWorkList()
@@ -118,6 +127,7 @@ class HomeController extends Controller
         return $this->redirect(['home/add-form']);
     }
 
+    //Login
     public function actionIndex()
     {
         $this->layout = 'blank';
@@ -147,6 +157,30 @@ class HomeController extends Controller
     {
         $this->layout = 'blank_page';
         return $this->render('form-setting');
+    }
+
+    public function actionAssigned()
+    {
+        $this->layout = 'layout';
+
+        $user = Yii::$app->user->identity;
+
+        return $this->render('assigned',[
+            'user' => $user]);
+    }
+
+    public function actionAssignment()
+    {
+        $this->layout = 'layout';
+        return $this->render('assignment');
+    }
+
+    public function actionAssignmentForm()
+    {
+        $this->layout = 'layout';
+        return $this->render('assignment-form',[
+
+        ]);
     }
 
     public function actionLogin()

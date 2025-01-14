@@ -303,7 +303,7 @@ $this->title='Each Work';
             <td>john@example.com</td>
             <td>Doe</td>
             <td>Doe</td>
-            <td><i class="fa-regular fa-file"></i><span> </span><i class="fa-solid fa-circle-down"></i></td>
+            <td> <?= Html::a('<i class="fa-regular fa-file"></i>',['work-detail-preview']) ?><span> </span><i class="fa-solid fa-circle-down"></i></td>
         </tr>
         <tr>
             <td>John</td>

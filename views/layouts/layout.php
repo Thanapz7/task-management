@@ -44,6 +44,10 @@ $department = isset($this->params['department']) ? $this->params['department'] :
             color: #FF1317;
             margin-top: 200px;
             cursor: pointer;
+            transition: 0.3s;
+        }
+        .logout:hover{
+            transform: scale(1.3);
         }
         .text-header{
             font-size: 30px;
@@ -187,22 +191,26 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                 </p>
             </div>
             <ul class="nav nav-pills nav-stacked">
-                <li><a href="<?= Yii::$app->urlManager->createUrl(['home/work']) ?>" class="nav-fonts"><i class="fa-regular fa-clipboard" style="margin-right: 10px;"></i>งาน</a></li>
-                <li><a href="<?= Yii::$app->urlManager->createUrl(['home/add-form']) ?>" class="nav-fonts"><i class="fa-regular fa-folder-open" style="margin-right: 10px;"></i>สร้างฟอร์ม</a></li>
-                <li><a href="<?= Yii::$app->urlManager->createUrl(['home']) ?>" class="nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>งานที่มอบหมาย</a></li>
-                <li><a href="<?= Yii::$app->urlManager->createUrl(['home']) ?>" class="nav-fonts"><i class="fa-solid fa-circle-plus" style="margin-right: 10px;"></i>เพิ่มงาน</a></li>
+                <?php if (!Yii::$app->user->isGuest): ?>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['home/work']) ?>" class="nav-fonts"><i class="fa-regular fa-clipboard" style="margin-right: 10px;"></i>งาน</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['home/add-form']) ?>" class="nav-fonts"><i class="fa-regular fa-folder-open" style="margin-right: 10px;"></i>สร้างฟอร์ม</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['home/assigned']) ?>" class="nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>งานที่มอบหมาย</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>" class="nav-fonts"><i class="fa-solid fa-circle-plus" style="margin-right: 10px;"></i>เพิ่มงาน</a></li>
+                <?php else: ?>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>" class="nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>จ้างงาน</a></li>
+                <?php endif; ?>
             </ul>
             <div class="logout">
                 <?= Html::a(
                     '<button type="submit" style="background: none; border: none">
-            <i class="fa-solid fa-power-off" style="color: #cc5555"></i>
-        </button>',
-                    ['logout'],
-                    [
-                        'data-method' => 'post',
-                        'data-confirm' => 'Are you sure you want to logout?',
-                        'class' => 'logout-link',
-                    ]
+                         <i class="fa-solid fa-power-off" style="color: #cc5555"></i>
+                    </button>',
+                            ['logout'],
+                            [
+                                'data-method' => 'post',
+                                'data-confirm' => 'Are you sure you want to logout?',
+                                'class' => 'logout-link',
+                            ]
                 ) ?>
             </div>
 

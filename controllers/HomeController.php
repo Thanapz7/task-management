@@ -6,7 +6,6 @@ use app\models\Forms;
 use app\models\LoginForm;
 use app\models\User;
 use Yii;
-use yii\db\Query;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 
@@ -33,36 +32,7 @@ class HomeController extends Controller
             ->asArray()
             ->all();
 
-        return $this->render('work', [
-            'data' => $data
-        ]);
-    }
-
-    public function actionWorkDetail($id)
-    {
-        $this->layout = 'layout';
-
-        $form = Forms::findOne($id);
-
-        $query = (new Query())
-            ->select([
-                'records.id',
-                'records.user_id',
-                'fields.form_id',
-                'fields.field_name',
-                'field_values.value'
-            ])
-            ->from('records')
-            ->innerJoin('fields', 'records.id = fields.form_id')
-            ->innerJoin('field_values', 'field_values.id = fields.id')
-            ->where(['records.id' => $id]);
-
-        $result = $query->all();
-
-        return $this->render('work-detail', [
-            'form' => $form,
-            'result' => $result,
-        ]);
+        return $this->render('work', ['data' => $data]);
     }
 
     public function actionEachWorkList()
@@ -85,8 +55,67 @@ class HomeController extends Controller
 
     public function actionAddForm()
     {
+        if (Yii::$app->request->isPost) {
+            // สร้างฟอร์มใหม่
+            $model = new Forms();
+            $model->form_name = 'form1'; // ชื่อฟอร์มค่าเริ่มต้น
+            $model->user_id = Yii::$app->user->id; // ID ผู้ใช้ปัจจุบัน
+            $model->create_at = date('Y-m-d H:i:s'); // เวลาที่สร้าง
+            $model->update_at = date('Y-m-d H:i:s'); // เวลาที่อัปเดต
+
+            // บันทึกฟอร์มใหม่
+            if ($model->save()) {
+                // รีไดเรกต์ไปยังหน้า create-form พร้อม id
+                return $this->redirect(['home/create-form', 'id' => $model->id]);
+            }
+
+            // หากบันทึกไม่สำเร็จ ให้แสดงข้อความผิดพลาด
+            Yii::$app->session->setFlash('error', 'ไม่สามารถสร้างฟอร์มได้');
+            return $this->redirect(Yii::$app->request->referrer);
+        }
+
+        // โหลดฟอร์มที่มีอยู่
+        $forms = Forms::find()
+            ->select(['forms.*', 'users.department'])
+            ->joinWith('users')
+            ->where(['forms.id' => [1, 2, 3]])
+            ->all();
+
         $this->layout = 'layout';
-        return $this->render('add-form');
+
+        return $this->render('add-form', [
+            'forms' => $forms,
+        ]);
+    }
+
+
+    public function actionCreateForm($id)
+    {
+        $form = Forms::findOne($id);
+
+        if (!$form) {
+            throw new \yii\web\NotFoundHttpException('Form not found.');
+        }
+
+        $this->layout = 'blank_page';
+        return $this->render('create-form', [
+            'form' => $form,
+        ]);
+    }
+
+    public function actionDeleteForm($id)
+    {
+        $form = Forms::findOne($id);
+
+        if (!$form) {
+            throw new \yii\web\NotFoundHttpException('Form not found.');
+        }
+        if($form->delete()){
+            Yii::$app->session->setFlash('success', 'ลบฟอร์มเรียบร้อย');
+        } else {
+            Yii::$app->session->setFlash('error', 'ไม่สามารถลบฟอร์มได้');
+        }
+        return $this->redirect(['home/add-form']);
     }
 
     public function actionIndex()
@@ -112,17 +141,7 @@ class HomeController extends Controller
         return $this->render('each-work');
     }
 
-    public function actionPreviewTemplate()
-    {
-        $this->layout = 'layout';
-        return $this->render('preview-template');
-    }
 
-    public function actionCreateForm()
-    {
-        $this->layout = 'blank_page';
-        return $this->render('create-form');
-    }
 
     public function actionFormSetting()
     {
@@ -144,12 +163,6 @@ class HomeController extends Controller
         return $this->render('login', [
             'model' => $model,
         ]);
-    }
-
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
-        return $this->redirect(['./home']);
     }
 
 }

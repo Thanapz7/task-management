@@ -1,5 +1,7 @@
 <?php
 $this->title = 'Create Form';
+/** @var yii\web\View $this */
+/** @var app\models\Forms $form */
 ?>
 <style>
     label{
@@ -107,7 +109,14 @@ $this->title = 'Create Form';
     }
 
 </style>
-<i class="fa-solid fa-arrow-left back-icon"></i>
+<div>
+    <form method="post" action="<?= \yii\helpers\Url::to(['home/delete-form', 'id'=>$form->id])?>">
+        <?= \yii\helpers\Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->getCsrfToken()) ?>
+        <button type="submit" style="background: none; border: none">
+            <i class="fa-solid fa-arrow-left back-icon"></i>
+        </button>
+    </form>
+</div>
 <div class="row" style="margin: 13px">
     <div class="col-md-3 data-type">
         <h4 class="text-center" style="font-size: 20px; font-weight: bold">ประเภทของข้อมูล</h4>

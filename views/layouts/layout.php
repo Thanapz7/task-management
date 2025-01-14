@@ -10,7 +10,6 @@ $department = isset($this->params['department']) ? $this->params['department'] :
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Bootstrap Example</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= Html::encode($this->title) ?></title>
@@ -56,16 +55,20 @@ $department = isset($this->params['department']) ? $this->params['department'] :
             padding: 10px;
             border: 1px solid #cccccc;
             border-radius: 15px;
-            width:210px;
-            height: 110px;
+            width:240px;
+            height: 130px;
             margin:25px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
         }
         .folder:hover{
             background-color: #B7E0FF;
         }
         .folders{
             margin: 30px;
+        }
+        .folder-head i{
+            color: #95D2B3;
         }
         .folder-head-add{
             display: flex;
@@ -75,6 +78,7 @@ $department = isset($this->params['department']) ? $this->params['department'] :
         }
         .folder-head-add i{
             font-size: 30px;
+            color: #95D2B3;
         }
         .folder-head-add h5{
             font-size: 19px;
@@ -138,7 +142,7 @@ $department = isset($this->params['department']) ? $this->params['department'] :
             margin: 5px;
         }
         .btn-d:hover{
-            opacity: 0.9;
+            opacity: 0.7;
         }
         .btn-show{
             background-color: #F0B754;
@@ -183,18 +187,25 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                 </p>
             </div>
             <ul class="nav nav-pills nav-stacked">
-                <li class="actived"><a href="#" class="nav-fonts"><i class="fa-regular fa-clipboard" style="margin-right: 10px;"></i>งาน</a></li>
-                <li><a href="#" class="nav-fonts"><i class="fa-regular fa-folder-open" style="margin-right: 10px;"></i>สร้างฟอร์ม</a></li>
-                <li><a href="#" class="nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>งานที่มอบหมาย</a></li>
-                <li><a href="#" class="nav-fonts"><i class="fa-solid fa-circle-plus" style="margin-right: 10px;"></i>เพิ่มงาน</a></li>
+                <li><a href="<?= Yii::$app->urlManager->createUrl(['home/work']) ?>" class="nav-fonts"><i class="fa-regular fa-clipboard" style="margin-right: 10px;"></i>งาน</a></li>
+                <li><a href="<?= Yii::$app->urlManager->createUrl(['home/add-form']) ?>" class="nav-fonts"><i class="fa-regular fa-folder-open" style="margin-right: 10px;"></i>สร้างฟอร์ม</a></li>
+                <li><a href="<?= Yii::$app->urlManager->createUrl(['home']) ?>" class="nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>งานที่มอบหมาย</a></li>
+                <li><a href="<?= Yii::$app->urlManager->createUrl(['home']) ?>" class="nav-fonts"><i class="fa-solid fa-circle-plus" style="margin-right: 10px;"></i>เพิ่มงาน</a></li>
             </ul>
             <div class="logout">
                 <?= Html::a(
-                        '<button type="submit" style="background: none; border: none"><i class="fa-solid fa-power-off" style="color: #cc5555"></i></button>',
-                    ['home']
+                    '<button type="submit" style="background: none; border: none">
+            <i class="fa-solid fa-power-off" style="color: #cc5555"></i>
+        </button>',
+                    ['logout'],
+                    [
+                        'data-method' => 'post',
+                        'data-confirm' => 'Are you sure you want to logout?',
+                        'class' => 'logout-link',
+                    ]
                 ) ?>
-
             </div>
+
         </div>
 
         <div class="col-sm-10">

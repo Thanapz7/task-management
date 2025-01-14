@@ -37,6 +37,7 @@
         }
         .login {
             background-color: #ffffff;
+            box-shadow: 0 5px 5px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -53,7 +54,9 @@
             color: #000000;
         }
         .form-group label{
-            font-size: 20px;
+            font-size: 18px;
+            color: #343a40;
+
         }
         .needed{
             color: #FF1317;
@@ -86,7 +89,8 @@
         .login-eye {
             position: absolute;
             right: 10px;
-            top: 48px;
+            top: 43px;
+            font-size: 16px;
             color: #656565cc;
             cursor: pointer;
         }

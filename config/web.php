@@ -20,7 +20,7 @@ $config = [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
+            'identityClass' => 'app\models\Users',
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
@@ -48,10 +48,10 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                // กฎการกำหนด URL ที่เป็นมิตร
-                'user/update/<id:\d+>' => 'user/update',
-//                'user/view/<id:\d+>' => 'user/view',
-                'user/view-all' => 'user/view-all',
+//                // กฎการกำหนด URL ที่เป็นมิตร
+//                'user/update/<id:\d+>' => 'user/update',
+////                'user/view/<id:\d+>' => 'user/view',
+//                'user/view-all' => 'user/view-all',
             ],
         ],
         'view' => [

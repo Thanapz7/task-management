@@ -32,10 +32,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'user_id',
             'form_name',
-            'department_id',
-            'view_id',
-            //'create_at',
-            //'update_at',
+            'create_at',
+            'update_at',
             [
                 'class' => ActionColumn::className(),
                 'urlCreator' => function ($action, Forms $model, $key, $index, $column) {

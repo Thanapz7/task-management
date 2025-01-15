@@ -4,7 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
-use app\models\User;  // ใช้ User model สำหรับการดึงข้อมูลจากฐานข้อมูล
+use app\models\Users;  // ใช้ Users model สำหรับการดึงข้อมูลจากฐานข้อมูล
 
 class LoginForm extends Model
 {
@@ -37,7 +37,7 @@ class LoginForm extends Model
     public function getUser()
     {
         if ($this->_user === false) {
-            $this->_user = User::findOne(['username' => $this->username]);
+            $this->_user = Users::findOne(['username' => $this->username]);
         }
 
         return $this->_user;

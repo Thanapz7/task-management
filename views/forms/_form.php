@@ -16,10 +16,6 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'form_name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'department_id')->textInput() ?>
-
-    <?= $form->field($model, 'view_id')->textInput() ?>
-
     <?= $form->field($model, 'create_at')->textInput() ?>
 
     <?= $form->field($model, 'update_at')->textInput() ?>

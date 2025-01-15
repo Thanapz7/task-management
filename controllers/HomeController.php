@@ -5,7 +5,7 @@ namespace app\controllers;
 use app\models\Forms;
 use app\models\LoginForm;
 use app\models\Records;
-use app\models\User;
+use app\models\Users;
 use Yii;
 use yii\db\Query;
 use yii\web\Controller;
@@ -29,7 +29,7 @@ class HomeController extends Controller
         $departmentName = $user->department;
 
         // ดึงข้อมูลของผู้ใช้ที่ล็อกอิน พร้อมข้อมูล Forms และ Department ที่เกี่ยวข้อง
-        $data = User::find()
+        $data = Users::find()
             ->joinWith(['forms', 'department']) // ความสัมพันธ์ต้องกำหนดในโมเดล User
             ->select(['users.id', 'forms.form_name', 'department.department_name']) // เลือกเฉพาะฟิลด์ที่ต้องการ
             ->where(['department.id' => $departmentName])

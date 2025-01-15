@@ -9,6 +9,7 @@ use Yii;
 use yii\db\Query;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
+use yii\web\View;
 
 class HomeController extends Controller
 {
@@ -37,7 +38,7 @@ class HomeController extends Controller
         return $this->render('work', ['data' => $data]);
     }
 
-    public function actionWorkDetail($id)
+    public function actionWorkDetail($id, $viewType = 'table')
     {
         $this->layout = 'layout';
 
@@ -61,6 +62,7 @@ class HomeController extends Controller
         return $this->render('work-detail', [
             'form' => $form,
             'result' => $result,
+            'viewType' => $viewType,
         ]);
     }
 
@@ -70,24 +72,6 @@ class HomeController extends Controller
         return $this->render('work-detail-preview', [
 
         ]);
-    }
-
-    public function actionEachWorkList()
-    {
-        $this->layout = 'layout';
-        return $this->render('each-work-list');
-    }
-
-    public function actionEachWorkGallery()
-    {
-        $this->layout = 'layout';
-        return $this->render('each-work-gallery');
-    }
-
-    public function actionEachWorkCalendar()
-    {
-        $this->layout = 'layout';
-        return $this->render('each-work-calendar');
     }
 
     public function actionAddForm()
@@ -172,14 +156,6 @@ class HomeController extends Controller
             'model' => $model,
         ]);
     }
-
-    public function actionEachWork()
-    {
-        $this->layout = 'layout';
-        return $this->render('each-work');
-    }
-
-
 
     public function actionFormSetting()
     {

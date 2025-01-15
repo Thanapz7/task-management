@@ -10,6 +10,62 @@ $this->title='Each Work';
 ?>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            },
+            navLinks: true, // คลิกเพื่อดูวัน/สัปดาห์
+            editable: true, // ลากเหตุการณ์ได้
+            selectable: true, // เลือกวันได้
+            eventLimit: true, // แสดงข้อความ "more" เมื่อมีหลายเหตุการณ์ในวันเดียวกัน
+            events: [
+                {
+                    title: 'ประชุมทีม',
+                    start: '2025-01-10T10:00:00',
+                    end: '2025-01-10T12:00:00',
+                    color: '#007bff', // สีน้ำเงิน
+                    description: 'ประชุมทีมเพื่อเตรียมงานโครงการใหม่'
+                },
+                {
+                    title: 'วันหยุดราชการ',
+                    start: '2025-01-13',
+                    end: '2025-01-14',
+                    color: '#28a745', // สีเขียว
+                    description: 'วันหยุดนักขัตฤกษ์'
+                },
+                {
+                    title: 'เดินทางไปพบลูกค้า',
+                    start: '2025-01-16T09:00:00',
+                    end: '2025-01-16T17:00:00',
+                    color: '#ffc107', // สีเหลือง
+                    description: 'เดินทางไปเสนอโปรเจกต์ให้กับลูกค้า'
+                },
+                {
+                    title: 'งานเลี้ยงปีใหม่',
+                    start: '2025-01-20T18:00:00',
+                    color: '#dc3545', // สีแดง
+                    description: 'จัดงานเลี้ยงบริษัทที่โรงแรมใหญ่'
+                },
+            ],
+            eventClick: function(info) {
+                alert(
+                    'เหตุการณ์: ' + info.event.title + '\n' +
+                    'รายละเอียด: ' + (info.event.extendedProps.description || 'ไม่มีรายละเอียด') + '\n' +
+                    'เวลาเริ่มต้น: ' + info.event.start.toISOString()
+                );
+            }
+        });
+        calendar.render();
+    });
+</script>
 <style>
     .back-btn{
         margin-left: 20px;
@@ -149,6 +205,65 @@ $this->title='Each Work';
     table th, table td {
         border: 1px solid #ddd; /* กำหนดขอบของ cell */
     }
+    .display-area{
+        margin-top: 25px;
+    }
+    .each-list{
+        padding: 5px;
+        border-bottom: 1px solid #cccccc;
+    }
+    .list-item{
+        font-size: 18px;
+    }
+    .list-item a{
+        color: #000000;
+        transition: 0.3s;
+    }
+    .list-item a:hover{
+        text-decoration: none;
+        background-color: rgba(109, 178, 229, 0.27);
+        padding: 10px;
+        border-radius: 20px;
+    }
+    .gallery-item{
+        font-size: 16px;
+        padding: 20px;
+        margin: 10px;
+        /*margin-right: 20px;*/
+        /*margin-bottom: 20px;*/
+        border: 1px solid #cccccc;
+        border-radius: 20px;
+    }
+    .gallery a,
+    .gallery .gallery-item:hover{
+        color: #000000;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+    .gallery a:hover ,
+    .gallery .gallery-item:hover{
+        background-color: rgba(109, 178, 229, 0.27);
+        transform: scale(1.1);
+    }
+    #calendar {
+        max-width: 90%; /* กำหนดความกว้าง */
+        height: 400px;    /* กำหนดความสูง */
+        margin: 0 auto;   /* จัดกึ่งกลาง */
+        font-size: 0.8em; /* ลดขนาดฟอนต์ */
+    }
+    .fc .fc-button-primary{
+        background-color: #55AD9B;
+        border: none;
+    }
+    .fc .fc-button-primary:hover{
+        background-color: #0c5460;
+    }
+    .fc .fc-button-primary:not(:disabled).fc-button-active, .fc .fc-button-primary:not(:disabled):active{
+        background-color: #0c5460;
+    }
+    .fc .fc-button-primary:disabled{
+        background-color: rgba(85, 173, 155, 0.64);
+    }
 </style>
 
 <?= Html::button('<i class="fa-solid fa-arrow-left back-btn"></i>', [
@@ -253,70 +368,101 @@ $this->title='Each Work';
     </div>
     <div class="btn-group" style="margin-left: 10px;">
         <button class="btn btn-default btn-sort dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fa-solid fa-bars"></i> รูปแบบการแสดงผล
-            <span class="caret"></span>
+            <i class="fa-solid fa-bars"></i> รูปแบบการแสดงผล<span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-            <li>
-                <a href="">
-                    <i class="fa-solid fa-table" style="margin-right: 5px;"></i>
-                    ตาราง
-                </a>
-            </li>
-            <li>
-                <a href="">
-                    <i class="fa-solid fa-list" style="margin-right: 5px;"></i>
-                    ลิสต์
-                </a>
-            </li>
-            <li>
-                <a href="">
-                    <i class="fa-regular fa-rectangle-list" style="margin-right: 5px;"></i>
-                    แกลเลอรี่
-                </a>
-            </li>
-            <li>
-                <a href="">
-                    <i class="fa-regular fa-calendar-days" style="margin-right: 5px;"></i>
-                    ปฏิทิน
-                </a>
-            </li>
+            <li><?= Html::a('<i class="fa-solid fa-table" style="margin-right: 5px;"></i> ตาราง',['home/work-detail', 'id'=>$form->id, 'viewType'=>'table']) ?></li>
+            <li><?= Html::a('<i class="fa-solid fa-list" style="margin-right: 5px;"></i> ลิสต์',['home/work-detail', 'id'=>$form->id, 'viewType'=>'list']) ?></li>
+            <li><?= Html::a('<i class="fa-regular fa-rectangle-list" style="margin-right: 5px;"></i> แกลเลอรี่',['home/work-detail', 'id'=>$form->id, 'viewType'=>'gallery']) ?></li>
+            <li><?= Html::a('<i class="fa-regular fa-calendar-days" style="margin-right: 5px;"></i> ปฏิทิน',['home/work-detail', 'id'=>$form->id, 'viewType'=>'calendar']) ?></li>
         </ul>
     </div>
 </div>
-<div class="grid" style="margin-left: 20px; margin-top: 20px;">
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>วันที่มอบหมาย</th>
-            <th>ผู้มอบหมาย</th>
-            <th>ชื่องาน</th>
-            <th>ราละเอียด</th>
-            <th>วันครบกำหนด</th>
-            <th>จัดการ</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>John</td>
-            <td>Doe</td>
-            <td>john@example.com</td>
-            <td>Doe</td>
-            <td>Doe</td>
-            <td> <?= Html::a('<i class="fa-regular fa-file"></i>',['work-detail-preview']) ?><span> </span><i class="fa-solid fa-circle-down"></i></td>
-        </tr>
-        <tr>
-            <td>John</td>
-            <td>Doe</td>
-            <td>john@example.com</td>
-            <td>Doe</td>
-            <td>Doe</td>
-            <td><i class="fa-regular fa-file"></i><span> </span><i class="fa-solid fa-circle-down"></i></td>
-        </tr>
-        </tbody>
-    </table>
+<div class="display-area">
+    <?php if($viewType === 'table'): ?>
+    <div class="grid" style="margin-left: 20px; margin-top: 20px;">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>วันที่มอบหมาย</th>
+                <th>ผู้มอบหมาย</th>
+                <th>ชื่องาน</th>
+                <th>ราละเอียด</th>
+                <th>วันครบกำหนด</th>
+                <th>จัดการ</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>John</td>
+                <td>Doe</td>
+                <td>john@example.com</td>
+                <td>Doe</td>
+                <td>Doe</td>
+                <td> <?= Html::a('<i class="fa-regular fa-file"></i>',['work-detail-preview']) ?><span> </span><i class="fa-solid fa-circle-down"></i></td>
+            </tr>
+            <tr>
+                <td>John</td>
+                <td>Doe</td>
+                <td>john@example.com</td>
+                <td>Doe</td>
+                <td>Doe</td>
+                <td><i class="fa-regular fa-file"></i><span> </span><i class="fa-solid fa-circle-down"></i></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <?php elseif ($viewType === 'list'): ?>
+    <div class="list" style="margin-left: 20px; margin-top: 20px;">
+        <div class="each-list">
+            <label for="" class="list-item"><a href="">ในรายการลิสต์จะแสดงเฉพาะชื่อรายการที่ผู้ใช้เลือกแสดงได้ 1ฟิลด์ เท่านั้น</a></label>
+        </div>
+        <div class="each-list">
+            <label for="" class="list-item"><a href="">รายงานการใช้จ่ายประจำปี 2024</a></label>
+        </div>
+        <div class="each-list">
+            <label for="" class="list-item"><a href="">รายงานการสมัครงานประจำเดือนมกราคม 2025</a></label>
+        </div>
+    </div>
+    <?php elseif ($viewType === 'gallery'): ?>
+    <div class="gallery" style="margin-left: 20px; margin-top: 20px;">
+        <div class="row">
+            <a href="">
+                <div class="col-md-3 gallery-item">
+                    <p>กิจกรรมพนักงาน</p>
+                    <p>รายละเอียดในกิจกรรมพนักงานรายการรายการรายการ</p>
+                    <p>01/01/2025</p>
+                </div>
+            </a>
+            <a href="">
+                <div class="col-md-3 gallery-item">
+                    <p>กิจกรรมพนักงาน</p>
+                    <p>รายละเอียดในกิจกรรมพนักงานรายการรายการรายการ</p>
+                    <p>01/01/2025</p>
+                </div>
+            </a>
+            <a href="">
+                <div class="col-md-3 gallery-item">
+                    <p>กิจกรรมพนักงาน</p>
+                    <p>รายละเอียดในกิจกรรมพนักงานรายการรายการรายการ</p>
+                    <p>01/01/2025</p>
+                </div>
+            </a>
+            <a href="">
+                <div class="col-md-3 gallery-item">
+                    <p>กิจกรรมพนักงาน</p>
+                    <p>รายละเอียดในกิจกรรมพนักงานรายการรายการรายการ</p>
+                    <p>01/01/2025</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    <?php elseif ($viewType === 'calendar'): ?>
+    <div class="text-center">
+        <div id='calendar'></div>
+    </div>
+    <?php endif; ?>
 </div>
-
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

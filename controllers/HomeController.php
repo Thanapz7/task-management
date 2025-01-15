@@ -62,7 +62,6 @@ class HomeController extends Controller
             'form' => $form,
             'result' => $result,
         ]);
-        return $this->render('work', ['data' => $data]);
     }
 
     public function actionWorkDetailPreview() //id

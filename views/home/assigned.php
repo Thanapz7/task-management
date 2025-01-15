@@ -132,7 +132,7 @@ $this->title = 'Assigned';
     document.getElementById('myLink').addEventListener('click', function (event){
         event.preventDefault()
         var recordId = this.getAttribute('data-id');
-        var url = '<?= Yii::$app->urlManager->createUrl(['home/assigned-preview', 'id' => '' ?>' + recordId;
+        var url = '<?= Yii::$app->urlManager->createUrl(['home/assigned-preview', 'id' => '']) ?>' + recordId;
 
         printPreview(url);
     })

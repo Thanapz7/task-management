@@ -179,7 +179,7 @@ $department = isset($this->params['department']) ? $this->params['department'] :
             <a class="logo"><i class="fa-solid fa-briefcase"></i></a>
             <div class="user-info">
                 <p class="nav-fonts"><?= htmlspecialchars($username)?></p>
-                <p class="nav-fonts">แผนก: <?= htmlspecialchars(strtoupper($department)) ?></p>
+                <p class="nav-fonts">แผนก: <?= !empty($department) ? htmlspecialchars(mb_strtoupper($department)) : 'บุคคลภายนอก'?></p>
             </div>
             <ul class="nav nav-pills nav-stacked">
                 <?php if (!Yii::$app->user->isGuest): ?>

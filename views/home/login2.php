@@ -62,7 +62,7 @@ AppAsset::register($this);
                     <i class="fa-solid fa-eye-slash login-eye"></i>
                 </div>
                 <div class="form-group w-100 forgot-pass">
-                    <?= Html::a('ลืมรหัสผ่าน', ['./user'],['class'=>'forgot-pass']) ?>
+                    <?= Html::a('ลืมรหัสผ่าน', ['./users'],['class'=>'forgot-pass']) ?>
                 </div>
                 <?= Html::submitButton('Login', ['class' => 'btn btn-custom', 'name'=>'login-button']) ?>
             </form>

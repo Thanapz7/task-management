@@ -79,10 +79,10 @@ $this->title = 'Assigned';
         <?php if (!empty($records)): ?>
             <?php foreach ($records as $record): ?>
                 <tr>
-                    <td><?= Yii::$app->formatter->asDate($record['record_created_at'], 'php:d/m/Y')?></td>
-                    <td><?= htmlspecialchars(strtoupper($record['department_name']), ENT_QUOTES, 'UTF-8')?></td>
-                    <td><?= htmlspecialchars($record['form_name'], ENT_QUOTES, 'UTF-8')?></td>
-                    <td class="text-center">
+                    <td style="width: 13%;"><?= Yii::$app->formatter->asDate($record['record_created_at'], 'php:d/m/Y')?></td>
+                    <td style="width: 30%;"><?= htmlspecialchars(strtoupper($record['department_name']), ENT_QUOTES, 'UTF-8')?></td>
+                    <td style="width: 47%"><?= htmlspecialchars($record['form_name'], ENT_QUOTES, 'UTF-8')?></td>
+                    <td class="text-center" style="width: 10%;">
                         <a class="manage-link" href="<?= Yii::$app->urlManager->createUrl(['home/assigned-preview', 'id' => $record['id']]) ?>"><i class="fa-regular fa-file"></i></a>
                         <span style="color: #95999c"> | </span>
                         <a class="manage-link" href="" id="myLink" data-id="<?= $record['id']?>"><i class="fa-solid fa-circle-down"></i></a>
@@ -124,7 +124,7 @@ $this->title = 'Assigned';
         }
     });
     function printPreview(url){
-        var printWindow = window.open(url);
+        var printWindow = window.open(url, '_blank');
         printWindow.onload = function (){
             printWindow.print();
         }

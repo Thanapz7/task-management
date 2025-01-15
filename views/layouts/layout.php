@@ -37,6 +37,9 @@ $department = isset($this->params['department']) ? $this->params['department'] :
             font-weight: bold;
         }
         .logout{
+            /*position: absolute;*/
+            /*bottom: 15px;*/
+            /*left: 110px;*/
             display: flex;
             align-items: center;
             justify-content: center;
@@ -176,7 +179,7 @@ $department = isset($this->params['department']) ? $this->params['department'] :
             <a class="logo"><i class="fa-solid fa-briefcase"></i></a>
             <div class="user-info">
                 <p class="nav-fonts"><?= htmlspecialchars($username)?></p>
-                <p class="nav-fonts">แผนก: <?= htmlspecialchars($department) ?></p>
+                <p class="nav-fonts">แผนก: <?= htmlspecialchars(strtoupper($department)) ?></p>
             </div>
             <ul class="nav nav-pills nav-stacked">
                 <?php if (!Yii::$app->user->isGuest): ?>

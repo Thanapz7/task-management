@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Forms;
 use app\models\LoginForm;
+use app\models\Records;
 use app\models\User;
 use Yii;
 use yii\db\Query;
@@ -166,11 +167,33 @@ class HomeController extends Controller
     public function actionAssigned()
     {
         $this->layout = 'layout';
-
         $user = Yii::$app->user->identity;
+        $userId = Yii::$app->user->id;
+
+        $records = Records::find()
+            ->select([
+                'records.create_at AS record_created_at',
+                'records.id',
+                'department.department_name',
+                'forms.form_name'
+            ])
+            ->innerJoin('users', 'records.user_id = users.id')
+            ->innerJoin('department', 'users.department = department.id')
+            ->innerJoin('forms', 'records.form_id = forms.id')
+            ->where(['records.user_id' => $userId])
+            ->asArray()
+            ->all();
 
         return $this->render('assigned',[
-            'user' => $user]);
+            'user' => $user,
+            'records' => $records,
+        ]);
+    }
+
+    public function actionAssignedPreview($id)
+    {
+        $this->layout = 'layout';
+        return $this->render('assigned-preview');
     }
 
     public function actionAssignment()

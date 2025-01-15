@@ -9,6 +9,10 @@ use yii\helpers\Html; ?>
         font-size: 20px;
         border: none;
         background: none;
+        transition: 0.3s;
+    }
+    .back-btn:hover{
+        transform: scale(1.2);
     }
     .detail-preview{
         overflow-y: auto;

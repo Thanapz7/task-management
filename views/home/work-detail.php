@@ -73,6 +73,10 @@ $this->title='Each Work';
         font-size: 20px;
         border: none;
         background: none;
+        transition: 0.3s;
+    }
+    .back-btn:hover{
+        transform: scale(1.2);
     }
     .head-each-work{
         margin-left: 50px;

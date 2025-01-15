@@ -6,6 +6,7 @@ use app\models\Forms;
 use app\models\LoginForm;
 use app\models\User;
 use Yii;
+use yii\db\Query;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 
@@ -33,6 +34,34 @@ class HomeController extends Controller
             ->asArray()
             ->all();
 
+        return $this->render('work', ['data' => $data]);
+    }
+
+    public function actionWorkDetail($id)
+    {
+        $this->layout = 'layout';
+
+        $form = Forms::findOne($id);
+
+        $query = (new Query())
+            ->select([
+                'records.id',
+                'records.user_id',
+                'fields.form_id',
+                'fields.field_name',
+                'field_values.value'
+            ])
+            ->from('records')
+            ->innerJoin('fields', 'records.id = fields.form_id')
+            ->innerJoin('field_values', 'field_values.id = fields.id')
+            ->where(['records.id' => $id]);
+
+        $result = $query->all();
+
+        return $this->render('work-detail', [
+            'form' => $form,
+            'result' => $result,
+        ]);
         return $this->render('work', ['data' => $data]);
     }
 

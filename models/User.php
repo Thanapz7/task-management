@@ -114,5 +114,10 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return $this->hasMany(Forms::className(), ['user_id' => 'id']);
     }
+
+    public function getDepartmentRelation()
+    {
+        return $this->hasOne(Department::class, ['id' => 'department']);  // สมมติ department เป็น foreign key
+    }
 }
 

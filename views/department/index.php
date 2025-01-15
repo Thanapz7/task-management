@@ -11,7 +11,7 @@ use yii\grid\GridView;
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = 'Departments';
-//$this->params['breadcrumbs'][] = $this->title;
+$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="department-index">
 
@@ -29,9 +29,8 @@ $this->title = 'Departments';
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-//            'id',
+            'id',
             'department_name',
-            'initials',
             [
                 'class' => ActionColumn::className(),
                 'urlCreator' => function ($action, Department $model, $key, $index, $column) {

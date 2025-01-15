@@ -54,22 +54,42 @@ $config = [
                 'user/view-all' => 'user/view-all',
             ],
         ],
+//        'view' => [
+//            'class' => 'yii\web\View',
+//            'on beforeRender' => function($event) {
+//                if (!Yii::$app->user->isGuest) {
+//                    $user = Yii::$app->user->identity;
+//                    $username = $user->username;
+//                    $department = $user->department;
+//                    Yii::$app->view->params['username'] = $username;
+//                    Yii::$app->view->params['department'] = $department;
+//                } else {
+//                    // Default values for guests
+//                    Yii::$app->view->params['username'] = 'Guest';
+//                    Yii::$app->view->params['department'] = 'Guest';
+//                }
+//            }
+//        ]
         'view' => [
             'class' => 'yii\web\View',
             'on beforeRender' => function($event) {
                 if (!Yii::$app->user->isGuest) {
-                    $user = Yii::$app->user->identity;
+                    // ดึงข้อมูลผู้ใช้จาก Users model
+                    $user = Yii::$app->user->identity;  // ใช้ model ชื่อ Users
+                    // ดึง username จาก Users model
                     $username = $user->username;
-                    $department = $user->department;
+                    // ดึงชื่อแผนกจากความสัมพันธ์ใน model
+                    $departmentName = $user->departmentRelation ? $user->departmentRelation->department_name : 'บุคคลภายนอก';
+                    // ส่งค่าชื่อผู้ใช้และชื่อแผนกไปยัง params
                     Yii::$app->view->params['username'] = $username;
-                    Yii::$app->view->params['department'] = $department;
+                    Yii::$app->view->params['department'] = $departmentName;
                 } else {
-                    // Default values for guests
+                    // ค่า default สำหรับผู้ที่ไม่ได้ล็อกอิน
                     Yii::$app->view->params['username'] = 'Guest';
-                    Yii::$app->view->params['department'] = 'Guest';
+                    Yii::$app->view->params['department'] = 'บุคคลภายนอก';
                 }
-            }
-        ]
+            },
+        ],
 
 
     ],

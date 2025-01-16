@@ -13,9 +13,9 @@ $department = isset($this->params['department']) ? $this->params['department'] :
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= Html::encode($this->title) ?></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -183,12 +183,22 @@ $department = isset($this->params['department']) ? $this->params['department'] :
             </div>
             <ul class="nav nav-pills nav-stacked">
                 <?php if (!Yii::$app->user->isGuest): ?>
-                    <li><a href="<?= Yii::$app->urlManager->createUrl(['home/work']) ?>" class="nav-fonts"><i class="fa-regular fa-clipboard" style="margin-right: 10px;"></i>งาน</a></li>
-                    <li><a href="<?= Yii::$app->urlManager->createUrl(['home/add-form']) ?>" class="nav-fonts"><i class="fa-regular fa-folder-open" style="margin-right: 10px;"></i>สร้างฟอร์ม</a></li>
-                    <li><a href="<?= Yii::$app->urlManager->createUrl(['home/assigned']) ?>" class="nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>งานที่มอบหมาย</a></li>
-                    <li><a href="<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>" class="nav-fonts"><i class="fa-solid fa-circle-plus" style="margin-right: 10px;"></i>เพิ่มงาน</a></li>
+                    <li class="<?= Yii::$app->controller->id ==='home' && Yii::$app->controller->action->id ==='work' ? 'actived' : '' ?>">
+                        <a href="<?= Yii::$app->urlManager->createUrl(['home/work']) ?>" class="nav-fonts"><i class="fa-regular fa-clipboard" style="margin-right: 10px;"></i>งาน</a>
+                    </li>
+                    <li class="<?= Yii::$app->controller->id === 'home' && Yii::$app->controller->action->id === 'add-form' ? 'actived' : '' ?>">
+                        <a href="<?= Yii::$app->urlManager->createUrl(['home/add-form']) ?>" class="nav-fonts"><i class="fa-regular fa-folder-open" style="margin-right: 10px;"></i>สร้างฟอร์ม</a>
+                    </li>
+                    <li class="<?= Yii::$app->controller->id === 'home' && Yii::$app->controller->action->id === 'assigned' ? 'actived' : '' ?>">
+                        <a href="<?= Yii::$app->urlManager->createUrl(['home/assigned']) ?>" class="nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>งานที่มอบหมาย</a>
+                    </li>
+                    <li class="<?= Yii::$app->controller->id === 'home' && Yii::$app->controller->action->id === 'assignment' ? 'actived' : '' ?>">
+                        <a href="<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>" class="nav-fonts"><i class="fa-solid fa-circle-plus" style="margin-right: 10px;"></i>เพิ่มงาน</a>
+                    </li>
                 <?php else: ?>
-                    <li><a href="<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>" class="nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>จ้างงาน</a></li>
+                    <li class="<?= Yii::$app->controller->id === 'home' && Yii::$app->controller->action->id === 'assignment' ? 'actived' : '' ?>">
+                        <a href="<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>" class="nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>จ้างงาน</a>
+                    </li>
                 <?php endif; ?>
             </ul>
             <div class="logout">
@@ -204,7 +214,6 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                             ]
                 ) ?>
             </div>
-
         </div>
 
         <div class="col-sm-10">
@@ -212,17 +221,5 @@ $department = isset($this->params['department']) ? $this->params['department'] :
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function() {
-        // เมื่อคลิกที่เมนู
-        $('.nav-pills li a').click(function() {
-            // ลบคลาส active จากเมนูทั้งหมด
-            $('.nav-pills li').removeClass('actived');
-
-            // เพิ่มคลาส active ไปยังเมนูที่ถูกคลิก
-            $(this).parent().addClass('actived');
-        });
-    });
-</script>
 </body>
 </html>

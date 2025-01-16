@@ -37,6 +37,6 @@ $this->title = 'Assignment Form';
 
 </div>
 <div class="group-btn-preview text-center" style="margin-top: 5px;">
-    <button type="submit" class="btn-d-preview btn-cancel">ยกเลิก</button>
+    <button type="submit" class="btn-d-preview btn-cancel" onclick="location.href='<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>'">ยกเลิก</button>
     <button type="submit" class="btn-d-preview btn-confirm">ตกลง</button>
 </div>

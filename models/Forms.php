@@ -63,4 +63,16 @@ class Forms extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Users::className(), ['id' => 'user_id']);
     }
+
+    public function getFormsWithDepartments()
+    {
+        return (new \yii\db\Query())
+            ->select(['forms.id','forms.form_name', 'department.department_name'])
+            ->from('forms')
+            ->leftJoin('users', 'forms.user_id = users.id')
+            ->leftJoin('department', 'users.department = department.id')
+            ->where(['not in', 'forms.id', [23, 24, 25]])
+            ->all();
+    }
+
 }

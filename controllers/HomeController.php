@@ -100,7 +100,7 @@ class HomeController extends Controller
         $forms = Forms::find()
             ->select(['forms.*', 'users.department'])
             ->joinWith('users')
-            ->where(['forms.id' => [1, 2, 3]])
+            ->where(['forms.id' => [23, 24, 25]])
             ->all();
 
         $this->layout = 'layout';
@@ -199,10 +199,13 @@ class HomeController extends Controller
     public function actionAssignment()
     {
         $this->layout = 'layout';
-        return $this->render('assignment');
+        $forms = Forms::getFormsWithDepartments();
+        return $this->render('assignment',[
+            'forms' => $forms,
+        ]);
     }
 
-    public function actionAssignmentForm()
+    public function actionAssignmentForm($id)
     {
         $this->layout = 'layout';
         return $this->render('assignment-form',[

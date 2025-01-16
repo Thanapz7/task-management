@@ -8,24 +8,25 @@ $this->title='Add Forms';
     <div class="col-sm-3 folder" style="cursor: pointer">
         <div style="margin: 10px">
             <div class="folder-head">
-                <i class="fa-regular fa-folder"></i>
+                <i class="fa-regular fa-folder-open"></i>
                 <h5><?= $form->form_name?></h5>
             </div>
-            <p class="department">แผนก:
-                <?php
-                    if($form->users->department == 1){
-                        echo 'SALE';
-                    }elseif($form->users->department == 2){
-                        echo 'DDS';
-                    }elseif($form->users->department == 3){
-                        echo 'HR';
-                    }elseif($form->users->department == 4){
-                        echo 'MARKETING';
-                    }else{
-                        echo'แผนกอื่น';
-                    }
-                ?>
-            </p>
+                <p class="department" style="color: #5a6268">แม่แบบฟอร์ม <i class="fa-brands fa-wpforms"></i></p>
+<!--            <p class="department">แผนก:-->
+<!--                --><?php
+//                    if($form->users->department == 1){
+//                        echo 'SALE';
+//                    }elseif($form->users->department == 2){
+//                        echo 'DDS';
+//                    }elseif($form->users->department == 3){
+//                        echo 'HR';
+//                    }elseif($form->users->department == 4){
+//                        echo 'MARKETING';
+//                    }else{
+//                        echo'แผนกอื่น';
+//                    }
+//                ?>
+<!--            </p>-->
         </div>
     </div>
     <?php endforeach; ?>

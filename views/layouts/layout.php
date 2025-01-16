@@ -52,6 +52,10 @@ $department = isset($this->params['department']) ? $this->params['department'] :
         .logout:hover{
             transform: scale(1.3);
         }
+        .main-content{
+            height: 100%;
+            overflow-y: auto;
+        }
         .text-header{
             font-size: 30px;
             font-weight: bold;
@@ -216,7 +220,7 @@ $department = isset($this->params['department']) ? $this->params['department'] :
             </div>
         </div>
 
-        <div class="col-sm-10">
+        <div class="col-sm-10 main-content">
             <?= $content ?>
         </div>
     </div>

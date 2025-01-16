@@ -43,50 +43,19 @@ $this->title = 'Assignment';
     </div>
 </div>
 <div class="row folders">
-    <div class="col-sm-3 folder" style="cursor: pointer" '">
+    <?php foreach ($forms as $form): ?>
+    <div class="col-sm-3 folder" style="cursor: pointer" onclick="location.href='<?= Yii::$app->urlManager->createUrl(['home/assignment-form', 'id' => $form['id']]) ?>'">
         <div style="margin: 10px">
             <div class="folder-head">
-                <i class="fa-regular fa-folder"></i>
-                <h5>งาน A</h5>
+                <i class="fa-regular fa-folder-open"></i>
+                <h5><?= htmlspecialchars($form['form_name']) ?></h5>
             </div>
             <p class="department" style="color: #454d55">
-                แผนก : B
+                แผนก : <?= htmlspecialchars(mb_strtoupper($form['department_name'])) ?>
             </p>
         </div>
     </div>
-    <div class="col-sm-3 folder" style="cursor: pointer" '">
-        <div style="margin: 10px">
-            <div class="folder-head">
-                <i class="fa-regular fa-folder"></i>
-                <h5>งาน C</h5>
-            </div>
-            <p class="department" style="color: #454d55">
-                แผนก : D
-            </p>
-        </div>
-    </div>
-    <div class="col-sm-3 folder" style="cursor: pointer" '">
-        <div style="margin: 10px">
-            <div class="folder-head">
-                <i class="fa-regular fa-folder"></i>
-                <h5>แฟ้ม</h5>
-            </div>
-            <p class="department" style="color: #454d55">
-                แผนก : DDS
-            </p>
-        </div>
-    </div>
-    <div class="col-sm-3 folder" style="cursor: pointer" '">
-        <div style="margin: 10px">
-            <div class="folder-head">
-                <i class="fa-regular fa-folder"></i>
-                <h5>งาน ABC</h5>
-            </div>
-            <p class="department" style="color: #454d55">
-                แผนก : ABC
-            </p>
-        </div>
-    </div>
+    <?php endforeach; ?>
 </div>
 <script>
     document.getElementById('mainSearch').addEventListener('input', function (){

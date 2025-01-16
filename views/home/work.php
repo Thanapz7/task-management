@@ -15,7 +15,7 @@ $this->title='work';
                     <div class="col-sm-3 folder" style="cursor: pointer" onclick="location.href='<?= Yii::$app->urlManager->createUrl(['home/work-detail', 'id' => $form['id']]) ?>'">
                         <div style="margin: 10px">
                             <div class="folder-head">
-                                <i class="fa-regular fa-folder"></i>
+                                <i class="fa-regular fa-folder-open"></i>
                                 <h5><?= Html::encode($form['form_name'] ?? 'Unnamed Form') ?></h5>
                             </div>
                             <p class="department" style="color: #454d55">

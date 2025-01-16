@@ -22,6 +22,15 @@ class LoginForm extends Model
         ];
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'username' => 'ชื่อผู้ใช้', // แสดง "ชื่อผู้ใช้" แทน "Username"
+            'password' => 'รหัสผ่าน',  // แสดง "รหัสผ่าน" แทน "Password"
+        ];
+    }
+
+
     // ตรวจสอบรหัสผ่าน
     public function validatePassword($attribute)
     {

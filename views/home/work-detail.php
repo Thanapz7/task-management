@@ -502,15 +502,43 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
     });
 
     // ปุ่ม Hide All
-    document.getElementById('hideAll').addEventListener('click', function () {
-        const checkboxes = document.querySelectorAll('.each-field input[type="checkbox"]');
-        checkboxes.forEach(checkbox => checkbox.checked = false);
-    });
+    // document.getElementById('hideAll').addEventListener('click', function () {
+    //     const checkboxes = document.querySelectorAll('.each-field input[type="checkbox"]');
+    //     checkboxes.forEach(checkbox => checkbox.checked = false);
+    // });
 
     // ปุ่ม Show All
-    document.getElementById('showAll').addEventListener('click', function () {
-        const checkboxes = document.querySelectorAll('.each-field input[type="checkbox"]');
-        checkboxes.forEach(checkbox => checkbox.checked = true);
+    // document.getElementById('showAll').addEventListener('click', function () {
+    //     const checkboxes = document.querySelectorAll('.each-field input[type="checkbox"]');
+    //     checkboxes.forEach(checkbox => checkbox.checked = true);
+    // });
+
+    document.getElementById('mainSearch').addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+
+        // table
+        const tableRows = document.querySelectorAll('.table tbody tr');
+        tableRows.forEach(row => {
+            const cells = Array.from(row.querySelectorAll('td'));
+            const match = cells.some(cell => cell.textContent.toLowerCase().includes(searchTerm));
+            row.style.display = match ? '' : 'none';
+        });
+
+        // list
+        const listItems = document.querySelectorAll('.list .each-list');
+        listItems.forEach(item => {
+            const text = item.querySelector('a').textContent.toLowerCase();
+            item.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+
+        // gallery
+        const galleryItems = document.querySelectorAll('.gallery .gallery-item');
+        galleryItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+
     });
+
 </script>
 

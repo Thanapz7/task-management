@@ -39,9 +39,11 @@ AppAsset::register($this);
 </style>
 <div class="container-fluid">
     <div class="row w-100">
-        <div class="col-md-6 info">
-            <h2>Welcome to Our Service</h2>
-            <p>Here you can find some information about our service. We provide the best solutions for your needs. Join us and enjoy the benefits.</p>
+        <div class="col-md-6 info text-center">
+            <h2>Job Management <i class="fa-solid fa-briefcase"></i></h2>
+            <p>A robust and user-friendly platform designed to streamline task assignments, tracking, and reporting for organizations.
+                This system is tailored to facilitate efficient collaboration between internal teams and external users,
+                ensuring transparency and accountability across all levels of operations.</p>
             <h4 style="color: #cc5555">สนใจจ้างงาน? <?= Html::a('คลิกที่นี่',['assignment'], ['class'=>'btn btn-guest']) ?></h4>
         </div>
         <div class="col-md-1 divider"></div>
@@ -64,7 +66,7 @@ AppAsset::register($this);
                 <div class="form-group w-100 forgot-pass">
                     <?= Html::a('ลืมรหัสผ่าน', ['./users'],['class'=>'forgot-pass']) ?>
                 </div>
-                <?= Html::submitButton('Login', ['class' => 'btn btn-custom', 'name'=>'login-button']) ?>
+                <?= Html::submitButton('ล็อกอิน', ['class' => 'btn btn-custom', 'name'=>'login-button']) ?>
             </form>
             <?php ActiveForm::end(); ?>
         </div>

@@ -7,6 +7,7 @@ use app\models\LoginForm;
 use app\models\Records;
 use app\models\Users;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\db\Query;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
@@ -170,23 +171,42 @@ class HomeController extends Controller
         $user = Yii::$app->user->identity;
         $userId = Yii::$app->user->id;
 
-        $records = Records::find()
+        $query = Records::find()
             ->select([
                 'records.create_at AS record_created_at',
                 'records.id',
                 'department.department_name',
-                'forms.form_name'
+                'forms.form_name',
             ])
             ->innerJoin('users', 'records.user_id = users.id')
             ->innerJoin('department', 'users.department = department.id')
             ->innerJoin('forms', 'records.form_id = forms.id')
             ->where(['records.user_id' => $userId])
-            ->asArray()
-            ->all();
+            ->asArray();
+
+        // ตรวจสอบว่า $query เป็น ActiveQuery
+        if (!$query instanceof yii\db\ActiveQuery) {
+            throw new \yii\base\InvalidConfigException('Query must be an instance of yii\db\ActiveQuery.');
+        }
+
+        // ใช้ ActiveDataProvider อย่างถูกต้อง
+        $dataProvider = new \yii\data\ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+            'sort' => [
+                'attributes' => [
+                    'record_created_at',
+                    'department_name',
+                    'form_name',
+                ],
+            ],
+        ]);
 
         return $this->render('assigned',[
             'user' => $user,
-            'records' => $records,
+            'dataProvider' => $dataProvider,
         ]);
     }
 

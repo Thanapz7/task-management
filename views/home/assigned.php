@@ -1,4 +1,9 @@
 <?php
+
+use yii\grid\GridView;
+use yii\helpers\Html;
+use yii\helpers\Url;
+
 $this->title = 'Assigned';
 ?>
 
@@ -37,8 +42,16 @@ $this->title = 'Assigned';
     table th, table td {
         border: 1px solid #ddd; /* กำหนดขอบของ cell */
     }
-    .head-table{
+    .grid-view thead th.custom-table-header{
         font-size: 16px;
+        text-align: center;
+        background-color: #f5f5f5;
+    }
+    .grid-view a{
+        color: #000000;
+    }
+    .grid-view a:hover{
+        text-decoration: none;
     }
     .manage-link i{
         font-size: 16px;
@@ -65,37 +78,65 @@ $this->title = 'Assigned';
 </div>
 
 <div class="grid" style="margin-left: 20px; margin-top: 20px;">
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th class="text-center head-table">วัน/เดือน/ปี</th>
-            <th class="text-center head-table">แผนกที่ติดต่อ</th>
-            <th class="text-center head-table">แฟ้ม</th>
-            <th class="text-center head-table">จัดการ</th>
-
-        </tr>
-        </thead>
-        <tbody>
-        <?php if (!empty($records)): ?>
-            <?php foreach ($records as $record): ?>
-                <tr>
-                    <td style="width: 13%;"><?= Yii::$app->formatter->asDate($record['record_created_at'], 'php:d/m/Y')?></td>
-                    <td style="width: 30%;"><?= htmlspecialchars(strtoupper($record['department_name']), ENT_QUOTES, 'UTF-8')?></td>
-                    <td style="width: 47%"><?= htmlspecialchars($record['form_name'], ENT_QUOTES, 'UTF-8')?></td>
-                    <td class="text-center" style="width: 10%;">
-                        <a class="manage-link" href="<?= Yii::$app->urlManager->createUrl(['home/assigned-preview', 'id' => $record['id']]) ?>"><i class="fa-regular fa-file"></i></a>
-                        <span style="color: #95999c"> | </span>
-                        <a class="manage-link" href="" id="myLink" data-id="<?= $record['id']?>"><i class="fa-solid fa-circle-down"></i></a>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        <?php else:?>
-            <tr>
-                <td colspan="4" class="text-center">ไม่มีข้อมูลการสั่งงาน</td>
-            </tr>
-        <?php endif;?>
-        </tbody>
-    </table>
+    <?= GridView::widget([
+        'dataProvider' => $dataProvider,
+        'columns' => [
+            [
+                'attribute' => 'record_created_at',
+                'label' => 'วัน/เดือน/ปี',
+                'value' => function ($model) {
+                    return Yii::$app->formatter->asDate($model['record_created_at'], 'php:d/m/Y');
+                },
+                'contentOptions' => ['style' => 'width: 13%; text-align: center;'],
+                'headerOptions' => ['class' => 'custom-table-header'],
+            ],
+            [
+                'attribute' => 'department_name',
+                'label' => 'แผนกที่ติดต่อ',
+                'value' => function ($model) {
+                    return mb_strtoupper($model['department_name']);
+                },
+                'contentOptions' => ['style' => 'width: 30%; text-align: center;'],
+                'headerOptions' => ['class' => 'custom-table-header'],
+            ],
+            [
+                'attribute' => 'form_name',
+                'label' => 'แฟ้ม',
+                'contentOptions' => ['style' => 'width: 47%; text-align: center;'],
+                'headerOptions' => ['class' => 'custom-table-header'],
+            ],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{preview} {download}',
+                'buttons' => [
+                    'preview' => function ($url, $model) {
+                        return Html::a(
+                            '<i class="fa-regular fa-file"></i>',
+                            Url::to(['home/assigned-preview', 'id' => $model['id']]),
+                            ['class' => 'manage-link']
+                        );
+                    },
+                    'download' => function ($url, $model) {
+                        return Html::a(
+                            '<i class="fa-solid fa-circle-down"></i>',
+                            '#',
+                            [
+                                'class' => 'manage-link',
+                                'data-id' => $model['id'],
+                                'onclick' => "printPreview('" . Url::to(['home/assigned-preview', 'id' => $model['id']]) . "'); return false;",
+                            ]
+                        );
+                    },
+                ],
+                'contentOptions' => ['style' => 'width: 10%; text-align: center;'],
+                'headerOptions' => ['class' => 'custom-table-header'],
+            ],
+        ],
+        'tableOptions' => ['class' => 'table table-bordered'],
+        'summary' => 'แสดง {begin} ถึง {end} จากทั้งหมด {totalCount} รายการ',
+        'emptyText' => 'ไม่มีข้อมูลการสั่งงาน',
+        'emptyTextOptions' => ['class' => 'text-center'],
+    ]); ?>
 </div>
 <script>
     document.getElementById('mainSearch').addEventListener('input', function (){
@@ -124,16 +165,9 @@ $this->title = 'Assigned';
         }
     });
     function printPreview(url){
-        var printWindow = window.open(url, '_blank');
+        var printWindow = window.open(url);
         printWindow.onload = function (){
             printWindow.print();
         }
     }
-    document.getElementById('myLink').addEventListener('click', function (event){
-        event.preventDefault()
-        var recordId = this.getAttribute('data-id');
-        var url = '<?= Yii::$app->urlManager->createUrl(['home/assigned-preview', 'id' => '']) ?>' + recordId;
-
-        printPreview(url);
-    })
 </script>

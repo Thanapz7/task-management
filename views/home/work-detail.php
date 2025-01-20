@@ -5,67 +5,11 @@
 
 use yii\grid\GridView;
 use yii\helpers\Html;
+use yii\web\JsExpression;
 
 $this->title='รายละเอียดงาน '. $form['form_name'];
 ?>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-            },
-            navLinks: true, // คลิกเพื่อดูวัน/สัปดาห์
-            editable: true, // ลากเหตุการณ์ได้
-            selectable: true, // เลือกวันได้
-            eventLimit: true, // แสดงข้อความ "more" เมื่อมีหลายเหตุการณ์ในวันเดียวกัน
-            events: [
-                {
-                    title: 'ประชุมทีม',
-                    start: '2025-01-10T10:00:00',
-                    end: '2025-01-10T12:00:00',
-                    color: '#007bff', // สีน้ำเงิน
-                    description: 'ประชุมทีมเพื่อเตรียมงานโครงการใหม่'
-                },
-                {
-                    title: 'วันหยุดราชการ',
-                    start: '2025-01-13',
-                    end: '2025-01-14',
-                    color: '#28a745', // สีเขียว
-                    description: 'วันหยุดนักขัตฤกษ์'
-                },
-                {
-                    title: 'เดินทางไปพบลูกค้า',
-                    start: '2025-01-16T09:00:00',
-                    end: '2025-01-16T17:00:00',
-                    color: '#ffc107', // สีเหลือง
-                    description: 'เดินทางไปเสนอโปรเจกต์ให้กับลูกค้า'
-                },
-                {
-                    title: 'งานเลี้ยงปีใหม่',
-                    start: '2025-01-20T18:00:00',
-                    color: '#dc3545', // สีแดง
-                    description: 'จัดงานเลี้ยงบริษัทที่โรงแรมใหญ่'
-                },
-            ],
-            eventClick: function(info) {
-                alert(
-                    'เหตุการณ์: ' + info.event.title + '\n' +
-                    'รายละเอียด: ' + (info.event.extendedProps.description || 'ไม่มีรายละเอียด') + '\n' +
-                    'เวลาเริ่มต้น: ' + info.event.start.toISOString()
-                );
-            }
-        });
-        calendar.render();
-    });
-</script>
 <style>
     .back-btn{
         margin-left: 20px;
@@ -334,6 +278,7 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
         </div>
     </div>
 </div>
+
 <div class="search-group">
     <div class="search-bar">
         <input type="search" id="mainSearch" placeholder="ค้นหา แฟ้มงาน หรือ แผนกที่ต้องการ" class="search">
@@ -382,91 +327,64 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
         </ul>
     </div>
 </div>
-<div class="display-area">
-    <?php if($viewType === 'table'): ?>
-    <div class="grid" style="margin-left: 20px; margin-top: 20px;">
-        <table class="table table-bordered">
-            <thead>
-            <tr>
-                <th>วันที่มอบหมาย</th>
-                <th>ผู้มอบหมาย</th>
-                <th>ชื่องาน</th>
-                <th>ราละเอียด</th>
-                <th>วันครบกำหนด</th>
-                <th>จัดการ</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>John</td>
-                <td>Doe</td>
-                <td>john@example.com</td>
-                <td>Doe</td>
-                <td>Doe</td>
-                <td> <?= Html::a('<i class="fa-regular fa-file"></i>',['work-detail-preview']) ?><span> </span><i class="fa-solid fa-circle-down"></i></td>
-            </tr>
-            <tr>
-                <td>John</td>
-                <td>Doe</td>
-                <td>john@example.com</td>
-                <td>Doe</td>
-                <td>Doe</td>
-                <td><i class="fa-regular fa-file"></i><span> </span><i class="fa-solid fa-circle-down"></i></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <?php elseif ($viewType === 'list'): ?>
-    <div class="list" style="margin-left: 20px; margin-top: 20px;">
-        <div class="each-list">
-            <label for="" class="list-item"><a href="">ในรายการลิสต์จะแสดงเฉพาะชื่อรายการที่ผู้ใช้เลือกแสดงได้ 1ฟิลด์ เท่านั้น</a></label>
-        </div>
-        <div class="each-list">
-            <label for="" class="list-item"><a href="">รายงานการใช้จ่ายประจำปี 2024</a></label>
-        </div>
-        <div class="each-list">
-            <label for="" class="list-item"><a href="">รายงานการสมัครงานประจำเดือนมกราคม 2025</a></label>
-        </div>
-    </div>
-    <?php elseif ($viewType === 'gallery'): ?>
-    <div class="gallery" style="margin-left: 20px; margin-top: 20px;">
-        <div class="row">
-            <a href="">
-                <div class="col-md-3 gallery-item">
-                    <p>กิจกรรมพนักงาน</p>
-                    <p>รายละเอียดในกิจกรรมพนักงานรายการรายการรายการ</p>
-                    <p>01/01/2025</p>
+    <div class="display-area">
+        <!-- การแสดงผลตาม $viewType -->
+        <?php if ($viewType == 'table'): ?>
+            <?= \yii\grid\GridView::widget([
+                'dataProvider' => $dataProvider,
+            ]) ?>
+
+        <?php elseif ($viewType == 'list'): ?>
+            <div class="list" style="margin-left: 20px; margin-top: 20px;">
+            <?php foreach ($dataProvider->getModels() as $row): ?>
+                <div class="each-list">
+                    <?= implode(', ', $row) ?>
                 </div>
-            </a>
-            <a href="">
-                <div class="col-md-3 gallery-item">
-                    <p>กิจกรรมพนักงาน</p>
-                    <p>รายละเอียดในกิจกรรมพนักงานรายการรายการรายการ</p>
-                    <p>01/01/2025</p>
-                </div>
-            </a>
-            <a href="">
-                <div class="col-md-3 gallery-item">
-                    <p>กิจกรรมพนักงาน</p>
-                    <p>รายละเอียดในกิจกรรมพนักงานรายการรายการรายการ</p>
-                    <p>01/01/2025</p>
-                </div>
-            </a>
-            <a href="">
-                <div class="col-md-3 gallery-item">
-                    <p>กิจกรรมพนักงาน</p>
-                    <p>รายละเอียดในกิจกรรมพนักงานรายการรายการรายการ</p>
-                    <p>01/01/2025</p>
-                </div>
-            </a>
+            <?php endforeach; ?>
         </div>
+
+        <?php elseif ($viewType == 'gallery'): ?>
+        <div class="gallery" style="margin-left: 20px; margin-top: 20px;">
+            <div class="row">
+                <?php foreach ($dataProvider->getModels() as $row): ?>
+                    <div class="col-md-3 gallery-item">
+                        <?= implode(', ', $row) ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <?php elseif ($viewType == 'calendar' && isset($events) && !empty($events)): ?>
+            <div id="calendar"></div>
+            <?php
+            // Register FullCalendar JS
+            $this->registerJsFile('https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js', ['position' => \yii\web\View::POS_END]);
+            $this->registerCssFile('https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css');
+
+            // ตรวจสอบค่า $events ก่อนส่งไปที่ JavaScript
+            if (empty($events)) {
+                echo "No events available"; // แจ้งว่าไม่มีข้อมูลเหตุการณ์
+            } else {
+                $this->registerJs(new JsExpression("
+            document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: " . json_encode($events) . ",  // ส่งข้อมูล events ที่ถูกต้อง
+                eventRender: function(info) {
+                    console.log(info.event);
+                }
+            });
+            calendar.render();
+        });
+    "));
+            }
+
+            ?>
+        <?php else: ?>
+            <p>No events available for the calendar view.</p>
+        <?php endif; ?>
     </div>
-    <?php elseif ($viewType === 'calendar'): ?>
-    <div class="text-center">
-        <div id='calendar'></div>
-    </div>
-    <?php endif; ?>
-</div>
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -8,6 +8,8 @@ use app\models\Records;
 use app\models\Users;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
+use app\widgets\DataDisplayWidget;
 use yii\db\Query;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
@@ -40,33 +42,176 @@ class HomeController extends Controller
         return $this->render('work', ['data' => $data]);
     }
 
+//    public function actionWorkDetail($id, $viewType = 'table')
+//    {
+//        $this->layout = 'layout';
+//
+//        $form = Forms::findOne($id);
+//
+//        // รับค่าจาก dropdown (ค่าเริ่มต้นเป็น 'table')
+//        $viewType = Yii::$app->request->get('viewType', 'table');
+//
+//        $query = (new \yii\db\Query())
+//            ->select([
+//                'fields.field_name',
+//                'field_values.value',
+//            ])
+//            ->from('forms')
+//            ->innerJoin('fields', 'forms.id = fields.form_id')
+//            ->innerJoin('records', 'forms.id = records.form_id')
+//            ->innerJoin('field_values', 'fields.id = field_values.field_id')
+//            ->where(['forms.id' => $id])
+//            ->andWhere('records.id = field_values.record_id')
+//            ->all();
+//
+//        if (empty($query)) {
+//            $formattedData = []; // ไม่มีข้อมูล ส่ง array ว่างไปแสดงผล
+//        } else {
+//            // Pivot Data
+//            $pivotData = [];
+//            foreach ($query as $row) {
+//                $pivotData[$row['field_name']][] = $row['value'];
+//            }
+//
+//            $maxRows = !empty($pivotData) ? max(array_map('count', $pivotData)) : 0;
+//
+//            for ($i = 0; $i < $maxRows; $i++) {
+//                $row = [];
+//                foreach ($pivotData as $field => $values) {
+//                    $row[$field] = $values[$i] ?? null;  // ใช้ null หากไม่มีข้อมูล
+//                }
+//                $formattedData[] = $row;
+//            }
+//        }
+//
+//        $dataProvider = new ArrayDataProvider([
+//            'allModels' => $formattedData,
+//            'pagination' => false,
+//        ]);
+//
+//        return $this->render('work-detail', [
+//            'form' => $form,
+//            'dataProvider' => $dataProvider,
+//            'viewType' => $viewType,
+//        ]);
+//    }
     public function actionWorkDetail($id, $viewType = 'table')
     {
         $this->layout = 'layout';
-
+        // รับค่าจาก dropdown (ค่าเริ่มต้นเป็น 'table')
+        $viewType = Yii::$app->request->get('viewType', 'table');
+        // ค้นหาข้อมูลฟอร์มตาม ID
         $form = Forms::findOne($id);
-
-        $query = (new Query())
+        // การคิวรีข้อมูลที่เกี่ยวข้อง
+        $query = (new \yii\db\Query())
             ->select([
-                'records.id',
-                'records.user_id',
-                'fields.form_id',
                 'fields.field_name',
-                'field_values.value'
+                'field_values.value',
             ])
-            ->from('records')
-            ->innerJoin('fields', 'records.id = fields.form_id')
-            ->innerJoin('field_values', 'field_values.id = fields.id')
-            ->where(['records.id' => $id]);
+            ->from('forms')
+            ->innerJoin('fields', 'forms.id = fields.form_id')
+            ->innerJoin('records', 'forms.id = records.form_id')
+            ->innerJoin('field_values', 'fields.id = field_values.field_id')
+            ->where(['forms.id' => $id])
+            ->andWhere('records.id = field_values.record_id')
+            ->all();
 
-        $result = $query->all();
+        if (empty($query)) {
+            $formattedData = []; // ไม่มีข้อมูล ส่ง array ว่างไปแสดงผล
+        } else {
+            // Pivot Data
+            $pivotData = [];
+            foreach ($query as $row) {
+                $pivotData[$row['field_name']][] = $row['value'];
+            }
 
-        return $this->render('work-detail', [
-            'form' => $form,
-            'result' => $result,
-            'viewType' => $viewType,
+            $maxRows = !empty($pivotData) ? max(array_map('count', $pivotData)) : 0;
+
+            for ($i = 0; $i < $maxRows; $i++) {
+                $row = [];
+                foreach ($pivotData as $field => $values) {
+                    $row[$field] = $values[$i] ?? null;  // ใช้ null หากไม่มีข้อมูล
+                }
+                $formattedData[] = $row;
+            }
+
+            // ตัวอย่างการสร้างข้อมูลเหตุการณ์ที่ส่งไปยัง FullCalendar
+            $events = [];
+            foreach ($formattedData as $data) {
+                // ตรวจสอบว่า 'event_start' และ 'event_end' มีข้อมูลเป็น timestamp หรือ datetime
+                // ตรวจสอบว่า 'event_start' และ 'event_end' เป็นรูปแบบ text ที่เก็บข้อมูลวันเดือนปี
+
+                // การแปลง 'event_start' จากรูปแบบ 'DD/MM/YYYY' หรืออื่นๆ เป็น 'Y-m-d\TH:i:s'
+                $startDate = null;
+                if (!empty($data['event_start'])) {
+                    $startDate = DateTime::createFromFormat('d/m/Y', $data['event_start']);
+                    if (!$startDate) {
+                        $startDate = DateTime::createFromFormat('m-d-Y', $data['event_start']);
+                    }
+                    if (!$startDate) {
+                        $startDate = DateTime::createFromFormat('Y/m/d', $data['event_start']);
+                    }
+                    if ($startDate) {
+                        $startDate = $startDate->format('Y-m-d\TH:i:s');
+                    }
+                }
+                // การแปลง 'event_end' จากรูปแบบ 'DD/MM/YYYY' หรืออื่นๆ เป็น 'Y-m-d\TH:i:s'
+                $endDate = null;
+                if (!empty($data['event_end'])) {
+                    $endDate = DateTime::createFromFormat('d/m/Y', $data['event_end']);
+                    if (!$endDate) {
+                        $endDate = DateTime::createFromFormat('m-d-Y', $data['event_end']);
+                    }
+                    if (!$endDate) {
+                        $endDate = DateTime::createFromFormat('Y/m/d', $data['event_end']);
+                    }
+                    if ($endDate) {
+                        $endDate = $endDate->format('Y-m-d\TH:i:s');
+                    }
+                }
+                // ถ้า `event_start` หรือ `event_end` ยังเป็น null ให้กำหนดเวลาอื่น ๆ แทน
+                if (!$startDate) {
+                    $startDate = date('Y-m-d\TH:i:s');  // ใช้เวลาปัจจุบัน
+                }
+                if (!$endDate) {
+                    $endDate = date('Y-m-d\TH:i:s', strtotime('+1 hour'));  // ใช้เวลาปัจจุบัน + 1 ชั่วโมง
+                }
+                // หากมีทั้ง 'startDate' และ 'endDate' จึงสร้างเหตุการณ์
+                if (!empty($startDate) && !empty($endDate)) {
+                    $events[] = [
+                        'title' => $data['event_title'] ?? 'No Title',
+                        'start' => $startDate,  // ใช้ค่า event_start ที่แปลงแล้ว
+                        'end' => $endDate,      // ใช้ค่า event_end ที่แปลงแล้ว
+                    ];
+                }
+            }
+        }
+        // สร้าง data provider
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $formattedData,
+            'pagination' => false,
         ]);
+        // ส่งข้อมูลไปที่ view
+        if (empty($events)) {
+            // กรณีไม่มีเหตุการณ์, ไม่ต้องส่ง events ไป
+            return $this->render('work-detail', [
+                'form' => $form,
+                'dataProvider' => $dataProvider,
+                'viewType' => $viewType,
+                // ไม่มี 'events' ในกรณีนี้
+            ]);
+        } else {
+            return $this->render('work-detail', [
+                'form' => $form,
+                'dataProvider' => $dataProvider,
+                'viewType' => $viewType,
+                'events' => $events,  // ส่งไปในกรณีที่มีเหตุการณ์
+            ]);
+        }
     }
+
+
+
 
     public function actionWorkDetailPreview() //id
     {

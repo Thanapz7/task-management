@@ -42,59 +42,6 @@ class HomeController extends Controller
         return $this->render('work', ['data' => $data]);
     }
 
-//    public function actionWorkDetail($id, $viewType = 'table')
-//    {
-//        $this->layout = 'layout';
-//
-//        $form = Forms::findOne($id);
-//
-//        // รับค่าจาก dropdown (ค่าเริ่มต้นเป็น 'table')
-//        $viewType = Yii::$app->request->get('viewType', 'table');
-//
-//        $query = (new \yii\db\Query())
-//            ->select([
-//                'fields.field_name',
-//                'field_values.value',
-//            ])
-//            ->from('forms')
-//            ->innerJoin('fields', 'forms.id = fields.form_id')
-//            ->innerJoin('records', 'forms.id = records.form_id')
-//            ->innerJoin('field_values', 'fields.id = field_values.field_id')
-//            ->where(['forms.id' => $id])
-//            ->andWhere('records.id = field_values.record_id')
-//            ->all();
-//
-//        if (empty($query)) {
-//            $formattedData = []; // ไม่มีข้อมูล ส่ง array ว่างไปแสดงผล
-//        } else {
-//            // Pivot Data
-//            $pivotData = [];
-//            foreach ($query as $row) {
-//                $pivotData[$row['field_name']][] = $row['value'];
-//            }
-//
-//            $maxRows = !empty($pivotData) ? max(array_map('count', $pivotData)) : 0;
-//
-//            for ($i = 0; $i < $maxRows; $i++) {
-//                $row = [];
-//                foreach ($pivotData as $field => $values) {
-//                    $row[$field] = $values[$i] ?? null;  // ใช้ null หากไม่มีข้อมูล
-//                }
-//                $formattedData[] = $row;
-//            }
-//        }
-//
-//        $dataProvider = new ArrayDataProvider([
-//            'allModels' => $formattedData,
-//            'pagination' => false,
-//        ]);
-//
-//        return $this->render('work-detail', [
-//            'form' => $form,
-//            'dataProvider' => $dataProvider,
-//            'viewType' => $viewType,
-//        ]);
-//    }
     public function actionWorkDetail($id, $viewType = 'table')
     {
         $this->layout = 'layout';

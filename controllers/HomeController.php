@@ -2,7 +2,6 @@
 
 namespace app\controllers;
 
-use app\models\Fields;
 use app\models\Forms;
 use app\models\LoginForm;
 use app\models\Records;
@@ -13,27 +12,14 @@ use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use app\widgets\DataDisplayWidget;
 use yii\db\Query;
-use yii\filters\AccessControl;
-use yii\web\BadRequestHttpException;
 use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\View;
 use Mpdf\Mpdf;
 
-use yii\web\Response;
 class HomeController extends Controller
 {
-
-    public function behaviors()
-    {
-        return [
-            'corsFilter' => [
-                'class' => \yii\filters\Cors::class,
-            ],
-        ];
-    }
-
 
     public function actionHome()
     {
@@ -66,6 +52,15 @@ class HomeController extends Controller
         $viewType = Yii::$app->request->get('viewType', 'table');
         // ค้นหาข้อมูลฟอร์มตาม ID
         $form = Forms::findOne($id);
+
+        // คิวรีข้อมูลฟิลด์ที่เกี่ยวข้อง
+        $fields = (new \yii\db\Query())
+            ->select(['field_name'])
+            ->from('fields')
+            ->innerJoin('forms', 'forms.id = fields.form_id') // เชื่อมกับตาราง forms
+            ->where(['forms.id' => $id]) // กรองข้อมูลโดยใช้ form_id
+            ->all();
+
         // การคิวรีข้อมูลที่เกี่ยวข้อง
         $query = (new \yii\db\Query())
             ->select([
@@ -97,7 +92,7 @@ class HomeController extends Controller
             $formattedData = []; // ไม่มีข้อมูล ส่ง array ว่างไปแสดงผล
             $events = []; // กำหนดให้ events เป็น array ว่าง
         } else {
-            // Pivot Data
+            $recordIds = [];
             $pivotData = [];
             foreach ($query as $row) {
                 $pivotData[$row['field_name']][] = $row['value'];
@@ -112,7 +107,7 @@ class HomeController extends Controller
             for ($i = 0; $i < $maxRows; $i++) {
                 $row = [];
                 foreach ($pivotData as $field => $values) {
-                    $row[$field] = $values[$i] ?? null;  // ใช้ null หากไม่มีข้อมูล
+                    $row[$field] = $values[$i] ?? null;
                 }
                 $row['record_id'] = $recordIds[$i] ?? null;  // ใช้คีย์ record_id ปกติ
                 $formattedData[] = $row;
@@ -163,6 +158,7 @@ class HomeController extends Controller
             'results' => $results,
             'viewType' => $viewType,
             'events' => $events,
+            'fields' => $fields,
         ]);
     }
 
@@ -206,29 +202,27 @@ class HomeController extends Controller
     }
 
 
-
-    // Action สำหรับแสดงรายละเอียด
-    public function actionViewDetails($id)
+    public function actionWorkDetailPreview($id)
     {
-        // แสดงรายละเอียดของ model
-        $model = Forms::findOne($id);
+        Yii::debug('Received ID from request: ' . $id);
 
-        if ($model === null) {
-            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        $this->layout = 'blank_page';
+
+        $data = (new \yii\db\Query())
+            ->select(['forms.form_name', 'fields.field_name', 'field_values.value', 'users.name AS user_name'])
+            ->from('forms')
+            ->innerJoin('records', 'forms.id = records.form_id')
+            ->innerJoin('users', 'records.user_id = users.id')
+            ->innerJoin('field_values', 'records.id = field_values.record_id')
+            ->innerJoin('fields', 'field_values.field_id = fields.id')
+            ->where(['field_values.record_id' => $id])
+            ->all();
+
+        if (empty($data)) {
+            Yii::debug('No data found for record_id: ' . $id);
         }
 
-        return $this->render('view-details', [
-            'model' => $model,
-        ]);
-    }
-
-
-    public function actionWorkDetailPreview() //id
-    {
-        $this->layout = 'blank_page';
-        return $this->render('work-detail-preview', [
-
-        ]);
+        return $this->render('work-detail-preview', ['data' => $data]);
     }
 
     public function actionAddForm()
@@ -360,7 +354,7 @@ class HomeController extends Controller
             ],
         ]);
 
-        return $this->render('assigned', [
+        return $this->render('assigned',[
             'user' => $user,
             'dataProvider' => $dataProvider,
         ]);
@@ -405,7 +399,7 @@ class HomeController extends Controller
     {
         $this->layout = 'layout';
         $forms = Forms::getFormsWithDepartments();
-        return $this->render('assignment', [
+        return $this->render('assignment',[
             'forms' => $forms,
         ]);
     }
@@ -413,7 +407,7 @@ class HomeController extends Controller
     public function actionAssignmentForm($id)
     {
         $this->layout = 'layout';
-        return $this->render('assignment-form', [
+        return $this->render('assignment-form',[
 
         ]);
     }

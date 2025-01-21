@@ -1,4 +1,7 @@
 <?php
+?>
+
+<?php
 
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -177,16 +180,11 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     table {
         border-collapse: separate;
         border-spacing: 0;
-        border-radius: 15px;
+        border-radius: 15px; /* กำหนดให้มุมของ table โค้ง */
         overflow: hidden; /* ซ่อนส่วนที่ล้นออกมา */
     }
     table th, table td {
         border: 1px solid #ddd; /* กำหนดขอบของ cell */
-    }
-    .grid-view thead th{
-        font-size: 16px;
-        text-align: center;
-        background-color: #f5f5f5;
     }
     .display-area{
         margin-top: 25px;
@@ -338,11 +336,11 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                 <input type="search" id="fieldSearch" placeholder="ค้นหา fields">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
             </div>
-            <?php if (!empty($result)): ?>
-                <?php foreach ($result as $field): ?>
+            <?php if (!empty($fields)): ?>
+                <?php foreach ($fields as $field): ?>
                     <li class="each-field">
                         <label class="switch submenu-link">
-                            <input type="checkbox">
+                            <input type="checkbox" class="field-toggle" data-field="<?= Html::encode($field['field_name']) ?>" checked>
                             <span class="slider round"></span>
                         </label>
                         <p class="field-name"><?= Html::encode($field['field_name']) ?></p>
@@ -354,8 +352,8 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                 </li>
             <?php endif; ?>
             <div class="btn-sort-each">
-                <button type="submit" class="btn btn-cus">Hide All</button>
-                <button type="submit" class="btn btn-cus">Show All</button>
+                <button type="button" class="btn btn-cus" id="hideAllFields">Hide All</button>
+                <button type="button" class="btn btn-cus" id="showAllFields">Show All</button>
             </div>
         </ul>
     </div>
@@ -372,6 +370,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     </div>
 </div>
     <div class="display-area">
+        <p>แสดงข้อมูลสำหรับ Form ID: <?= Html::encode(Yii::$app->request->get('id')) ?></p>
         <!-- การแสดงผลตาม $viewType -->
         <?php if ($viewType == 'table'): ?>
             <?= GridView::widget([
@@ -383,6 +382,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                             return [
                                 'attribute' => $fieldName,
                                 'label' => str_replace('_', ' ', $fieldName),
+                                'contentOptions' => ['class' => 'field-' . $fieldName], // เพิ่มคลาสสำหรับการซ่อน/แสดง
                             ];
                         }
                         return null;
@@ -395,7 +395,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                         ],
                         [
                             'class' => 'yii\grid\ActionColumn',
-                            'template' => '{download-pdf}',
+                            'template' => '{download-pdf} {preview}',
                             'buttons' => [
                                 'download-pdf' => function ($url, $model, $key) {
                                     return Html::a(
@@ -404,6 +404,16 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                                         ['class' => 'btn btn-danger btn-sm', 'target' => '_blank', 'title' => 'Download PDF']
                                     );
                                 },
+                                'preview' => function ($url, $model, $key) {
+                                    Yii::debug('Generated preview link for record_id: ' . $model['record_id']);
+
+                                    return Html::a(
+                                        '<i class="fa fa-eye"></i> พรีวิว',
+                                        ['work-detail-preview', 'id' => $model['record_id']],
+                                        ['class' => 'btn btn-primary btn-sm', 'title' => 'Preview']
+                                    );
+                                },
+
                             ],
                         ],
                     ]
@@ -413,6 +423,10 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
         <?php elseif ($viewType == 'list'): ?>
             <div class="list" style="margin-left: 20px; margin-top: 20px;">
             <?php foreach ($dataProvider->getModels() as $row): ?>
+                <?php
+                // ลบ record_id ออกจาก row ถ้ามี
+                unset($row['record_id']);
+                ?>
                 <div class="each-list">
                     <div class="list-item">
                         <a href="">
@@ -427,6 +441,10 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
         <div class="gallery" style="margin-left: 20px; margin-top: 20px;">
             <div class="row">
                 <?php foreach ($dataProvider->getModels() as $row): ?>
+                    <?php
+                    // ลบ record_id ออกจาก row ถ้ามี
+                    unset($row['record_id']);
+                    ?>
                     <a href="">
                         <div class="col-md-3 gallery-item">
                             <?= implode(', ', $row) ?>
@@ -444,6 +462,33 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
             ?>
             <div id="calendar"></div>
+            <?php
+            // Register FullCalendar JS
+            $this->registerJsFile('https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js', ['position' => \yii\web\View::POS_END]);
+            $this->registerCssFile('https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css');
+
+            // ตรวจสอบค่า $events ก่อนส่งไปที่ JavaScript
+            if (empty($events)) {
+                echo "No events available"; // แจ้งว่าไม่มีข้อมูลเหตุการณ์
+            } else {
+                $this->registerJs(new JsExpression("
+            document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: " . json_encode($events) . ",  // ส่งข้อมูล events ที่ถูกต้อง
+                eventRender: function(info) {
+                    console.log(info.event);
+                }
+            });
+            calendar.render();
+        });
+    "));
+            }
+
+            ?>
+        <?php else: ?>
+            <p>No events available for the calendar view.</p>
         <?php endif; ?>
 
     </div>
@@ -480,17 +525,52 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     });
 
 
-    // ปุ่ม Hide All
-    // document.getElementById('hideAll').addEventListener('click', function () {
-    //     const checkboxes = document.querySelectorAll('.each-field input[type="checkbox"]');
-    //     checkboxes.forEach(checkbox => checkbox.checked = false);
-    // });
+    $(document).ready(function() {
+        // ค้นหาคอลัมน์ที่ต้องการ
+        $('#fieldSearch').on('input', function() {
+            let searchTerm = $(this).val().toLowerCase();
+            $('.each-field').each(function() {
+                let fieldName = $(this).find('.field-name').text().toLowerCase();
+                if (fieldName.indexOf(searchTerm) === -1) {
+                    $(this).hide();
+                } else {
+                    $(this).show();
+                }
+            });
+        });
 
-    // ปุ่ม Show All
-    // document.getElementById('showAll').addEventListener('click', function () {
-    //     const checkboxes = document.querySelectorAll('.each-field input[type="checkbox"]');
-    //     checkboxes.forEach(checkbox => checkbox.checked = true);
-    // });
+        // การเลือกแสดง/ซ่อนคอลัมน์
+        $('.field-toggle').change(function() {
+            let fieldName = $(this).data('field');
+            let isChecked = $(this).prop('checked');
+
+            // การแสดง/ซ่อนคอลัมน์ใน GridView
+            if (isChecked) {
+                $('.field-' + fieldName).show(); // แสดงฟิลด์
+            } else {
+                $('.field-' + fieldName).hide(); // ซ่อนฟิลด์
+            }
+        });
+
+        // ปุ่ม Hide All
+        $('#hideAllFields').click(function() {
+            $('.field-toggle').prop('checked', false);
+            $('.each-field').each(function() {
+                let fieldName = $(this).find('.field-name').text();
+                $('.field-' + fieldName).hide();
+            });
+        });
+
+        // ปุ่ม Show All
+        $('#showAllFields').click(function() {
+            $('.field-toggle').prop('checked', true);
+            $('.each-field').each(function() {
+                let fieldName = $(this).find('.field-name').text();
+                $('.field-' + fieldName).show();
+            });
+        });
+    });
+
 
     //  Search
     document.getElementById('mainSearch').addEventListener('input', function () {

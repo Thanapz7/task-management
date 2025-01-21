@@ -231,24 +231,6 @@ class HomeController extends Controller
         ]);
     }
 
-    public function actionEachWorkList()
-    {
-        $this->layout = 'layout';
-        return $this->render('each-work-list');
-    }
-
-    public function actionEachWorkGallery()
-    {
-        $this->layout = 'layout';
-        return $this->render('each-work-gallery');
-    }
-
-    public function actionEachWorkCalendar()
-    {
-        $this->layout = 'layout';
-        return $this->render('each-work-calendar');
-    }
-
     public function actionAddForm()
     {
         if (Yii::$app->request->isPost) {
@@ -333,13 +315,6 @@ class HomeController extends Controller
         ]);
     }
 
-    public function actionEachWork()
-    {
-        $this->layout = 'layout';
-        return $this->render('each-work');
-    }
-
-
     public function actionFormSetting()
     {
         $this->layout = 'blank_page';
@@ -394,7 +369,36 @@ class HomeController extends Controller
     public function actionAssignedPreview($id)
     {
         $this->layout = 'layout';
-        return $this->render('assigned-preview');
+        $query = (new \yii\db\Query())
+            ->select([
+                'fields.field_name',
+                'field_values.value',
+                'records.user_id'
+            ])
+            ->from('records')
+            ->innerJoin('field_values', 'records.id = field_values.record_id')
+            ->innerJoin('fields', 'field_values.field_id = fields.id')
+            ->where(['records.id' => $id]);
+
+        $queryinfo = (new \yii\db\Query())
+            ->select([
+                'forms.create_at',
+                'forms.form_name',
+                'department.department_name'
+            ])
+            ->from('records')
+            ->innerJoin('forms', 'records.form_id = forms.id')
+            ->innerJoin('users', 'forms.user_id = users.id')
+            ->innerJoin('department', 'users.department = department.id')
+            ->where(['records.id' => $id]);
+
+        $results_info = $queryinfo->all();
+
+        $results = $query->all();
+        return $this->render('assigned-preview',[
+            'results' => $results,
+            'results_info' => $results_info,
+        ]);
     }
 
     public function actionAssignment()

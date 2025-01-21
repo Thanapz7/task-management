@@ -27,6 +27,20 @@ $this->title = 'Assigned Preview';
         border-radius: 20px;
         padding: 15px;
     }
+    .info h4{
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .field-name{
+        font-size: 16px;
+        font-weight: bold;
+    }
+    .value{
+        font-size: 14px;
+        border: 1px solid rgba(204, 204, 204, 0.74);
+        border-radius: 10px;
+        padding: 10px;
+    }
     @media print {
         .back-btn{
             display: none;
@@ -36,6 +50,8 @@ $this->title = 'Assigned Preview';
         }
         .assignment-preview{
             height: auto;
+            width: 100%;
+            margin: 0px;
         }
     }
 </style>
@@ -46,7 +62,25 @@ $this->title = 'Assigned Preview';
     'encode' => false,
 ]) ?>
 <div class="assignment-preview">
+    <div class="info text-center">
+        <?php foreach ($results_info as $info):?>
+            <h4>ชื่อแฟ้ม <?= htmlspecialchars($info['form_name']) ?></h4>
+            <h4>ลงเมื่อวันที่ <?= htmlspecialchars((new DateTime($info['create_at']))->format('d/m/Y H:i')) ?></h4>
+            <h4>แผนกที่ติดต่อ <?= htmlspecialchars(mb_strtoupper($info['department_name'])) ?></h4>
 
+        <?php endforeach; ?>
+    </div>
+    <hr>
+    <div class="apply">
+        <?php foreach ($results as $result): ?>
+            <div class="field-name">
+                <?= $result['field_name'] ?>
+            </div>
+            <div class="value" style="margin-bottom: 20px">
+                <?= $result['value'] ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
 </div>
 
 <script>

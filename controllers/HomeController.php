@@ -56,20 +56,36 @@ class HomeController extends Controller
             ->select([
                 'fields.field_name',
                 'field_values.value',
-                'records.id AS record_id'
+                'records.id AS record_id',
             ])
             ->from('forms')
             ->innerJoin('fields', 'forms.id = fields.form_id')
-            ->innerJoin('records', 'records.form_id = forms.id')
+            ->innerJoin('records', 'forms.id = records.form_id')
             ->innerJoin('field_values', 'fields.id = field_values.field_id')
             ->where(['forms.id' => $id])
             ->andWhere('records.id = field_values.record_id')
             ->all();
+//
+//        $queryCal = (new \yii\db\Query())
+//            ->select([
+//                'records.id AS record_id',
+//                'records.create_at',
+//                'fields.id AS field_id',
+//                'fields.field_name',
+//                'records.form_id',
+//                'field_values.value'
+//            ])
+//            ->from('records')
+//            ->innerJoin('field_values', 'field_values.record_id = records.id')
+//            ->innerJoin('fields', 'fields.id = field_values.field_id');
+//
+//        $results = $queryCal->all();
 
         if (empty($query)) {
             $formattedData = []; // ไม่มีข้อมูล ส่ง array ว่างไปแสดงผล
+            $events = []; // กำหนดให้ events เป็น array ว่าง
         } else {
-            $recordIds = [];
+            // Pivot Data
             $pivotData = [];
             foreach ($query as $row) {
                 $pivotData[$row['field_name']][] = $row['value'];
@@ -84,10 +100,54 @@ class HomeController extends Controller
             for ($i = 0; $i < $maxRows; $i++) {
                 $row = [];
                 foreach ($pivotData as $field => $values) {
-                    $row[$field] = $values[$i] ?? null;
+                    $row[$field] = $values[$i] ?? null;  // ใช้ null หากไม่มีข้อมูล
                 }
                 $row['record_id'] = $recordIds[$i] ?? null;  // ใช้คีย์ record_id ปกติ
                 $formattedData[] = $row;
+            }
+
+            // ตัวอย่างการสร้างข้อมูลเหตุการณ์ที่ส่งไปยัง FullCalendar
+            $events = [];
+            foreach ($formattedData as $data) {
+                $startDate = null;
+                if (!empty($data['event_start'])) {
+                    $startDate = DateTime::createFromFormat('d/m/Y', $data['event_start']);
+                    if (!$startDate) {
+                        $startDate = DateTime::createFromFormat('m-d-Y', $data['event_start']);
+                    }
+                    if (!$startDate) {
+                        $startDate = DateTime::createFromFormat('Y/m/d', $data['event_start']);
+                    }
+                    if ($startDate) {
+                        $startDate = $startDate->format('Y-m-d\TH:i:s');
+                    }
+                }
+                $endDate = null;
+                if (!empty($data['event_end'])) {
+                    $endDate = DateTime::createFromFormat('d/m/Y', $data['event_end']);
+                    if (!$endDate) {
+                        $endDate = DateTime::createFromFormat('m-d-Y', $data['event_end']);
+                    }
+                    if (!$endDate) {
+                        $endDate = DateTime::createFromFormat('Y/m/d', $data['event_end']);
+                    }
+                    if ($endDate) {
+                        $endDate = $endDate->format('Y-m-d\TH:i:s');
+                    }
+                }
+                if (!$startDate) {
+                    $startDate = date('Y-m-d\TH:i:s');
+                }
+                if (!$endDate) {
+                    $endDate = date('Y-m-d\TH:i:s', strtotime('+1 hour'));
+                }
+                if (!empty($startDate) && !empty($endDate)) {
+                    $events[] = [
+                        'title' => $data['event_title'] ?? 'งานที่เข้ามา',
+                        'start' => $startDate,
+                        'end' => $endDate,
+                    ];
+                }
             }
         }
         // สร้าง data provider
@@ -96,23 +156,15 @@ class HomeController extends Controller
             'pagination' => false,
         ]);
         // ส่งข้อมูลไปที่ view
-        if (empty($events)) {
-            // กรณีไม่มีเหตุการณ์, ไม่ต้องส่ง events ไป
-            return $this->render('work-detail', [
-                'form' => $form,
-                'dataProvider' => $dataProvider,
-                'viewType' => $viewType,
-                // ไม่มี 'events' ในกรณีนี้
-            ]);
-        } else {
-            return $this->render('work-detail', [
-                'form' => $form,
-                'dataProvider' => $dataProvider,
-                'viewType' => $viewType,
-                'events' => $events,  // ส่งไปในกรณีที่มีเหตุการณ์
-            ]);
-        }
+        return $this->render('work-detail', [
+            'form' => $form,
+            'dataProvider' => $dataProvider,
+//            'results' => $results,
+            'viewType' => $viewType,
+            'events' => $events,
+        ]);
     }
+
 
 // Action สำหรับดาวน์โหลด PDF
     public function actionDownloadPdf($record_id)

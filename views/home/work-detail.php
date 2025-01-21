@@ -1,7 +1,4 @@
 <?php
-?>
-
-<?php
 
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -10,6 +7,39 @@ use yii\web\JsExpression;
 $this->title='รายละเอียดงาน '. $form['form_name'];
 ?>
 
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<?php
+$encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
+
+?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // รับข้อมูล events จาก PHP ที่ถูกแปลงเป็น JSON
+        var eventsData = <?php echo $encodedEvents; ?>;
+        console.log("event dataS",eventsData)
+
+        // เริ่มต้นการทำงานของ FullCalendar
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            },
+            events: eventsData, // ใช้ข้อมูล events ที่ส่งมาจาก PHP
+            eventContent: function(info) {
+                // แสดงเนื้อหาของ event (เช่น title)
+                var eventTitle = info.event.title;
+                var content = document.createElement('div');
+                content.innerText = eventTitle; // ใช้ title หรือข้อมูลอื่นๆ ที่คุณต้องการ
+                return { domNodes: [content] };
+            },
+        });
+        calendar.render();
+    });
+</script>
 <style>
     .back-btn{
         margin-left: 20px;
@@ -147,11 +177,16 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
     table {
         border-collapse: separate;
         border-spacing: 0;
-        border-radius: 15px; /* กำหนดให้มุมของ table โค้ง */
+        border-radius: 15px;
         overflow: hidden; /* ซ่อนส่วนที่ล้นออกมา */
     }
     table th, table td {
         border: 1px solid #ddd; /* กำหนดขอบของ cell */
+    }
+    .grid-view thead th{
+        font-size: 16px;
+        text-align: center;
+        background-color: #f5f5f5;
     }
     .display-area{
         margin-top: 25px;
@@ -370,7 +405,11 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
             <div class="list" style="margin-left: 20px; margin-top: 20px;">
             <?php foreach ($dataProvider->getModels() as $row): ?>
                 <div class="each-list">
-                    <?= implode(', ', $row) ?>
+                    <div class="list-item">
+                        <a href="">
+                            <?= implode(', ', $row) ?>
+                        </a>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -379,43 +418,25 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
         <div class="gallery" style="margin-left: 20px; margin-top: 20px;">
             <div class="row">
                 <?php foreach ($dataProvider->getModels() as $row): ?>
-                    <div class="col-md-3 gallery-item">
-                        <?= implode(', ', $row) ?>
-                    </div>
+                    <a href="">
+                        <div class="col-md-3 gallery-item">
+                            <?= implode(', ', $row) ?>
+                        </div>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </div>
 
         <?php elseif ($viewType == 'calendar' && isset($events) && !empty($events)): ?>
-            <div id="calendar"></div>
+
             <?php
-            // Register FullCalendar JS
-            $this->registerJsFile('https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js', ['position' => \yii\web\View::POS_END]);
-            $this->registerCssFile('https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css');
-
-            // ตรวจสอบค่า $events ก่อนส่งไปที่ JavaScript
-            if (empty($events)) {
-                echo "No events available"; // แจ้งว่าไม่มีข้อมูลเหตุการณ์
-            } else {
-                $this->registerJs(new JsExpression("
-            document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                events: " . json_encode($events) . ",  // ส่งข้อมูล events ที่ถูกต้อง
-                eventRender: function(info) {
-                    console.log(info.event);
-                }
-            });
-            calendar.render();
-        });
-    "));
-            }
-
+            $this->registerCssFile('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css');
+            $this->registerJsFile('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js', ['position' => \yii\web\View::POS_END]);
+            $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
             ?>
-        <?php else: ?>
-            <p>No events available for the calendar view.</p>
+            <div id="calendar"></div>
         <?php endif; ?>
+
     </div>
 
 
@@ -462,6 +483,7 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
     //     checkboxes.forEach(checkbox => checkbox.checked = true);
     // });
 
+    //  Search
     document.getElementById('mainSearch').addEventListener('input', function () {
         const searchTerm = this.value.toLowerCase();
 

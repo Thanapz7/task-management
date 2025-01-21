@@ -75,4 +75,9 @@ class Forms extends \yii\db\ActiveRecord
             ->all();
     }
 
+    public function getFields()
+    {
+        return $this->hasMany(Fields::className(), ['form_id' => 'id']);
+    }
+
 }

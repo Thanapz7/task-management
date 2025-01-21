@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Fields;
 use app\models\Forms;
 use app\models\LoginForm;
 use app\models\Records;
@@ -11,14 +12,27 @@ use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use app\widgets\DataDisplayWidget;
 use yii\db\Query;
+use yii\filters\AccessControl;
+use yii\web\BadRequestHttpException;
 use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\View;
 use Mpdf\Mpdf;
 
+use yii\web\Response;
 class HomeController extends Controller
 {
+
+    public function behaviors()
+    {
+        return [
+            'corsFilter' => [
+                'class' => \yii\filters\Cors::class,
+            ],
+        ];
+    }
+
 
     public function actionHome()
     {
@@ -109,6 +123,10 @@ class HomeController extends Controller
             // ตัวอย่างการสร้างข้อมูลเหตุการณ์ที่ส่งไปยัง FullCalendar
             $events = [];
             foreach ($formattedData as $data) {
+                // ตรวจสอบว่า 'event_start' และ 'event_end' มีข้อมูลเป็น timestamp หรือ datetime
+                // ตรวจสอบว่า 'event_start' และ 'event_end' เป็นรูปแบบ text ที่เก็บข้อมูลวันเดือนปี
+
+                // การแปลง 'event_start' จากรูปแบบ 'DD/MM/YYYY' หรืออื่นๆ เป็น 'Y-m-d\TH:i:s'
                 $startDate = null;
                 if (!empty($data['event_start'])) {
                     $startDate = DateTime::createFromFormat('d/m/Y', $data['event_start']);
@@ -122,6 +140,7 @@ class HomeController extends Controller
                         $startDate = $startDate->format('Y-m-d\TH:i:s');
                     }
                 }
+                // การแปลง 'event_end' จากรูปแบบ 'DD/MM/YYYY' หรืออื่นๆ เป็น 'Y-m-d\TH:i:s'
                 $endDate = null;
                 if (!empty($data['event_end'])) {
                     $endDate = DateTime::createFromFormat('d/m/Y', $data['event_end']);
@@ -230,6 +249,24 @@ class HomeController extends Controller
         ]);
     }
 
+    public function actionEachWorkList()
+    {
+        $this->layout = 'layout';
+        return $this->render('each-work-list');
+    }
+
+    public function actionEachWorkGallery()
+    {
+        $this->layout = 'layout';
+        return $this->render('each-work-gallery');
+    }
+
+    public function actionEachWorkCalendar()
+    {
+        $this->layout = 'layout';
+        return $this->render('each-work-calendar');
+    }
+
     public function actionAddForm()
     {
         if (Yii::$app->request->isPost) {
@@ -277,6 +314,7 @@ class HomeController extends Controller
         $this->layout = 'blank_page';
         return $this->render('create-form', [
             'form' => $form,
+            'formId' => $id,
         ]);
     }
 
@@ -287,7 +325,7 @@ class HomeController extends Controller
         if (!$form) {
             throw new \yii\web\NotFoundHttpException('Form not found.');
         }
-        if($form->delete()){
+        if ($form->delete()) {
             Yii::$app->session->setFlash('success', 'ลบฟอร์มเรียบร้อย');
         } else {
             Yii::$app->session->setFlash('error', 'ไม่สามารถลบฟอร์มได้');
@@ -312,6 +350,13 @@ class HomeController extends Controller
             'model' => $model,
         ]);
     }
+
+    public function actionEachWork()
+    {
+        $this->layout = 'layout';
+        return $this->render('each-work');
+    }
+
 
     public function actionFormSetting()
     {
@@ -358,7 +403,7 @@ class HomeController extends Controller
             ],
         ]);
 
-        return $this->render('assigned',[
+        return $this->render('assigned', [
             'user' => $user,
             'dataProvider' => $dataProvider,
         ]);
@@ -374,7 +419,7 @@ class HomeController extends Controller
     {
         $this->layout = 'layout';
         $forms = Forms::getFormsWithDepartments();
-        return $this->render('assignment',[
+        return $this->render('assignment', [
             'forms' => $forms,
         ]);
     }
@@ -382,7 +427,7 @@ class HomeController extends Controller
     public function actionAssignmentForm($id)
     {
         $this->layout = 'layout';
-        return $this->render('assignment-form',[
+        return $this->render('assignment-form', [
 
         ]);
     }
@@ -409,4 +454,67 @@ class HomeController extends Controller
         return $this->redirect(['./home']);
     }
 
+    public function actionField($id = null) {
+        $this->layout='blank_page';
+        if ($id === null) {
+            $id = Yii::$app->request->post('id'); // ดึงค่าจาก POST ถ้าไม่มีใน URL
+        }
+
+        if (!$id || !($form = Forms::findOne($id))) {
+            throw new \yii\web\NotFoundHttpException('Form not found.');
+        }
+
+        if (Yii::$app->request->isPost) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+
+            // ดึงค่า JSON และดีบัก
+            $postDataRaw = Yii::$app->request->post('fields', '');
+            Yii::debug($postDataRaw, 'debug_raw_fields');
+
+            // แปลง JSON เป็น array
+            $postData = json_decode($postDataRaw, true);
+
+            if (!is_array($postData)) {
+                return [
+                    'success' => false,
+                    'message' => 'Invalid JSON format',
+                    'debug' => $postDataRaw
+                ];
+            }
+
+            if (empty($postData)) {
+                return [
+                    'success' => false,
+                    'message' => 'No valid field data provided.',
+                    'debug' => $postData
+                ];
+            }
+
+            Yii::debug($postData, 'debug_postData');
+
+            foreach ($postData as $field) {
+                if (!is_array($field) || !isset($field['label'], $field['type'])) {
+                    return [
+                        'success' => false,
+                        'message' => 'Invalid field data provided.',
+                        'debug' => $field
+                    ];
+                }
+
+                $model = new Fields();
+                $model->form_id = $id;
+                $model->field_name = $field['label'];
+                $model->field_type = $field['type'];
+                $model->options = isset($field['options']) ? json_encode($field['options']) : null;
+
+                if (!$model->save()) {
+                    return ['success' => false, 'errors' => $model->errors];
+                }
+            }
+
+            return $this->redirect(['home/create-form', 'id' => $id]);
+        }
+
+        return $this->render('create-form', ['form' => $form, 'formId' => $id]);
+    }
 }

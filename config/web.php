@@ -15,18 +15,6 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'CnQjEz6BxyA-enFjbWLonzN3s0xuEz5T',
-            'parsers' => [
-                'application/json' => 'yii\web\JsonParser',
-            ]
-        ],
-        'corsFilter' => [
-            'class' => 'yii\filters\Cors::class',
-            'cors' => [
-//                'Origin' => ['*'],
-//                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//                'Access-Control-Allow-Credentials' => true,
-                'class' => \yii\filters\Cors::class,
-            ],
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -60,7 +48,6 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-//                'home/fields/<id:\d+>' => 'home/fields',
 //                // กฎการกำหนด URL ที่เป็นมิตร
 //                'user/update/<id:\d+>' => 'user/update',
 ////                'user/view/<id:\d+>' => 'user/view',

@@ -223,8 +223,8 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
 <div class="head-each-work">
     <h4 style="font-size: 36px"><?= Html::encode($form['form_name'])?></h4>
     <button style="background: none; border: none" data-toggle="modal" data-target="#myModal" id="openModalButton">
-        <i class="fa-solid fa-gear"></i>
-    </button>
+            <i class="fa-solid fa-gear"></i>
+        </button>
 
 
     <!-- Modal -->
@@ -330,9 +330,41 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
     <div class="display-area">
         <!-- การแสดงผลตาม $viewType -->
         <?php if ($viewType == 'table'): ?>
-            <?= \yii\grid\GridView::widget([
+            <?= GridView::widget([
                 'dataProvider' => $dataProvider,
-            ]) ?>
+                'summary' => false,
+                'columns' => array_merge(
+                    array_values(array_filter(array_map(function ($fieldName) {
+                        if ($fieldName !== 'record_id') {  // ลบ record_id ออกจากคอลัมน์
+                            return [
+                                'attribute' => $fieldName,
+                                'label' => str_replace('_', ' ', $fieldName),
+                            ];
+                        }
+                        return null;
+                    }, array_keys($dataProvider->allModels[0] ?? [])))),
+                    // เพิ่มคอลัมน์เพิ่มเติม เช่น ActionColumn และซ่อน record_id
+                    [
+                        [
+                            'attribute' => 'record_id',
+                            'visible' => false,  // ซ่อน record_id ไม่ให้แสดงในตาราง
+                        ],
+                        [
+                            'class' => 'yii\grid\ActionColumn',
+                            'template' => '{download-pdf}',
+                            'buttons' => [
+                                'download-pdf' => function ($url, $model, $key) {
+                                    return Html::a(
+                                        '<i class="fa fa-file-pdf"></i> ดาวน์โหลด PDF',
+                                        ['download-pdf', 'record_id' => $model['record_id']],
+                                        ['class' => 'btn btn-danger btn-sm', 'target' => '_blank', 'title' => 'Download PDF']
+                                    );
+                                },
+                            ],
+                        ],
+                    ]
+                ),
+            ]); ?>
 
         <?php elseif ($viewType == 'list'): ?>
             <div class="list" style="margin-left: 20px; margin-top: 20px;">
@@ -404,20 +436,19 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
     });
 
 
-    // ค้นหาใน dropdown menu
-    document.getElementById('fieldSearch').addEventListener('input', function () {
-        const query = this.value.toLowerCase();
+    // // ค้นหาใน dropdown menu
+    function searchFields(query) {
         const fields = document.querySelectorAll('.each-field');
-
         fields.forEach(field => {
             const fieldName = field.querySelector('.field-name').textContent.toLowerCase();
-            if (fieldName.includes(query)) {
-                field.style.display = ''; // แสดงผล
-            } else {
-                field.style.display = 'none'; // ซ่อน
-            }
+            field.style.display = fieldName.includes(query) ? '' : 'none';
         });
+    }
+
+    document.getElementById('fieldSearch').addEventListener('input', function () {
+        searchFields(this.value.toLowerCase());
     });
+
 
     // ปุ่ม Hide All
     // document.getElementById('hideAll').addEventListener('click', function () {

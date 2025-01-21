@@ -11,9 +11,11 @@ use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use app\widgets\DataDisplayWidget;
 use yii\db\Query;
+use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\View;
+use Mpdf\Mpdf;
 
 class HomeController extends Controller
 {
@@ -54,10 +56,11 @@ class HomeController extends Controller
             ->select([
                 'fields.field_name',
                 'field_values.value',
+                'records.id AS record_id'
             ])
             ->from('forms')
             ->innerJoin('fields', 'forms.id = fields.form_id')
-            ->innerJoin('records', 'forms.id = records.form_id')
+            ->innerJoin('records', 'records.form_id = forms.id')
             ->innerJoin('field_values', 'fields.id = field_values.field_id')
             ->where(['forms.id' => $id])
             ->andWhere('records.id = field_values.record_id')
@@ -66,10 +69,14 @@ class HomeController extends Controller
         if (empty($query)) {
             $formattedData = []; // ไม่มีข้อมูล ส่ง array ว่างไปแสดงผล
         } else {
-            // Pivot Data
+            $recordIds = [];
             $pivotData = [];
             foreach ($query as $row) {
                 $pivotData[$row['field_name']][] = $row['value'];
+                // ตรวจสอบว่า record_id ถูกดึงมาถูกต้องหรือไม่
+                if (isset($row['record_id'])) {
+                    $recordIds[] = $row['record_id'];
+                }
             }
 
             $maxRows = !empty($pivotData) ? max(array_map('count', $pivotData)) : 0;
@@ -77,60 +84,10 @@ class HomeController extends Controller
             for ($i = 0; $i < $maxRows; $i++) {
                 $row = [];
                 foreach ($pivotData as $field => $values) {
-                    $row[$field] = $values[$i] ?? null;  // ใช้ null หากไม่มีข้อมูล
+                    $row[$field] = $values[$i] ?? null;
                 }
+                $row['record_id'] = $recordIds[$i] ?? null;  // ใช้คีย์ record_id ปกติ
                 $formattedData[] = $row;
-            }
-
-            // ตัวอย่างการสร้างข้อมูลเหตุการณ์ที่ส่งไปยัง FullCalendar
-            $events = [];
-            foreach ($formattedData as $data) {
-                // ตรวจสอบว่า 'event_start' และ 'event_end' มีข้อมูลเป็น timestamp หรือ datetime
-                // ตรวจสอบว่า 'event_start' และ 'event_end' เป็นรูปแบบ text ที่เก็บข้อมูลวันเดือนปี
-
-                // การแปลง 'event_start' จากรูปแบบ 'DD/MM/YYYY' หรืออื่นๆ เป็น 'Y-m-d\TH:i:s'
-                $startDate = null;
-                if (!empty($data['event_start'])) {
-                    $startDate = DateTime::createFromFormat('d/m/Y', $data['event_start']);
-                    if (!$startDate) {
-                        $startDate = DateTime::createFromFormat('m-d-Y', $data['event_start']);
-                    }
-                    if (!$startDate) {
-                        $startDate = DateTime::createFromFormat('Y/m/d', $data['event_start']);
-                    }
-                    if ($startDate) {
-                        $startDate = $startDate->format('Y-m-d\TH:i:s');
-                    }
-                }
-                // การแปลง 'event_end' จากรูปแบบ 'DD/MM/YYYY' หรืออื่นๆ เป็น 'Y-m-d\TH:i:s'
-                $endDate = null;
-                if (!empty($data['event_end'])) {
-                    $endDate = DateTime::createFromFormat('d/m/Y', $data['event_end']);
-                    if (!$endDate) {
-                        $endDate = DateTime::createFromFormat('m-d-Y', $data['event_end']);
-                    }
-                    if (!$endDate) {
-                        $endDate = DateTime::createFromFormat('Y/m/d', $data['event_end']);
-                    }
-                    if ($endDate) {
-                        $endDate = $endDate->format('Y-m-d\TH:i:s');
-                    }
-                }
-                // ถ้า `event_start` หรือ `event_end` ยังเป็น null ให้กำหนดเวลาอื่น ๆ แทน
-                if (!$startDate) {
-                    $startDate = date('Y-m-d\TH:i:s');  // ใช้เวลาปัจจุบัน
-                }
-                if (!$endDate) {
-                    $endDate = date('Y-m-d\TH:i:s', strtotime('+1 hour'));  // ใช้เวลาปัจจุบัน + 1 ชั่วโมง
-                }
-                // หากมีทั้ง 'startDate' และ 'endDate' จึงสร้างเหตุการณ์
-                if (!empty($startDate) && !empty($endDate)) {
-                    $events[] = [
-                        'title' => $data['event_title'] ?? 'No Title',
-                        'start' => $startDate,  // ใช้ค่า event_start ที่แปลงแล้ว
-                        'end' => $endDate,      // ใช้ค่า event_end ที่แปลงแล้ว
-                    ];
-                }
             }
         }
         // สร้าง data provider
@@ -157,7 +114,60 @@ class HomeController extends Controller
         }
     }
 
+// Action สำหรับดาวน์โหลด PDF
+    public function actionDownloadPdf($record_id)
+    {
+        $record = Records::findOne($record_id);
+        if (!$record) {
+            throw new \yii\web\NotFoundHttpException('Record not found.');
+        }
 
+        // ดึงข้อมูลฟิลด์ที่เกี่ยวข้อง
+        $data = (new \yii\db\Query())
+            ->select(['fields.field_name', 'field_values.value'])
+            ->from('field_values')
+            ->innerJoin('fields', 'fields.id = field_values.field_id')
+            ->where(['field_values.record_id' => $record_id])
+            ->all();
+
+        // แปลงข้อมูลให้อยู่ในรูปแบบที่อ่านง่าย
+        $content = "<h2>Record Detail</h2><table border='1' cellpadding='5' cellspacing='0'>";
+        $content .= "<tr><th>Field Name</th><th>Value</th></tr>";
+        foreach ($data as $row) {
+            $content .= "<tr>";
+            $content .= "<td>" . Html::encode($row['field_name']) . "</td>";
+            $content .= "<td>" . Html::encode($row['value']) . "</td>";
+            $content .= "</tr>";
+        }
+        $content .= "</table>";
+
+        // สร้างเอกสาร PDF ด้วย mPDF
+        $mpdf = new Mpdf();
+        $mpdf->WriteHTML($content);
+
+        // ตั้งชื่อไฟล์ PDF
+        $filename = "record_{$record_id}.pdf";
+
+        // ส่งไฟล์ PDF ไปยังผู้ใช้
+        return $mpdf->Output($filename, 'D');  // 'D' = force download
+    }
+
+
+
+    // Action สำหรับแสดงรายละเอียด
+    public function actionViewDetails($id)
+    {
+        // แสดงรายละเอียดของ model
+        $model = Forms::findOne($id);
+
+        if ($model === null) {
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        }
+
+        return $this->render('view-details', [
+            'model' => $model,
+        ]);
+    }
 
 
     public function actionWorkDetailPreview() //id

@@ -7,6 +7,7 @@ use app\models\Forms;
 use app\models\LoginForm;
 use app\models\Records;
 use app\models\Users;
+use DateTime;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
@@ -79,21 +80,18 @@ class HomeController extends Controller
             ->where(['forms.id' => $id])
             ->andWhere('records.id = field_values.record_id')
             ->all();
-//
-//        $queryCal = (new \yii\db\Query())
-//            ->select([
-//                'records.id AS record_id',
-//                'records.create_at',
-//                'fields.id AS field_id',
-//                'fields.field_name',
-//                'records.form_id',
-//                'field_values.value'
-//            ])
-//            ->from('records')
-//            ->innerJoin('field_values', 'field_values.record_id = records.id')
-//            ->innerJoin('fields', 'fields.id = field_values.field_id');
-//
-//        $results = $queryCal->all();
+
+        $queryCal = (new \yii\db\Query())
+            ->select(['fields.field_name', 'records.create_at', 'field_values.value'])
+            ->from('forms')
+            ->innerJoin('records', 'forms.id = records.form_id')
+            ->innerJoin('field_values', 'records.id = field_values.record_id')
+            ->innerJoin('fields', 'field_values.field_id = fields.id')
+            ->where(['forms.id' => $id])
+            ->groupBy(['field_values.record_id']) // เลือกค่าตัวแรกของแต่ละชุด
+            ->orderBy(['field_values.record_id' => SORT_ASC]);
+
+        $results = $queryCal->all();
 
         if (empty($query)) {
             $formattedData = []; // ไม่มีข้อมูล ส่ง array ว่างไปแสดงผล
@@ -120,54 +118,38 @@ class HomeController extends Controller
                 $formattedData[] = $row;
             }
 
-            // ตัวอย่างการสร้างข้อมูลเหตุการณ์ที่ส่งไปยัง FullCalendar
             $events = [];
-            foreach ($formattedData as $data) {
+            foreach ($results as $data) {
                 // ตรวจสอบว่า 'event_start' และ 'event_end' มีข้อมูลเป็น timestamp หรือ datetime
                 // ตรวจสอบว่า 'event_start' และ 'event_end' เป็นรูปแบบ text ที่เก็บข้อมูลวันเดือนปี
 
                 // การแปลง 'event_start' จากรูปแบบ 'DD/MM/YYYY' หรืออื่นๆ เป็น 'Y-m-d\TH:i:s'
                 $startDate = null;
-                if (!empty($data['event_start'])) {
-                    $startDate = DateTime::createFromFormat('d/m/Y', $data['event_start']);
-                    if (!$startDate) {
-                        $startDate = DateTime::createFromFormat('m-d-Y', $data['event_start']);
-                    }
-                    if (!$startDate) {
-                        $startDate = DateTime::createFromFormat('Y/m/d', $data['event_start']);
-                    }
+                $endDate = null;
+                // กำหนดฟิลด์สำหรับวันที่เริ่มต้น
+                $eventStartField = 'create_at'; // ใช้ create_at เป็นวันที่เริ่มต้น
+                // จัดการวันที่เริ่มต้น
+                if (!empty($data[$eventStartField])) {
+                    $startDate = DateTime::createFromFormat('Y-m-d H:i:s', $data[$eventStartField]);
                     if ($startDate) {
                         $startDate = $startDate->format('Y-m-d\TH:i:s');
                     }
                 }
                 // การแปลง 'event_end' จากรูปแบบ 'DD/MM/YYYY' หรืออื่นๆ เป็น 'Y-m-d\TH:i:s'
-                $endDate = null;
-                if (!empty($data['event_end'])) {
-                    $endDate = DateTime::createFromFormat('d/m/Y', $data['event_end']);
-                    if (!$endDate) {
-                        $endDate = DateTime::createFromFormat('m-d-Y', $data['event_end']);
-                    }
-                    if (!$endDate) {
-                        $endDate = DateTime::createFromFormat('Y/m/d', $data['event_end']);
-                    }
-                    if ($endDate) {
-                        $endDate = $endDate->format('Y-m-d\TH:i:s');
-                    }
-                }
+                // กำหนดค่าเริ่มต้นหากไม่มี start
                 if (!$startDate) {
                     $startDate = date('Y-m-d\TH:i:s');
                 }
-                if (!$endDate) {
-                    $endDate = date('Y-m-d\TH:i:s', strtotime('+1 hour'));
-                }
-                if (!empty($startDate) && !empty($endDate)) {
-                    $events[] = [
-                        'title' => $data['event_title'] ?? 'งานที่เข้ามา',
-                        'start' => $startDate,
-                        'end' => $endDate,
-                    ];
-                }
+                // หากไม่มี endDate ให้กำหนดเป็น startDate + 1 ชั่วโมง
+                $endDate = date('Y-m-d\TH:i:s', strtotime($startDate . ' +1 hour'));
+                // เพิ่มข้อมูลใน events array
+                $events[] = [
+                    'title' => $data['value'] ?? 'งานที่เข้ามา',
+                    'start' => $startDate,
+                    'end' => $endDate,
+                ];
             }
+
         }
         // สร้าง data provider
         $dataProvider = new ArrayDataProvider([
@@ -178,7 +160,7 @@ class HomeController extends Controller
         return $this->render('work-detail', [
             'form' => $form,
             'dataProvider' => $dataProvider,
-//            'results' => $results,
+            'results' => $results,
             'viewType' => $viewType,
             'events' => $events,
         ]);

@@ -30,6 +30,7 @@ $this->title = 'สร้างฟอร์ม';
         margin-bottom: 10px;
         border-bottom: 1px solid #cccccc;
         cursor: grab;
+        transition: 0.25s;
     }
     .data-item:hover{
         background-color: #cccccc;

@@ -247,6 +247,15 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     .fc .fc-button-primary:disabled{
         background-color: rgba(85, 173, 155, 0.64);
     }
+    .fc-daygrid-event{
+        font-size: 14px;
+        color: #0c5460;
+        background-color: rgba(85, 173, 155, 0.24);
+    }
+    .fc-daygrid-event:hover{
+        background-color: #0c5460;
+        color: #ffffff;
+    }
 </style>
 
 <?= Html::button('<i class="fa-solid fa-arrow-left back-btn"></i>', [

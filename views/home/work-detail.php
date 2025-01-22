@@ -172,6 +172,9 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
         background-color: white;
         transition: .4s;
     }
+    .field-column-hidden{
+        display: none;
+    }
     input:checked + .slider {
         background-color: #95D2B3;
     }
@@ -400,8 +403,8 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                             return [
                                 'attribute' => $fieldName,
                                 'label' => str_replace('_', ' ', $fieldName),
-                                'contentOptions' => ['class' => 'field-name' . $fieldName], // เพิ่มคลาสสำหรับการซ่อน/แสดง
-                                'headerOptions' => ['class' => 'custom-table-header']
+                                'contentOptions' => ['class' => 'field-column-' . $fieldName], // เพิ่มคลาสสำหรับการซ่อน/แสดง
+                                'headerOptions' => ['class' => 'field-column-' . $fieldName ]
                             ];
                         }
                         return null;
@@ -454,13 +457,18 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             <div class="list" style="margin-left: 20px; margin-top: 20px;">
             <?php foreach ($dataProvider->getModels() as $row): ?>
                 <?php
+                $recordId = $row['record_id'];
                 // ลบ record_id ออกจาก row ถ้ามี
                 unset($row['record_id']);
                 ?>
                 <div class="each-list">
                     <div class="list-item">
-                        <a href="">
-                            <?= implode(', ', $row) ?>
+                        <a href="<?= Url::to(['work-detail-preview', 'id'=>$recordId])?>">
+                            <?php foreach ($row as $fieldName => $fieldValue): ?>
+                                <span class="field-column-<?= $fieldName ?>">
+                                    <?= $fieldValue ?>
+                                </span>
+                            <?php endforeach; ?>
                         </a>
                     </div>
                 </div>
@@ -472,12 +480,18 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             <div class="row">
                 <?php foreach ($dataProvider->getModels() as $row): ?>
                     <?php
+                    $recordId = $row['record_id'] ?? null;
                     // ลบ record_id ออกจาก row ถ้ามี
                     unset($row['record_id']);
                     ?>
-                    <a href="">
+                    <a href="<?= Url::to(['work-detail-preview', 'id' => $recordId]) ?>">
                         <div class="col-md-3 gallery-item">
-                            <?= implode(', ', $row) ?>
+<!--                            --><?php //= implode(', ', $row) ?>
+                            <?php foreach ($row as $fieldName => $fieldValue): ?>
+                                <span class="field-column-<?= $fieldName?>">
+                                    <?= $fieldValue ?>
+                                </span>
+                            <?php endforeach; ?>
                         </div>
                     </a>
                 <?php endforeach; ?>
@@ -540,67 +554,64 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
         });
     });
 
-
-    // // ค้นหาใน dropdown menu
-    function searchFields(query) {
-        const fields = document.querySelectorAll('.each-field');
-        fields.forEach(field => {
-            const fieldName = field.querySelector('.field-name').textContent.toLowerCase();
-            field.style.display = fieldName.includes(query) ? '' : 'none';
-        });
-    }
-
-    document.getElementById('fieldSearch').addEventListener('input', function () {
-        searchFields(this.value.toLowerCase());
-    });
-
-
-    $(document).ready(function() {
+    document.addEventListener('DOMContentLoaded', function() {
         // ค้นหาคอลัมน์ที่ต้องการ
-        $('#fieldSearch').on('input', function() {
-            let searchTerm = $(this).val().toLowerCase();
-            $('.each-field').each(function() {
-                let fieldName = $(this).find('.field-name').text().toLowerCase();
+        document.getElementById('fieldSearch').addEventListener('input', function() {
+            let searchTerm = this.value.toLowerCase();
+            let fields = document.querySelectorAll('.each-field');
+            fields.forEach(function(field) {
+                let fieldName = field.querySelector('.field-name').textContent.toLowerCase();
                 if (fieldName.indexOf(searchTerm) === -1) {
-                    $(this).hide();
+                    field.style.display = 'none';
                 } else {
-                    $(this).show();
+                    field.style.display = '';
                 }
             });
         });
 
         // การเลือกแสดง/ซ่อนคอลัมน์
-        $('.field-toggle').change(function() {
-            let fieldName = $(this).data('field');
-            let isChecked = $(this).prop('checked');
+        let fieldToggles = document.querySelectorAll('.field-toggle');
+        fieldToggles.forEach(function(toggle) {
+            toggle.addEventListener('change', function() {
+                let fieldName = this.getAttribute('data-field');
+                let isChecked = this.checked;
 
-            // การแสดง/ซ่อนคอลัมน์ใน GridView
-            if (isChecked) {
-                $('.field-name' + fieldName).show(); // แสดงฟิลด์
-            } else {
-                $('.field-name' + fieldName).hide(); // ซ่อนฟิลด์
-            }
+                // การแสดง/ซ่อนคอลัมน์ใน GridView
+                let columnElements = document.querySelectorAll(`.field-column-${fieldName}`);
+                columnElements.forEach(function(columnElement) {
+                    if (isChecked) {
+                        columnElement.style.display = ''; // แสดงคอลัมน์
+                    } else {
+                        columnElement.style.display = 'none'; // ซ่อนคอลัมน์
+                    }
+                });
+            });
         });
 
         // ปุ่ม Hide All
-        $('#hideAllFields').click(function() {
-            $('.field-toggle').prop('checked', false);
-            $('.each-field').each(function() {
-                let fieldName = $(this).find('.field-name').text();
-                $('.field-' + fieldName).hide();
+        document.getElementById('hideAllFields').addEventListener('click', function() {
+            let fieldToggles = document.querySelectorAll('.field-toggle');
+            fieldToggles.forEach(function(toggle) {
+                toggle.checked = false;
+            });
+            let allColumns = document.querySelectorAll('[class^="field-column-"]');
+                allColumns.forEach(function (column){
+                    column.style.display = 'none';
             });
         });
 
         // ปุ่ม Show All
-        $('#showAllFields').click(function() {
-            $('.field-toggle').prop('checked', true);
-            $('.each-field').each(function() {
-                let fieldName = $(this).find('.field-name').text();
-                $('.field-' + fieldName).show();
+        document.getElementById('showAllFields').addEventListener('click', function() {
+            let fieldToggles = document.querySelectorAll('.field-toggle');
+            fieldToggles.forEach(function(toggle) {
+                toggle.checked = true;
+            });
+            let allColumns = document.querySelectorAll('[class^="field-column-"]');
+            allColumns.forEach(function (column){
+                column.style.display = '';
             });
         });
     });
-
 
     //  Search
     document.getElementById('mainSearch').addEventListener('input', function () {

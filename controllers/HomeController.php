@@ -195,7 +195,7 @@ class HomeController extends Controller
         $this->layout = 'blank_page';
 
         $queryinfo = (new \yii\db\Query())
-            ->select(['records.create_at', 'users.username', 'users.department', 'department.department_name'])
+            ->select(['records.create_at', 'users.username', 'users.name', 'users.lastname','users.department', 'department.department_name'])
             ->from('records')
             ->innerJoin('users', 'records.user_id = users.id')
             ->innerJoin('department', 'users.department = department.id')

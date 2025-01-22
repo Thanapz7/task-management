@@ -88,7 +88,7 @@ use yii\helpers\Html; ?>
                 <h4>รายละเอียดข้อมูล - <?= Html::encode($data[0]['form_name'])?></h4>
             <?php endif; ?>
             <?php foreach ($resultsinfo as $info): ?>
-                <h4>ผู้กรอก : <?= htmlspecialchars($info['username'])?> | แผนก : <?= htmlspecialchars(mb_strtoupper($info['department_name']))?></h4>
+                <h4>ผู้กรอก : <?= htmlspecialchars($info['name'])?> <?= htmlspecialchars($info['lastname'])?> | แผนก : <?= htmlspecialchars(mb_strtoupper($info['department_name']))?></h4>
                 <h4>วันที่กรอก : <?= htmlspecialchars((new DateTime($info['create_at']))->format('d/m/y H:i'))?></h4>
             <?php endforeach; ?>
         </div>

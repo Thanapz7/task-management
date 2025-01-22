@@ -5,6 +5,7 @@ $db = require __DIR__ . '/db.php';
 
 $config = [
     'id' => 'basic',
+    'language' => 'th',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'aliases' => [
@@ -48,6 +49,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                '' => 'home/index', //หน้าแรก login -> http://localhost/job-management/web/
 //                // กฎการกำหนด URL ที่เป็นมิตร
 //                'user/update/<id:\d+>' => 'user/update',
 ////                'user/view/<id:\d+>' => 'user/view',

@@ -67,7 +67,6 @@ $this->title = 'Assigned Preview';
             <h4>ชื่อแฟ้ม <?= htmlspecialchars($info['form_name']) ?></h4>
             <h4>ลงเมื่อวันที่ <?= htmlspecialchars((new DateTime($info['create_at']))->format('d/m/Y H:i')) ?></h4>
             <h4>แผนกที่ติดต่อ <?= htmlspecialchars(mb_strtoupper($info['department_name'])) ?></h4>
-
         <?php endforeach; ?>
     </div>
     <hr>

@@ -76,6 +76,14 @@ class HomeController extends Controller
             ->andWhere('records.id = field_values.record_id')
             ->all();
 
+        $queryRecordIds = (new \yii\db\Query())
+            ->select(['records.id AS record_id'])
+            ->from('forms')
+            ->innerJoin('records', 'forms.id = records.form_id')
+            ->where(['forms.id' => $id])
+            ->orderBy(['records.id' => SORT_ASC])  // เรียงลำดับ record_id ให้ตรง
+            ->all();
+
         $queryCal = (new \yii\db\Query())
             ->select(['fields.field_name', 'records.create_at', 'field_values.value'])
             ->from('forms')
@@ -94,22 +102,40 @@ class HomeController extends Controller
         } else {
             $recordIds = [];
             $pivotData = [];
+
+            // Loop เพื่อจัดกลุ่มข้อมูลตาม record_id
             foreach ($query as $row) {
-                $pivotData[$row['field_name']][] = $row['value'];
-                // ตรวจสอบว่า record_id ถูกดึงมาถูกต้องหรือไม่
-                if (isset($row['record_id'])) {
-                    $recordIds[] = $row['record_id'];
+                // ตรวจสอบว่า record_id มีข้อมูลอยู่ใน pivotData หรือยัง
+                if (!isset($pivotData[$row['record_id']])) {
+                    // ถ้าไม่มีให้เริ่มต้นเป็นอาร์เรย์ว่าง
+                    $pivotData[$row['record_id']] = [];
                 }
+
+                // จัดกลุ่ม field_name และ value โดยใช้ record_id
+                $pivotData[$row['record_id']][$row['field_name']] = $row['value'];
+
+                // เก็บ record_id ไว้ใน array
+                $recordIds[] = $row['record_id'];
             }
 
-            $maxRows = !empty($pivotData) ? max(array_map('count', $pivotData)) : 0;
+            // คำนวณจำนวนแถวสูงสุดจาก pivotData
+            $maxRows = !empty($pivotData) ? count($pivotData) : 0;
 
-            for ($i = 0; $i < $maxRows; $i++) {
+            // สร้าง formattedData โดยรวมข้อมูลจาก pivotData
+            $formattedData = [];
+            foreach ($pivotData as $recordId => $fields) {
                 $row = [];
-                foreach ($pivotData as $field => $values) {
-                    $row[$field] = $values[$i] ?? null;
+                // ตรวจสอบว่า fields เป็นอาร์เรย์หรือไม่ก่อนการเข้าถึง
+                if (is_array($fields)) {
+                    // นำข้อมูลจากแต่ละ field_name มาแสดง
+                    foreach ($fields as $field => $value) {
+                        $row[$field] = $value;
+                    }
                 }
-                $row['record_id'] = $recordIds[$i] ?? null;  // ใช้คีย์ record_id ปกติ
+                // เพิ่ม record_id ลงในแต่ละแถว
+                $row['record_id'] = $recordId;
+
+                // เพิ่ม row เข้าไปใน formattedData
                 $formattedData[] = $row;
             }
 
@@ -162,51 +188,20 @@ class HomeController extends Controller
         ]);
     }
 
-
-// Action สำหรับดาวน์โหลด PDF
-    public function actionDownloadPdf($record_id)
-    {
-        $record = Records::findOne($record_id);
-        if (!$record) {
-            throw new \yii\web\NotFoundHttpException('Record not found.');
-        }
-
-        // ดึงข้อมูลฟิลด์ที่เกี่ยวข้อง
-        $data = (new \yii\db\Query())
-            ->select(['fields.field_name', 'field_values.value'])
-            ->from('field_values')
-            ->innerJoin('fields', 'fields.id = field_values.field_id')
-            ->where(['field_values.record_id' => $record_id])
-            ->all();
-
-        // แปลงข้อมูลให้อยู่ในรูปแบบที่อ่านง่าย
-        $content = "<h2>Record Detail</h2><table border='1' cellpadding='5' cellspacing='0'>";
-        $content .= "<tr><th>Field Name</th><th>Value</th></tr>";
-        foreach ($data as $row) {
-            $content .= "<tr>";
-            $content .= "<td>" . Html::encode($row['field_name']) . "</td>";
-            $content .= "<td>" . Html::encode($row['value']) . "</td>";
-            $content .= "</tr>";
-        }
-        $content .= "</table>";
-
-        // สร้างเอกสาร PDF ด้วย mPDF
-        $mpdf = new Mpdf();
-        $mpdf->WriteHTML($content);
-
-        // ตั้งชื่อไฟล์ PDF
-        $filename = "record_{$record_id}.pdf";
-
-        // ส่งไฟล์ PDF ไปยังผู้ใช้
-        return $mpdf->Output($filename, 'D');  // 'D' = force download
-    }
-
-
     public function actionWorkDetailPreview($id)
     {
-        Yii::debug('Received ID from request: ' . $id);
+        Yii::debug('Received ID from request: record_id ' . $id);
 
         $this->layout = 'blank_page';
+
+        $queryinfo = (new \yii\db\Query())
+            ->select(['records.create_at', 'users.username', 'users.department', 'department.department_name'])
+            ->from('records')
+            ->innerJoin('users', 'records.user_id = users.id')
+            ->innerJoin('department', 'users.department = department.id')
+            ->where(['records.id' => $id]);
+        $resultsinfo = $queryinfo->all();
+
 
         $data = (new \yii\db\Query())
             ->select(['forms.form_name', 'fields.field_name', 'field_values.value', 'users.name AS user_name'])
@@ -222,7 +217,10 @@ class HomeController extends Controller
             Yii::debug('No data found for record_id: ' . $id);
         }
 
-        return $this->render('work-detail-preview', ['data' => $data]);
+        return $this->render('work-detail-preview', [
+            'resultsinfo' => $resultsinfo,
+            'data' => $data,
+        ]);
     }
 
     public function actionAddForm()

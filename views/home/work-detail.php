@@ -5,6 +5,7 @@
 
 use yii\grid\GridView;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\web\JsExpression;
 
 $this->title='รายละเอียดงาน '. $form['form_name'];
@@ -186,6 +187,11 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     table th, table td {
         border: 1px solid #ddd; /* กำหนดขอบของ cell */
     }
+    .grid-view thead th.custom-table-header{
+        font-size: 16px;
+        text-align: center;
+        background-color: #f5f5f5;
+    }
     .display-area{
         margin-top: 25px;
     }
@@ -253,6 +259,19 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     .fc-daygrid-event:hover{
         background-color: #0c5460;
         color: #ffffff;
+    }
+    .manage-link i{
+        font-size: 16px;
+        transition: 0.3s;
+    }
+    .manage-link i:hover{
+        transform: scale(1.2);
+    }
+    .manage-link .fa-file{
+        color: #F0B754;
+    }
+    .manage-link .fa-circle-down{
+        color: #6DB2E5;
     }
 </style>
 
@@ -337,13 +356,13 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
             </div>
             <?php if (!empty($fields)): ?>
-                <?php foreach ($fields as $field): ?>
+                <?php foreach ($fields as $fieldName => $fieldValue): ?>
                     <li class="each-field">
                         <label class="switch submenu-link">
-                            <input type="checkbox" class="field-toggle" data-field="<?= Html::encode($field['field_name']) ?>" checked>
+                            <input type="checkbox" class="field-toggle" data-field="<?= Html::encode($fieldName) ?>" checked>
                             <span class="slider round"></span>
                         </label>
-                        <p class="field-name"><?= Html::encode($field['field_name']) ?></p>
+                        <p class="field-name"><?= Html::encode($fieldName) ?></p>
                     </li>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -370,7 +389,6 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     </div>
 </div>
     <div class="display-area">
-        <p>แสดงข้อมูลสำหรับ Form ID: <?= Html::encode(Yii::$app->request->get('id')) ?></p>
         <!-- การแสดงผลตาม $viewType -->
         <?php if ($viewType == 'table'): ?>
             <?= GridView::widget([
@@ -382,7 +400,8 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                             return [
                                 'attribute' => $fieldName,
                                 'label' => str_replace('_', ' ', $fieldName),
-                                'contentOptions' => ['class' => 'field-' . $fieldName], // เพิ่มคลาสสำหรับการซ่อน/แสดง
+                                'contentOptions' => ['class' => 'field-name' . $fieldName], // เพิ่มคลาสสำหรับการซ่อน/แสดง
+                                'headerOptions' => ['class' => 'custom-table-header']
                             ];
                         }
                         return null;
@@ -395,26 +414,37 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                         ],
                         [
                             'class' => 'yii\grid\ActionColumn',
-                            'template' => '{download-pdf} {preview}',
+                            'template' => '{preview} {download}',
+                            'header' => '<i class="fa-solid fa-file-circle-check"></i>',
                             'buttons' => [
-                                'download-pdf' => function ($url, $model, $key) {
+                                'preview' => function ($url, $model) {
                                     return Html::a(
-                                        '<i class="fa fa-file-pdf"></i> ดาวน์โหลด PDF',
-                                        ['download-pdf', 'record_id' => $model['record_id']],
-                                        ['class' => 'btn btn-danger btn-sm', 'target' => '_blank', 'title' => 'Download PDF']
-                                    );
-                                },
-                                'preview' => function ($url, $model, $key) {
-                                    Yii::debug('Generated preview link for record_id: ' . $model['record_id']);
-
-                                    return Html::a(
-                                        '<i class="fa fa-eye"></i> พรีวิว',
+                                        '<i class="fa-regular fa-file"></i>',
                                         ['work-detail-preview', 'id' => $model['record_id']],
-                                        ['class' => 'btn btn-primary btn-sm', 'title' => 'Preview']
+                                        ['class' => 'manage-link', 'title' => 'preview']
                                     );
                                 },
+                                'download' => function ($url, $model) {
+                                    // ตรวจสอบว่า record_id มีข้อมูล
+                                    if (isset($model['record_id']) && !empty($model['record_id'])) {
+                                        Yii::debug('Generated preview link for record_id: ' . $model['record_id']);
 
+                                        return Html::a(
+                                            '<i class="fa-solid fa-circle-down"></i>',
+                                            'javascript:void(0)', // ใช้ javascript:void(0) เพื่อไม่ให้หน้ารีเฟรช
+                                            [
+                                                'class' => 'manage-link',
+                                                'title' => 'Download PDF',
+                                                'onclick' => "window.open('" . Url::to(['work-detail-preview', 'id' => $model['record_id']]) . "', '_blank').print();", // เรียก window.print
+                                            ]
+                                        );
+                                    } else {
+                                        return null; // ถ้าไม่มี record_id ก็จะไม่แสดงปุ่ม download
+                                    }
+                                },
                             ],
+                            'contentOptions' => ['style' => 'text-align: center'],
+                            'headerOptions' => ['class' => 'custom-table-header']
                         ],
                     ]
                 ),
@@ -546,9 +576,9 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 
             // การแสดง/ซ่อนคอลัมน์ใน GridView
             if (isChecked) {
-                $('.field-' + fieldName).show(); // แสดงฟิลด์
+                $('.field-name' + fieldName).show(); // แสดงฟิลด์
             } else {
-                $('.field-' + fieldName).hide(); // ซ่อนฟิลด์
+                $('.field-name' + fieldName).hide(); // ซ่อนฟิลด์
             }
         });
 

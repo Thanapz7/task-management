@@ -108,6 +108,7 @@ $this->title = 'Assigned';
             [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{preview} {download}',
+                'header' => '<i class="fa-solid fa-file-circle-check"></i>',
                 'buttons' => [
                     'preview' => function ($url, $model) {
                         return Html::a(

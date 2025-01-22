@@ -360,6 +360,7 @@ class HomeController extends Controller
 
     public function actionAssignedPreview($id)
     {
+        $user = Yii::$app->user->identity;
         $this->layout = 'layout';
         $query = (new \yii\db\Query())
             ->select([
@@ -376,7 +377,8 @@ class HomeController extends Controller
             ->select([
                 'forms.create_at',
                 'forms.form_name',
-                'department.department_name'
+                'department.department_name',
+                'records.create_at AS created_at',
             ])
             ->from('records')
             ->innerJoin('forms', 'records.form_id = forms.id')
@@ -388,6 +390,7 @@ class HomeController extends Controller
 
         $results = $query->all();
         return $this->render('assigned-preview',[
+            'user' => $user,
             'results' => $results,
             'results_info' => $results_info,
         ]);

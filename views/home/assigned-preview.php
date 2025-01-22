@@ -41,6 +41,18 @@ $this->title = 'Assigned Preview';
         border-radius: 10px;
         padding: 10px;
     }
+    .for-print{
+        display: none;
+    }
+    .applyer{
+        margin-right: 5px;
+        font-size: 16px;
+    }
+    .applyer span{
+        background-color: rgba(85, 173, 155, 0.46);
+        border-radius: 15px;
+        padding: 5px;
+    }
     @media print {
         .back-btn{
             display: none;
@@ -52,6 +64,9 @@ $this->title = 'Assigned Preview';
             height: auto;
             width: 100%;
             margin: 0px;
+        }
+        .for-print{
+            display: block;
         }
     }
 </style>
@@ -65,7 +80,7 @@ $this->title = 'Assigned Preview';
     <div class="info text-center">
         <?php foreach ($results_info as $info):?>
             <h4>ชื่อแฟ้ม <?= htmlspecialchars($info['form_name']) ?></h4>
-            <h4>ลงเมื่อวันที่ <?= htmlspecialchars((new DateTime($info['create_at']))->format('d/m/Y H:i')) ?></h4>
+            <h4>ลงเมื่อวันที่ <?= htmlspecialchars((new DateTime($info['created_at']))->format('d/m/Y H:i')) ?></h4>
             <h4>แผนกที่ติดต่อ <?= htmlspecialchars(mb_strtoupper($info['department_name'])) ?></h4>
         <?php endforeach; ?>
     </div>
@@ -79,6 +94,16 @@ $this->title = 'Assigned Preview';
                 <?= $result['value'] ?>
             </div>
         <?php endforeach; ?>
+    </div>
+    <hr style="margin-top: 20px;">
+    <div class="contact text-right">
+        <h5 class="applyer">ผู้กรอก : <span><?= $user->name?> <?= $user->lastname?></span></h5>
+        <br class="for-print">
+        <div class="for-print">
+            <p>......................................</p>
+            <p style="margin-right: 25px;">( <?= htmlspecialchars((new DateTime($info['created_at']))->format('d/m/Y')) ?> ) </p>
+        </div>
+
     </div>
 </div>
 

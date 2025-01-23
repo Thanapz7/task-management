@@ -176,7 +176,9 @@ class HomeController extends Controller
         // สร้าง data provider
         $dataProvider = new ArrayDataProvider([
             'allModels' => $formattedData,
-            'pagination' => false,
+            'pagination' => [
+                'pageSize' => 8,
+            ],
         ]);
         // ส่งข้อมูลไปที่ view
         return $this->render('work-detail', [

@@ -60,7 +60,7 @@ AppAsset::register($this);
                 </div>
                 <br>
                 <div class="form-group w-100 password-input">
-                    <?= $form->field($model, 'password')->passwordInput() ?>
+                    <?= $form->field($model, 'password')->passwordInput(['placeholder' => 'รหัสผ่าน']) ?>
                     <i class="fa-solid fa-eye-slash login-eye"></i>
                 </div>
                 <div class="form-group w-100 forgot-pass">

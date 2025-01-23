@@ -12,7 +12,7 @@ $this->title='work';
         <?php foreach ($data as $item): ?>
             <?php if (!empty($item['forms'])): ?>
                 <?php foreach ($item['forms'] as $form): ?>
-                    <div class="col-sm-3 folder" style="cursor: pointer" onclick="location.href='<?= Yii::$app->urlManager->createUrl(['home/work-detail', 'id' => $form['id']]) ?>'">
+                    <div class="col-xs-3 folder" style="cursor: pointer" onclick="location.href='<?= Yii::$app->urlManager->createUrl(['home/work-detail', 'id' => $form['id']]) ?>'">
                         <div style="margin: 10px">
                             <div class="folder-head">
                                 <i class="fa-regular fa-folder-open"></i>

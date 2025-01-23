@@ -6,66 +6,6 @@ use yii\widgets\ActiveForm;
 $this->title = 'Assignment Form';
 ?>
 
-<style>
-    .assignment-form{
-        margin-top: 20px;
-        padding: 20px;
-        height: 89vh;
-        width: 100%;
-        overflow-y: auto;
-        border: 1px solid #cccccc;
-        border-radius: 20px;
-    }
-    .btn-d-preview{
-        font-size: 20px;
-        font-weight: bold;
-        padding: 10px;
-        width: 120px;
-        border-radius: 30px;
-        border: 1px solid #ffffff;
-        /*margin-top: -20px;*/
-    }
-    .btn-d-preview:hover{
-        opacity: 0.7;
-    }
-    .info h4{
-        font-size: 18px;
-        font-weight: bold;
-    }
-    .input-g{
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 20px;
-        margin-left: 30px;
-        margin-right: 30px;
-    }
-    .input-type{
-        margin:  0 10px 0 10px;
-    }
-    .input-g label{
-        font-size: 16px;
-        font-weight: 600;
-    }
-    .choice{
-        display: flex;
-        flex-direction: column;
-    }
-    .choice label{
-        font-weight: normal;
-    }
-    img{
-        margin: 10px;
-    }
-    .btn-cancel{
-        background-color: #cc5555;
-        color: #ffffff;
-    }
-    .btn-confirm{
-        background-color: #55AD9B;
-        color: #ffffff;
-    }
-</style>
-
 <div class="assignment-form">
     <div class="info text-center">
         <h4>กรอกข้อมูล : <?= $form['form_name'] ?></h4>
@@ -132,7 +72,7 @@ $this->title = 'Assignment Form';
 
                     case 'checkbox': ?>
                         <?php
-                        $options = json_decode($field['options'], true);
+                        $options = json_decode($field['options'], true, 512, JSON_UNESCAPED_UNICODE);
                         if (is_array($options)) {
                             foreach ($options as $option): ?>
                                 <label>
@@ -140,7 +80,7 @@ $this->title = 'Assignment Form';
                                 </label>
                             <?php endforeach;
                         } else {
-                            echo "ไม่มีตัวเลือก";
+                            echo "<span style='margin-left: 10px;'>ไม่มีตัวเลือก</span>";
                         }
                         ?>
                         <?php break;
@@ -157,16 +97,20 @@ $this->title = 'Assignment Form';
                         <input type="file" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type">
                         <?php break;
 
+                    case 'text'; ?>
+                        <span style="margin: -10px"></span>
+                        <?php break;
+
                 endswitch; ?>
             </div>
         </div>
     <?php endforeach; ?>
 </div>
     <div class="group-btn-preview text-center" style="margin-top: 5px;">
-        <button type="submit" class="btn-d-preview btn-cancel" onclick="location.href='<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>'">ยกเลิก</button>
+        <?= Html::a('ยกเลิก', ['home/assignment'], ['class' => 'btn-d-preview btn btn-cancel'])?>
         <?= Html::submitButton('ตกลง', ['class' => 'btn-d-preview btn btn-confirm']) ?>
+        <?php ActiveForm::end(); ?>
     </div>
-<?php ActiveForm::end(); ?>
 
 <script>
     document.querySelectorAll('input[type="file"]').forEach(function (input){

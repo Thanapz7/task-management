@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\FieldValues;
 use app\models\Forms;
 use app\models\LoginForm;
 use app\models\Records;
@@ -341,7 +342,7 @@ class HomeController extends Controller
         $dataProvider = new \yii\data\ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize' => 10,
+                'pageSize' => 8,
             ],
             'sort' => [
                 'attributes' => [
@@ -405,11 +406,54 @@ class HomeController extends Controller
         ]);
     }
 
-    public function actionAssignmentForm($id)
+    public function actionAssignmentForm($id) //form_id
     {
         $this->layout = 'layout';
-        return $this->render('assignment-form',[
 
+        // show
+        $form = Forms::find()
+            ->select(['form_name', 'department.department_name'])
+            ->innerJoinWith('users.department')
+            ->where(['forms.id' => $id])
+            ->asArray()
+            ->one();
+
+        $query = (new \yii\db\Query())
+            ->select(['fields.id', 'fields.field_name', 'fields.field_type', 'fields.options'])
+            ->from('forms')
+            ->innerJoin('fields', 'forms.id = fields.form_id')
+            ->where(['forms.id' => $id]);
+        $fields = $query->all();
+
+        // save
+        if(Yii::$app->request->isPost){
+            $formData = Yii::$app->request->post('DynamicForm');
+
+            //บันทึก record
+            $records = new Records();
+            $records->form_id = $id;
+            $records->user_id = Yii::$app->user->id;
+            $records->save();
+
+            //บันทึก field values
+            foreach ($fields as $field) {
+                if(isset($formData[$field['id']])){
+                    $fieldValue = new FieldValues();
+                    $fieldValue->record_id = $records->id;
+                    $fieldValue->field_id = $field['id'];
+                    $fieldValue->value = is_array($formData[$field['id']])
+                        ? json_encode($formData[$field['id']])
+                        : $formData[$field['id']];
+                    $fieldValue->save();
+                }
+            }
+            Yii::$app->session->setFlash('success','บันทึกข้อมูลสำเร็จ');
+            return $this->redirect(['home/assigned']);
+        }
+
+        return $this->render('assignment-form',[
+            'form' => $form,
+            'fields' => $fields,
         ]);
     }
 

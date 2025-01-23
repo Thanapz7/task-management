@@ -66,6 +66,16 @@ $this->title = 'Assigned';
     .manage-link .fa-circle-down{
         color: #6DB2E5;
     }
+    .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover {
+        z-index: 3;
+        color: #fff;
+        cursor: default;
+        background-color: #55AD9B;
+        border-color: #55AD9B;
+    }
+    .pagination>li>a, .pagination>li>span {
+        color: #55AD9B;
+    }
 </style>
 
 <h4 class="text-header">รายการงานที่มอบหมาย</h4>

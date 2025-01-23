@@ -51,6 +51,7 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 '' => 'home/index', //หน้าแรก login -> http://localhost/job-management/web/
+                'form-setting/create-form/<id:\d+>' => 'form-setting/create-form',
 //                // กฎการกำหนด URL ที่เป็นมิตร
 //                'user/update/<id:\d+>' => 'user/update',
 ////                'user/view/<id:\d+>' => 'user/view',

@@ -168,6 +168,7 @@ $this->title = 'สร้างฟอร์ม';
     <div class="col-md-8 form-preview" id="form-preview" style="border: 1px dashed #ccc; padding: 20px; min-height: 200px; margin-bottom: 20px;">
         <!-- ฟิลด์ที่สร้างแบบ Drag-and-Drop จะถูกเพิ่มที่นี่ -->
         <p style="color: #999;">ลากฟิลด์ไปยังพื้นที่นี้...</p>
+
     </div>
 
     <?php $form = ActiveForm::begin([
@@ -344,7 +345,7 @@ $this->title = 'สร้างฟอร์ม';
 
         function getFieldHtml(type) {
             switch (type) {
-                case "text": return '<input type="text" class="form-control" placeholder="Text">';
+                // case "text": return '<input type="text" class="form-control" placeholder="Text">';
                 case "short-text": return '<input type="text" class="form-control" placeholder="Short Text">';
                 case "long-text": return '<textarea class="form-control" placeholder="Long Text"></textarea>';
                 case "dropdown": return `<select class="form-control"><option>Option 1</option><option>Option 2</option></select>`;

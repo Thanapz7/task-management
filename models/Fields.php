@@ -32,9 +32,10 @@ class Fields extends \yii\db\ActiveRecord
     {
         return [
             [['form_id', 'field_name', 'field_type', 'options'], 'required'],
-            [['form_id'], 'integer'],
+            [['form_id', 'is_visible'], 'integer'],
             [['field_name', 'field_type'], 'string', 'max' => 255],
             [['options'], 'safe'],
+            [['is_visible'], 'default', 'value' => 1],
         ];
     }
 
@@ -51,6 +52,7 @@ class Fields extends \yii\db\ActiveRecord
             'options' => 'Options',
             'create_at' => 'Create At',
             'update_at' => 'Update At',
+            'is_visible' => 'Is Visible',
         ];
     }
 

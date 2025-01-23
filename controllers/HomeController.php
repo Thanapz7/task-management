@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\FieldValues;
+use app\models\Fields;
 use app\models\Forms;
 use app\models\LoginForm;
 use app\models\Records;
@@ -17,6 +18,7 @@ use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\View;
+use yii\web\Response;
 use Mpdf\Mpdf;
 
 class HomeController extends Controller
@@ -310,10 +312,25 @@ class HomeController extends Controller
         ]);
     }
 
-    public function actionFormSetting()
+    public function actionFormSetting($id)
     {
+        $fields = Fields::find()->where(['form_id' =>$id])->all();
+
         $this->layout = 'blank_page';
-        return $this->render('form-setting');
+        return $this->render('form-setting',[
+            'fields' =>$fields,
+            'form_id'=>$id,
+        ]);
+    }
+
+    public function actionGetFields($id)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return Fields::find()
+            ->where(['form_id' => $id])
+            ->with('form')
+            ->asArray()
+            ->all();
     }
 
     public function actionAssigned()
@@ -539,7 +556,7 @@ class HomeController extends Controller
                 }
             }
 
-            return $this->redirect(['home/create-form', 'id' => $id]);
+            return $this->redirect(['home/form-setting', 'id' => $id]);
         }
 
         return $this->render('create-form', ['form' => $form, 'formId' => $id]);

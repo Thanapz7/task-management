@@ -1,7 +1,10 @@
 <?php
 ?>
 <?php
-$this->title = 'Create Form';
+use yii\helpers\Html;
+use yii\helpers\Url;
+
+$this->title = 'Create Form' . Html::encode($form_id);
 ?>
 <style>
     label{
@@ -31,14 +34,48 @@ $this->title = 'Create Form';
         border: 1px solid #cccccc;
         border-radius: 20px;
     }
-    .input-form{
-        border: 1px solid #cccccc;
-        border-radius: 20px;
-        padding: 7px;
+    .form-item {
+        font-size: 16px;
+        margin-bottom: 5px;
+        padding: 10px;
+        position: relative;
+    }
+    .form-item .field-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    .form-item .field-actions {
+        display: flex;
+        gap: 5px;
+    }
+    .form-item .field-actions i {
+        cursor: pointer;
+    }
+    .form-item .field-actions .edit-icon {
+        color: #5bc0de;
+    }
+    .form-item .field-actions .delete-icon {
+        color: #d9534f;
+    }
+    .form-item .field-actions .access-icon {
+        color: #f0ad4e;
+    }
+    .list-group-item{
+        display: flex;
+    }
+    .input-group-add{
+        display: flex;
+        flex-direction: row;
+    }
+    .field-input{
+        display: flex;
+        flex-direction: column;
     }
     .btn-sort{
         border-radius: 20px;
         box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
+        margin-top: 12px;
     }
     .label-text{
         font-size: 18px;
@@ -108,17 +145,39 @@ $this->title = 'Create Form';
     }
 
 </style>
-<i class="fa-solid fa-arrow-left back-icon"></i>
+<!--<i class="fa-solid fa-arrow-left back-icon"></i>-->
+<div class="form-group">
+    <?= Html::a('<i class="fa-solid fa-arrow-left back-icon"></i>', ['home/create-form', 'id' => $form_id], ['class' => 'btn btn-secondary']) ?>
+</div>
 <div class="row" style="margin: 13px">
     <div class="col-md-8 form-preview" id="form-preview">
         <!-- content here! -->
+        <?php foreach ($fields as $field) :?>
+            <div class="field-header" style="display: flex; align-items: center; justify-content: space-between;">
+                <span class="field-label" style="font-weight: bold; font-size: 16px; margin-top: 15px"><?= Html::encode($field->field_name)?></span>
+                <div class="field-actions" style="margin-left: 10px;">
+                </div>
+            </div>
+            <div class="field-input">
+                <?php
+                $options = $field->options;
+                echo getFieldHtml($field->field_type, $field->id, $options);
+                ?>
+            </div>
+        <?php endforeach; ?>
     </div>
+
     <div class="col-md-3 data-type form-setting">
         <form class="form-horizontal" style="padding: 5px">
             <div class="form-group">
                 <label for="" class="label-text">ชื่อแฟ้ม<span style="color: #cc5555">*</span>:</label>
-                <input type="text" placeholder="ชื่อแฟ้ม" class="input-form">
+                <input type="text" name="form_name" placeholder="ชื่อแฟ้ม" class="input-form">
+
+                <button type="submit" class="save-btn">
+                    <i class="fas fa-save"></i>
+                </button>
             </div>
+
             <div class="form-group">
                 <label for="" class="label-text">icon:</label>
                 <button class="btn btn-default btn-sort dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -180,15 +239,11 @@ $this->title = 'Create Form';
                 <div class="form-group">
                     <label class="label-content">เลือกฟิลด์ที่จะแสดง</label>
                     <div style="margin-left: 15px; margin-top: -5px;">
+                        <?php foreach($fields as $filter) :?>
                         <div class="checkbox">
-                            <label><input type="checkbox" value="">Option 1</label>
+                            <label><input type="checkbox" value=""><?= Html::encode($filter->field_name)?></label>
                         </div>
-                        <div class="checkbox">
-                            <label><input type="checkbox" value="">Option 2</label>
-                        </div>
-                        <div class="checkbox disabled">
-                            <label><input type="checkbox" value="" >Option 3</label>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
 
@@ -206,6 +261,49 @@ $this->title = 'Create Form';
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-
     </script>
+<?php
+function getFieldHtml($type, $id, $options) {
+    switch ($type) {
+//        case "text":
+//            return '<input type="text" class="form-control" placeholder="Text">';
+        case "short-text":
+            return '<input type="text" class="form-control" placeholder="Short Text">';
+        case "long-text":
+            return '<textarea class="form-control" placeholder="Long Text"></textarea>';
+        case "dropdown":
+            $html = '<select class="form-control" name="field_' . $id . '">';
+            foreach($options as $option) {
+                $html .="<option value='$option'>$option</option>";
+            }
+            $html .= '</select>';
+            return $html;
+        case "phone":
+            return '<input type="number" class="form-control" placeholder="Phone Number">';
+        case "date":
+            return '<input type="date" class="form-control">';
+        case "time":
+            return '<input type="time" class="form-control">';
+        case "file":
+            return '<input type="file" class="form-control">';
+        case "radio":
+            $html = "";
+            foreach ($options as $option) {
+                $html .= "<label><input type='radio' name='field_$id' value='$option'>$option</label><br>";
+            }
+            return $html;
+        case "checkbox":
+            $html = "";
+            foreach ($options as $option) {
+                $html .= "<label><input type='checkbox' name='field_{$id}[]' value='$option'>$option</label><br>";
+            }
+            return $html;
+        case "number":
+            return '<input type="number" class="form-control" placeholder="Number">';
+        default:
+            return '';
+    }
+}
+?>
+
 

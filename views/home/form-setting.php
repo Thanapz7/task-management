@@ -3,6 +3,11 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\widgets\ActiveForm;
+
+/** @var yii\web\View $this */
+/** @var app\models\Forms $model */
+/** @var yii\widgets\ActiveForm $form */
 
 $this->title = 'Create Form' . Html::encode($form_id);
 ?>
@@ -166,31 +171,28 @@ $this->title = 'Create Form' . Html::encode($form_id);
             </div>
         <?php endforeach; ?>
     </div>
-
+    <?php $form = ActiveForm::begin(); ?>
     <div class="col-md-3 data-type form-setting">
-        <form class="form-horizontal" style="padding: 5px">
-            <div class="form-group">
-                <label for="" class="label-text">ชื่อแฟ้ม<span style="color: #cc5555">*</span>:</label>
-                <input type="text" name="form_name" placeholder="ชื่อแฟ้ม" class="input-form">
+        <div class="form-horizontal" style="padding: 5px">
 
-                <button type="submit" class="save-btn">
-                    <i class="fas fa-save"></i>
-                </button>
-            </div>
+                <div class="form-group" style="display: flex">
+                    <label for="" class="label-text">ชื่อแฟ้ม<span style="color: #cc5555">*</span>:</label>
+                    <?= $form->field($model, 'form_name')->textInput(['maxlength' => 'true', 'class' => 'input-form', 'style' => 'margin: 0px 20px'])->label(false) ?>
+                </div>
 
-            <div class="form-group">
-                <label for="" class="label-text">icon:</label>
-                <button class="btn btn-default btn-sort dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    ตัวเลือก
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href=""><i class="fa-regular fa-folder-closed"></i></a></li>
-                    <li><a href=""><i class="fa-solid fa-suitcase"></i></a></li>
-                    <li><a href=""><i class="fa-regular fa-star"></i></a></li>
-                    <li><a href=""><i class="fa-solid fa-chart-column"></i></a></li>
-                </ul>
-            </div>
+<!--            <div class="form-group">-->
+<!--                <label for="" class="label-text">icon:</label>-->
+<!--                <button class="btn btn-default btn-sort dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+<!--                    ตัวเลือก-->
+<!--                    <span class="caret"></span>-->
+<!--                </button>-->
+<!--                <ul class="dropdown-menu">-->
+<!--                    <li><a href=""><i class="fa-regular fa-folder-closed"></i></a></li>-->
+<!--                    <li><a href=""><i class="fa-solid fa-suitcase"></i></a></li>-->
+<!--                    <li><a href=""><i class="fa-regular fa-star"></i></a></li>-->
+<!--                    <li><a href=""><i class="fa-solid fa-chart-column"></i></a></li>-->
+<!--                </ul>-->
+<!--            </div>-->
             <div class="">
                 <div class="text-center">
                     <label for="" class="label-text" style="margin-top: 10px;">จัดการการเข้าถึง</label>
@@ -220,39 +222,40 @@ $this->title = 'Create Form' . Html::encode($form_id);
                     </ul>
                 </div>
             </div>
-            <div class="">
-                <div class="text-center">
-                    <label for="" class="label-text" style="margin-top: 10px;">การแสดงผล</label>
-                </div>
-                <div class="text-center" style="margin-top: 10px; margin-bottom: 10px;">
-                    <div class="radio">
-                        <input type="radio" class="radio-input" value="grid" name="display" id="radio1">
-                        <label for="radio1" class="radio-label">ตาราง</label>
-                        <input type="radio" class="radio-input" value="list" name="display" id="radio2">
-                        <label for="radio2" class="radio-label">รายการ</label>
-                        <input type="radio" class="radio-input" value="gallery" name="display" id="radio3">
-                        <label for="radio3" class="radio-label">แกลเลอรี่</label>
-                        <input type="radio" class="radio-input" value="calendar" name="display" id="radio4">
-                        <label for="radio4" class="radio-label">ปฏิทิน</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="label-content">เลือกฟิลด์ที่จะแสดง</label>
-                    <div style="margin-left: 15px; margin-top: -5px;">
-                        <?php foreach($fields as $filter) :?>
-                        <div class="checkbox">
-                            <label><input type="checkbox" value=""><?= Html::encode($filter->field_name)?></label>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-
-            </div>
-        </form>
+<!--            <div class="">-->
+<!--                <div class="text-center">-->
+<!--                    <label for="" class="label-text" style="margin-top: 10px;">การแสดงผล</label>-->
+<!--                </div>-->
+<!--                <div class="text-center" style="margin-top: 10px; margin-bottom: 10px;">-->
+<!--                    <div class="radio">-->
+<!--                        <input type="radio" class="radio-input" value="grid" name="display" id="radio1">-->
+<!--                        <label for="radio1" class="radio-label">ตาราง</label>-->
+<!--                        <input type="radio" class="radio-input" value="list" name="display" id="radio2">-->
+<!--                        <label for="radio2" class="radio-label">รายการ</label>-->
+<!--                        <input type="radio" class="radio-input" value="gallery" name="display" id="radio3">-->
+<!--                        <label for="radio3" class="radio-label">แกลเลอรี่</label>-->
+<!--                        <input type="radio" class="radio-input" value="calendar" name="display" id="radio4">-->
+<!--                        <label for="radio4" class="radio-label">ปฏิทิน</label>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="form-group">-->
+<!--                    <label class="label-content">เลือกฟิลด์ที่จะแสดง</label>-->
+<!--                    <div style="margin-left: 15px; margin-top: -5px;">-->
+<!--                        --><?php //foreach($fields as $filter) :?>
+<!--                        <div class="checkbox">-->
+<!--                            <label><input type="checkbox" value="">--><?php //= Html::encode($filter->field_name)?><!--</label>-->
+<!--                        </div>-->
+<!--                        --><?php //endforeach; ?>
+<!--                    </div>-->
+<!--                </div>-->
+<!---->
+<!--            </div>-->
+        </div>
     </div>
     <div class="col-md-12 text-right">
-        <button class="btn btn-default btn-save">บันทึก</button>
+        <?= Html::submitButton('บันทึก', ['class' => 'btn btn-default btn-save', ]) ?>
     </div>
+    <?php ActiveForm::end(); ?>
 </div>
 
 

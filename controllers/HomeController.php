@@ -17,6 +17,7 @@ use yii\db\Query;
 use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\View;
 use yii\web\Response;
 use Mpdf\Mpdf;
@@ -246,25 +247,20 @@ class HomeController extends Controller
     public function actionAddForm()
     {
         if (Yii::$app->request->isPost) {
-            // สร้างฟอร์มใหม่
             $model = new Forms();
-            $model->form_name = 'form1'; // ชื่อฟอร์มค่าเริ่มต้น
-            $model->user_id = Yii::$app->user->id; // ID ผู้ใช้ปัจจุบัน
-            $model->create_at = date('Y-m-d H:i:s'); // เวลาที่สร้าง
-            $model->update_at = date('Y-m-d H:i:s'); // เวลาที่อัปเดต
+            $model->form_name = 'form1';
+            $model->user_id = Yii::$app->user->id;
+            $model->create_at = date('Y-m-d H:i:s');
+            $model->update_at = date('Y-m-d H:i:s');
 
-            // บันทึกฟอร์มใหม่
             if ($model->save()) {
-                // รีไดเรกต์ไปยังหน้า create-form พร้อม id
                 return $this->redirect(['home/create-form', 'id' => $model->id]);
             }
 
-            // หากบันทึกไม่สำเร็จ ให้แสดงข้อความผิดพลาด
             Yii::$app->session->setFlash('error', 'ไม่สามารถสร้างฟอร์มได้');
             return $this->redirect(Yii::$app->request->referrer);
         }
 
-        // โหลดฟอร์มที่มีอยู่
         $forms = Forms::find()
             ->select(['forms.*', 'users.department'])
             ->joinWith('users')
@@ -329,12 +325,34 @@ class HomeController extends Controller
 
     public function actionFormSetting($id)
     {
+        $model = Forms::findOne($id);
+
+        if(!$model) {
+            throw new \yii\web\NotFoundHttpException('Form not found.');
+        }
+
+        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
+            if ($model->validate()) {
+                if ($model->save()) {
+                    Yii::$app->session->setFlash('success', 'อัปเดตชื่อแฟ้มสำเร็จ');
+                    return $this->redirect(['home/work']);
+//                    return $this->redirect(['form-setting', 'id' => $id]);
+                } else {
+                    Yii::$app->session->setFlash('error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . json_encode($model->getErrors()));
+                }
+            } else {
+                Yii::$app->session->setFlash('error', 'ข้อมูลไม่ผ่านการตรวจสอบ: ' . json_encode($model->getErrors()));
+            }
+        }
+
+
         $fields = Fields::find()->where(['form_id' =>$id])->all();
 
         $this->layout = 'blank_page';
         return $this->render('form-setting',[
             'fields' =>$fields,
             'form_id'=>$id,
+            'model'=>$model,
         ]);
     }
 
@@ -512,7 +530,7 @@ class HomeController extends Controller
     public function actionField($id = null) {
         $this->layout='blank_page';
         if ($id === null) {
-            $id = Yii::$app->request->post('id'); // ดึงค่าจาก POST ถ้าไม่มีใน URL
+            $id = Yii::$app->request->post('id');
         }
 
         if (!$id || !($form = Forms::findOne($id))) {
@@ -522,11 +540,10 @@ class HomeController extends Controller
         if (Yii::$app->request->isPost) {
             Yii::$app->response->format = Response::FORMAT_JSON;
 
-            // ดึงค่า JSON และดีบัก
+
             $postDataRaw = Yii::$app->request->post('fields', '');
             Yii::debug($postDataRaw, 'debug_raw_fields');
 
-            // แปลง JSON เป็น array
             $postData = json_decode($postDataRaw, true);
 
             if (!is_array($postData)) {
@@ -572,4 +589,19 @@ class HomeController extends Controller
 
         return $this->render('create-form', ['form' => $form, 'formId' => $id]);
     }
+
+//    public function actionUpdateForms($id)
+//    {
+//        $model = Forms::findOne($id);
+//
+//
+//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+//            Yii::$app->session->setFlash('success', 'บันทึกข้อมูลสำเร็จ!');
+//        }
+//
+//        return $this->render('form-setting', [
+//            'model' => $model,
+//        ]);
+//    }
+
 }

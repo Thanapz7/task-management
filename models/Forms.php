@@ -51,6 +51,19 @@ class Forms extends \yii\db\ActiveRecord
         ];
     }
 
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            $this->update_at = date('Y-m-d H:i:s'); // อัปเดตเวลาทุกครั้งที่บันทึก
+            if ($this->isNewRecord) {
+                $this->create_at = date('Y-m-d H:i:s'); // ตั้งเวลาสำหรับการสร้างใหม่
+            }
+            return true;
+        }
+        return false;
+    }
+
+
     /**
      * {@inheritdoc}
      * @return FormsQuery the active query used by this AR class.

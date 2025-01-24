@@ -30,7 +30,6 @@ use yii\helpers\Html; ?>
         width: 120px;
         border-radius: 30px;
         border: 1px solid #ffffff;
-        margin-top: -20px;
     }
     .btn-d-preview:hover{
         opacity: 0.7;
@@ -98,7 +97,24 @@ use yii\helpers\Html; ?>
                     <?= Html::encode($item['field_name']) ?>
                 </div>
                 <div class="value" style="margin-bottom: 20px;">
-                    <?= Html::encode($item['value']) ?>
+                    <?php
+                        $value = $item['value'];
+                        if(is_string($value) && is_array(json_decode($value, true))){
+                            $decodedArray = json_decode($value, true);
+                            $translateValue = array_map(function($item){
+                                return json_decode('"'.$item.'"');
+                            }, $decodedArray);
+                            echo implode(',', $translateValue);
+                        }
+                        elseif(is_array($value)){
+                            $translateValue = array_map(function($item){
+                                return json_decode('"'.$item.'"');
+                            }, $value);
+                            echo implode(',', $translateValue);
+                        }else{
+                            echo $value;
+                        }
+                    ?>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -106,7 +122,7 @@ use yii\helpers\Html; ?>
     </div>
 </div>
 
-<div class="group-btn-preview text-center">
+<div class="group-btn-preview text-center" style="margin-top: -16px;">
     <button type="submit" class="btn-d-preview btn-preview-detail" onclick="printPage()">ดาวน์โหลด</button>
 </div>
 

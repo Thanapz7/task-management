@@ -114,8 +114,23 @@ class HomeController extends Controller
                     $pivotData[$row['record_id']] = [];
                 }
 
+                // แปลง value ให้เป็นข้อความภาษาไทยปกติ
+                $value = $row['value'];
+                if (is_string($value)) {
+                    $decodedValue = json_decode($value, true); // ลอง decode JSON string
+                    if (is_array($decodedValue)) {
+                        // ถ้าเป็น array ให้แปลงค่าภายใน
+                        $value = implode(', ', array_map(function ($item) {
+                            return json_decode('"' . $item . '"');
+                        }, $decodedValue));
+                    } else {
+                        // ถ้าเป็น string ให้แปลง Unicode escape sequence
+                        $value = json_decode('"' . $value . '"');
+                    }
+                }
+
                 // จัดกลุ่ม field_name และ value โดยใช้ record_id
-                $pivotData[$row['record_id']][$row['field_name']] = $row['value'];
+                $pivotData[$row['record_id']][$row['field_name']] = $value;
 
                 // เก็บ record_id ไว้ใน array
                 $recordIds[] = $row['record_id'];
@@ -460,9 +475,21 @@ class HomeController extends Controller
                     $fieldValue = new FieldValues();
                     $fieldValue->record_id = $records->id;
                     $fieldValue->field_id = $field['id'];
-                    $fieldValue->value = is_array($formData[$field['id']])
-                        ? json_encode($formData[$field['id']])
-                        : $formData[$field['id']];
+
+                    if($field['field_type'] === 'file' && isset($uploadedFiles[$field['id']])){
+                        $file = $uploadedFiles[$field['id']];
+                        $filePath = 'uploads/' . uniqid() . '_' . $file->baseName . '.' . $file->extension;
+                        if($file->saveAs($filePath)){
+                            $fieldValue->value = $filePath;
+                        }else{
+                            Yii::$app->session->setFlash('error', 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์');
+                            return $this->redirect(['home/assignment']);
+                        }
+                    }else{
+                        $fieldValue->value = is_array($formData[$field['id']])
+                            ? json_encode($formData[$field['id']])
+                            : $formData[$field['id']];
+                    }
                     $fieldValue->save();
                 }
             }
@@ -473,22 +500,6 @@ class HomeController extends Controller
         return $this->render('assignment-form',[
             'form' => $form,
             'fields' => $fields,
-        ]);
-    }
-
-    public function actionLogin()
-    {
-        $model = new LoginForm();
-
-        // ตรวจสอบการกรอกข้อมูลจากฟอร์ม
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            // ถ้าล็อกอินสำเร็จ, ไปที่หน้า home/home
-            return $this->redirect(['home/work']);
-        }
-
-        // หากไม่สำเร็จ, กลับไปที่หน้า login
-        return $this->render('login', [
-            'model' => $model,
         ]);
     }
 

@@ -52,7 +52,7 @@ $this->title = 'Assignment Form';
                         <?php break;
 
                     case 'phone': ?>
-                        <input type="number" id="<?= $field['field_name']?>" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" placeholder="กรอก<?= $field['field_name']?>">
+                        <input type="tel" id="<?= $field['field_name']?>" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" placeholder="กรอก<?= $field['field_name']?>">
                         <?php break;
 
                     case 'radio': ?>
@@ -107,7 +107,12 @@ $this->title = 'Assignment Form';
     <?php endforeach; ?>
 </div>
     <div class="group-btn-preview text-center" style="margin-top: 5px;">
-        <?= Html::a('ยกเลิก', ['home/assignment'], ['class' => 'btn-d-preview btn btn-cancel'])?>
+        <?= Html::a('ยกเลิก', ['home/assignment'],
+            [
+                'class' => 'btn-d-preview btn btn-cancel',
+                'data-confirm'=>'ยกเลิกการกรอกข้อมูล'
+            ])
+        ?>
         <?= Html::submitButton('ตกลง', ['class' => 'btn-d-preview btn btn-confirm']) ?>
         <?php ActiveForm::end(); ?>
     </div>

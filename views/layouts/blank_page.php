@@ -1,6 +1,8 @@
 <?php
 
-use yii\helpers\Html; ?>
+use yii\helpers\Html;
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -21,7 +23,7 @@ use yii\helpers\Html; ?>
         }
         .w-100{
             width: 100%;
-        X
+        }
     </style>
 </head>
 <body>

@@ -7,11 +7,10 @@ use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\JsExpression;
+use yii\widgets\ActiveForm;
 
 $this->title='รายละเอียดงาน '. $form['form_name'];
 ?>
-
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <?php
 $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
@@ -21,8 +20,6 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     document.addEventListener('DOMContentLoaded', function() {
         // รับข้อมูล events จาก PHP ที่ถูกแปลงเป็น JSON
         var eventsData = <?php echo $encodedEvents; ?>;
-        console.log("event dataS",eventsData)
-
         // เริ่มต้นการทำงานของ FullCalendar
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -104,7 +101,6 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             </div>
         </div>
     </div>
-
 </div>
 
 <div class="search-group">
@@ -113,46 +109,35 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
     </div>
     <div class="btn-group">
-        <button class="btn btn-default btn-sort dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="btn btn-default btn-sort dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="fa-solid fa-eye-slash"></i>
             <span class="caret"></span>
         </button>
-        <div class="dropdown-menu">
-            <!-- ส่วนค้นหา -->
+        <ul class="dropdown-menu">
             <div class="dropdown-search" style="margin-bottom: 5px;">
-                <div class="input-group">
-                    <input type="search" id="fieldSearch" class="form-control" placeholder="ค้นหา fields">
-                    <div class="input-group-append">
-                    <span class="input-group-text">
-                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    </span>
-                    </div>
-                </div>
+                <input type="search" id="fieldSearch" placeholder="ค้นหา fields">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
             </div>
-
-            <!-- ส่วนรายการ Fields -->
             <?php if (!empty($fields)): ?>
                 <?php foreach ($fields as $fieldName => $fieldValue): ?>
-                    <div class="dropdown-item each-field d-flex align-items-center">
+                    <li class="each-field">
                         <label class="switch submenu-link mb-0">
                             <input type="checkbox" class="field-toggle" data-field="<?= Html::encode($fieldName) ?>" checked>
                             <span class="slider round"></span>
                         </label>
-                        <p class="field-name mb-0"><?= Html::encode($fieldName) ?></p>
-                    </div>
+                        <p class="field-name"><?= Html::encode($fieldName) ?></p>
+                    </li>
                 <?php endforeach; ?>
             <?php else: ?>
-                <div class="dropdown-item each-field">
-                    <p class="mb-0">ไม่มีฟิลด์ในฟอร์มนี้</p>
-                </div>
+                <li class="each-field">
+                    <p>ไม่มีฟิลด์ในฟอร์มนี้</p>
+                </li>
             <?php endif; ?>
-
-            <!-- ปุ่มเพิ่มเติม -->
-            <div class="btn-sort-each d-flex justify-content-between mt-2">
+            <div class="btn-sort-each">
                 <button type="button" class="btn btn-cus" id="hideAllFields">Hide All</button>
                 <button type="button" class="btn btn-cus" id="showAllFields">Show All</button>
             </div>
-        </div>
+        </ul>
     </div>
     <div class="btn-group" style="margin-left: 10px;">
         <button class="btn btn-default btn-sort dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -238,7 +223,8 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 
         <?php elseif ($viewType == 'list'): ?>
             <div class="list" style="margin-left: 20px; margin-top: 20px;">
-            <?php foreach ($dataProvider->getModels() as $row): ?>
+            <?php $models = $dataProvider->allModels; ?>
+            <?php foreach ($models as $row): ?>
                 <?php
                 $recordId = $row['record_id'];
                 // ลบ record_id ออกจาก row ถ้ามี
@@ -261,7 +247,8 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
         <?php elseif ($viewType == 'gallery'): ?>
         <div class="gallery" style="margin-left: 20px; margin-top: 20px;">
             <div class="row">
-                <?php foreach ($dataProvider->getModels() as $row): ?>
+                <?php $models = $dataProvider->allModels; ?>
+                <?php foreach ($models as $row): ?>
                     <?php
                     $recordId = $row['record_id'] ?? null;
                     // ลบ record_id ออกจาก row ถ้ามี
@@ -340,26 +327,28 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     document.addEventListener('DOMContentLoaded', function() {
         // ค้นหาคอลัมน์ที่ต้องการ
         document.getElementById('fieldSearch').addEventListener('input', function() {
-            let searchTerm = this.value.toLowerCase();
-            let fields = document.querySelectorAll('.each-field');
-            fields.forEach(function(field) {
-                let fieldName = field.querySelector('.field-name').textContent.toLowerCase();
-                if (fieldName.indexOf(searchTerm) === -1) {
-                    field.style.display = 'none';
+            let query = this.value.toLowerCase();
+            let items = document.querySelectorAll('.each-field');
+            console.log("Searching for: " + query); // ตรวจสอบคำค้นหา
+
+            items.forEach(function(item) {
+                let fieldName = item.querySelector('.field-name').textContent.toLowerCase();
+                console.log("Field Name: " + fieldName); // ตรวจสอบชื่อฟิลด์
+
+                if (fieldName.indexOf(query) > -1) {
+                    item.style.display = '';
                 } else {
-                    field.style.display = '';
+                    item.style.display = 'none';
                 }
             });
         });
-
-        // การเลือกแสดง/ซ่อนคอลัมน์
+        // ตรวจสอบการเลือกแสดง/ซ่อนคอลัมน์
         let fieldToggles = document.querySelectorAll('.field-toggle');
         fieldToggles.forEach(function(toggle) {
             toggle.addEventListener('change', function() {
                 let fieldName = this.getAttribute('data-field');
                 let isChecked = this.checked;
-
-                // การแสดง/ซ่อนคอลัมน์ใน GridView
+                console.log("Toggled: " + fieldName + " Checked: " + isChecked);
                 let columnElements = document.querySelectorAll(`.field-column-${fieldName}`);
                 columnElements.forEach(function(columnElement) {
                     if (isChecked) {
@@ -378,8 +367,8 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                 toggle.checked = false;
             });
             let allColumns = document.querySelectorAll('[class^="field-column-"]');
-                allColumns.forEach(function (column){
-                    column.style.display = 'none';
+            allColumns.forEach(function (column){
+                column.style.display = 'none';
             });
         });
 

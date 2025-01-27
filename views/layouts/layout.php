@@ -51,8 +51,11 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                             <a href="<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>" class="nav-link nav-fonts"><i class="fa-solid fa-circle-plus" style="margin-right: 10px;"></i>เพิ่มงาน</a>
                         </li>
                     <?php else: ?>
-                        <li class="<?= Yii::$app->controller->id === 'home' && Yii::$app->controller->action->id === 'assignment' ? 'actived' : '' ?> nav-item">
-                            <a href="<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>" class="nav-link nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>จ้างงาน</a>
+                        <li class="<?= Yii::$app->controller->id === 'job' && Yii::$app->controller->action->id === 'assignment' ? 'actived' : '' ?> nav-item">
+                            <a href="<?= Yii::$app->urlManager->createUrl(['job/assignment']) ?>" class="nav-link nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>จ้างงาน</a>
+                        </li>
+                        <li class="<?= Yii::$app->controller->id === 'job' && Yii::$app->controller->action->id === 'assigned' ? 'actived' : '' ?> nav-item">
+                            <a href="<?= Yii::$app->urlManager->createUrl(['job/assigned']) ?>" class="nav-link nav-fonts"><i class="fa-solid fa-scroll" style="margin-right: 10px;"></i>งานที่สั่ง</a>
                         </li>
                     <?php endif; ?>
                 </ul>

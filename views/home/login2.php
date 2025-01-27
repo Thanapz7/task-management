@@ -12,7 +12,7 @@ AppAsset::register($this);
                 <p>A robust and user-friendly platform designed to streamline task assignments, tracking, and reporting for organizations.
                     This system is tailored to facilitate efficient collaboration between internal teams and external users,
                     ensuring transparency and accountability across all levels of operations.</p>
-                <h5 style="color: #cc5555">สนใจจ้างงาน? <?= Html::a('คลิกที่นี่',['assignment'], ['class'=>'btn btn-guest']) ?></h5>
+                <h5 style="color: #cc5555">สนใจจ้างงาน? <?= Html::a('คลิกที่นี่',['job/assignment'], ['class'=>'btn btn-guest']) ?></h5>
             </div>
             <div class="col-md-1 divider"></div>
             <div class="col-md-5 login">

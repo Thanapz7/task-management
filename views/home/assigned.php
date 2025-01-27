@@ -30,10 +30,10 @@ $this->title = 'Assigned';
                 'headerOptions' => ['class' => 'custom-table-header'],
             ],
             [
-                'attribute' => 'department_name',
+                'attribute' => 'creator_department_name',
                 'label' => 'แผนกที่ติดต่อ',
                 'value' => function ($model) {
-                    return mb_strtoupper($model['department_name']);
+                    return mb_strtoupper($model['creator_department_name']);
                 },
                 'contentOptions' => ['style' => 'width: 30%; text-align: center;'],
                 'headerOptions' => ['class' => 'custom-table-header'],

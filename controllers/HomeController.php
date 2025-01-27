@@ -376,14 +376,18 @@ class HomeController extends Controller
             ->select([
                 'records.create_at AS record_created_at',
                 'records.id',
-                'department.department_name',
+                'creator_department.department_name AS creator_department_name', // department ของผู้สร้าง forms
+                'department.department_name AS user_department_name', // department ของ user (records)
                 'forms.form_name',
             ])
-            ->innerJoin('users', 'records.user_id = users.id')
-            ->innerJoin('department', 'users.department = department.id')
-            ->innerJoin('forms', 'records.form_id = forms.id')
-            ->where(['records.user_id' => $userId])
+            ->innerJoin('users', 'records.user_id = users.id') // users ที่เชื่อมกับ records
+            ->innerJoin('department', 'users.department = department.id') // department ของ user
+            ->innerJoin('forms', 'records.form_id = forms.id') // เชื่อม forms กับ records
+            ->innerJoin('users AS form_creator', 'forms.user_id = form_creator.id') // users ที่เป็นผู้สร้าง forms
+            ->innerJoin('department AS creator_department', 'form_creator.department = creator_department.id') // department ของ form_creator
+            ->where(['records.user_id' => $userId]) // เงื่อนไขการดึงข้อมูล
             ->asArray();
+
 
         // ตรวจสอบว่า $query เป็น ActiveQuery
         if (!$query instanceof yii\db\ActiveQuery) {
@@ -494,14 +498,22 @@ class HomeController extends Controller
                     $fieldValue->record_id = $records->id;
                     $fieldValue->field_id = $field['id'];
 
-                    if($field['field_type'] === 'file' && isset($uploadedFiles[$field['id']])){
-                        $file = $uploadedFiles[$field['id']];
-                        $filePath = 'uploads/' . uniqid() . '_' . $file->baseName . '.' . $file->extension;
-                        if($file->saveAs($filePath)){
-                            $fieldValue->value = $filePath;
-                        }else{
-                            Yii::$app->session->setFlash('error', 'เกิดข้อผิดพลาดในการอัพโหลดไฟล์');
-                            return $this->redirect(['home/assignment']);
+                    if ($field['field_type'] === 'file' && isset($_FILES['DynamicForm']['name'][$field['id']])) {
+                        $file = UploadedFile::getInstanceByName("DynamicForm[{$field['id']}]");
+
+                        if ($file) {
+                            $filePath = 'uploads/' . uniqid() . '_' . $file->baseName . '.' . $file->extension;
+                            $uploadPath = Yii::getAlias('@webroot/uploads');
+                            if (!is_dir($uploadPath)) {
+                                \yii\helpers\FileHelper::createDirectory($uploadPath, 0775, true); // สร้างโฟลเดอร์พร้อมกำหนดสิทธิ์
+                            }
+
+                            if ($file->saveAs(Yii::getAlias('@webroot/') . $filePath)) {
+                                $fieldValue->value = $filePath; // บันทึกเส้นทางไฟล์ในฐานข้อมูล
+                            } else {
+                                Yii::$app->session->setFlash('error', 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์');
+                                return $this->redirect(['home/assignment']);
+                            }
                         }
                     }else{
                         $fieldValue->value = is_array($formData[$field['id']])

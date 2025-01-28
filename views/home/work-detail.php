@@ -171,8 +171,12 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                             return [
                                 'attribute' => $fieldName,
                                 'label' => str_replace('_', ' ', $fieldName),
-                                'contentOptions' => ['class' => 'field-column-' . $fieldName], // เพิ่มคลาสสำหรับการซ่อน/แสดง
-                                'headerOptions' => ['class' => 'field-column-' . $fieldName ]
+                                'contentOptions' => ['class' => "'field-column-' . $fieldName", 'style' => 'max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap'], // เพิ่มคลาสสำหรับการซ่อน/แสดง
+                                'headerOptions' => ['class' => 'field-column-' . $fieldName ],
+                                'value' => function ($model) use ($fieldName) {
+                                    return isset($model[$fieldName]) ? nl2br(Html::encode($model[$fieldName])) : '(ไม่ได้ตั้ง)';
+                                },
+                                'format' => 'raw',
                             ];
                         }
                         return null;

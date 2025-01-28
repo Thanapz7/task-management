@@ -14,50 +14,50 @@ use Yii;
  * @property string $create_at
  * @property string $update_at
  */
+
 class FieldValues extends \yii\db\ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
-        return 'field_values';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
+    // ส่วนของการตรวจสอบข้อมูล
     public function rules()
     {
         return [
-            [['record_id', 'field_id', 'value'], 'required'],
             [['record_id', 'field_id'], 'integer'],
             [['value'], 'string'],
             [['create_at', 'update_at'], 'safe'],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+    // ฟังก์ชั่นสำหรับอัปโหลดไฟล์
+    public function uploadFile($file, $recordId)
     {
-        return [
-            'id' => 'ID',
-            'record_id' => 'Record ID',
-            'field_id' => 'Field ID',
-            'value' => 'Value',
-            'create_at' => 'Create At',
-            'update_at' => 'Update At',
-        ];
-    }
+        // ตรวจสอบว่าไฟล์ได้รับการอัปโหลดหรือไม่
+        if ($file === null || $file->getHasError()) {
+            Yii::error('ไม่พบไฟล์หรือไฟล์ไม่ถูกต้อง');
+            return false;
+        }
 
-    /**
-     * {@inheritdoc}
-     * @return FieldValuesQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new FieldValuesQuery(get_called_class());
+        // กำหนดโฟลเดอร์ที่เก็บไฟล์
+        $directory = Yii::getAlias('@app/web/uploads');
+
+        // ตรวจสอบว่าโฟลเดอร์มีอยู่แล้วหรือไม่ ถ้าไม่สร้างใหม่
+        if (!is_dir($directory)) {
+            if (!mkdir($directory, 0777, true)) {
+                Yii::error('ไม่สามารถสร้างโฟลเดอร์: ' . $directory);
+                return false;
+            }
+        }
+
+        // สร้างชื่อไฟล์ที่ไม่ซ้ำ
+        $fileName = uniqid($recordId . '_') . '.' . $file->extension;
+        $filePath = $directory . DIRECTORY_SEPARATOR . $fileName;
+
+        // บันทึกไฟล์ลงในเซิร์ฟเวอร์
+        if ($file->saveAs($filePath)) {
+            Yii::debug('บันทึกไฟล์สำเร็จ: ' . $filePath, 'file-upload');
+            return 'uploads/' . $fileName; // เก็บ path สั้นไว้ในฐานข้อมูล
+        } else {
+            Yii::error('ไม่สามารถบันทึกไฟล์ลงที่: ' . $filePath);
+            return false;
+        }
     }
 }

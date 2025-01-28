@@ -781,4 +781,7 @@ img{
     .for-print{
         display: block;
     }
+    .show-info{
+        display: none;
+    }
 }

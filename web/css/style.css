@@ -519,10 +519,6 @@ input:checked + .slider:before {
     display: flex;
     flex-direction: row;
 }
-.search-bar{
-    position: relative;
-    margin-right: 10px;
-}
 .search{
     position: relative;
     padding: 7px;

@@ -7,7 +7,7 @@ $this->title = "Assigned";
 
 <h4 class="text-header">งานที่สั่ง</h4>
 
-<h5 class="ml-5 text-key" style="margin-top: 10px">ค้นหางานด้วยคีย์</h5>
+<h5 class="ml-5 text-key" style="margin-top: 10px">ค้นหางานด้วยคีย์ <i class="fa-solid fa-key" style="color: #55AD9B"></i>์</h5>
 <div class="search-form ml-5">
     <?= Html::beginForm('assigned', 'get', ['class' => 'form-inline']) ?>
         <div class="form-group">

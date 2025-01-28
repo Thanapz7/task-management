@@ -32,19 +32,26 @@ $this->title = 'Assignment Form';
                         <?php break;
 
                     case 'dropdown': ?>
-                        <select name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type">
+                        <select name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" id="dropdown_<?= $field['id'] ?>" onchange="updateDropdownValue(this)">
                             <option value="">เลือก<?= Html::encode($field['field_name']) ?></option>
                             <?php
-                                $options = json_decode($field['options'], true);
-                                if (is_array($options)) {
-                                    foreach ($options as $option): ?>
-                                        <option value="<?= Html::encode($option)?>"><?= Html::encode($option) ?></option>
-                                    <?php endforeach;
-                                }else{
-                                    echo '<option value="">ไม่มีตัวเลือก</option>';
-                                }
+                            $options = json_decode($field['options'], true);
+                            if (is_array($options)) {
+                                foreach ($options as $option): ?>
+                                    <option value="<?= Html::encode($option) ?>"><?= Html::encode($option) ?></option>
+                                <?php endforeach;
+                            } else {
+                                echo '<option value="">ไม่มีตัวเลือก</option>';
+                            }
                             ?>
                         </select>
+                        <p class="ml-3 mt-1 warning-text" style="color: #454d55; font-size: 14px">ตัวเลือกที่เลือก: <span style="color: #000;" id="selectedValue_<?= $field['id'] ?>"></span></p>
+                        <script>
+                            function updateDropdownValue(selectElement) {
+                                var selectedValue = selectElement.value;
+                                document.getElementById("selectedValue_<?= $field['id'] ?>").textContent = selectedValue ? selectedValue : "ไม่ได้เลือก";
+                            }
+                        </script>
                         <?php break;
 
                     case 'number': ?>

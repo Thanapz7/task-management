@@ -86,10 +86,14 @@ use yii\helpers\Html; ?>
             <?php if (!empty($data)): ?>
                 <h4>รายละเอียดข้อมูล - <?= Html::encode($data[0]['form_name'])?></h4>
             <?php endif; ?>
-            <?php foreach ($resultsinfo as $info): ?>
-                <h4>ผู้กรอก : <?= htmlspecialchars($info['name'])?> <?= htmlspecialchars($info['lastname'])?> | แผนก : <?= htmlspecialchars(mb_strtoupper($info['department_name']))?></h4>
-                <h4>วันที่กรอก : <?= htmlspecialchars((new DateTime($info['create_at']))->format('d/m/y H:i'))?></h4>
-            <?php endforeach; ?>
+            <?php if(!empty($resultsinfo)):?>
+                <?php foreach ($resultsinfo as $info): ?>
+                    <h4>ผู้กรอก : <?= htmlspecialchars($info['name'])?> <?= htmlspecialchars($info['lastname'])?> | แผนก : <?= htmlspecialchars(mb_strtoupper($info['department_name']))?></h4>
+                    <h4>วันที่กรอก : <?= htmlspecialchars((new DateTime($info['create_at']))->format('d/m/y H:i'))?></h4>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <h4>ผู้กรอก : บุคคลภายนอก</h4>
+            <?php endif; ?>
         </div>
         <div class="apply">
             <?php foreach ($data as $item): ?>

@@ -80,7 +80,6 @@ class Fields extends \yii\db\ActiveRecord
     {
         return new FieldsQuery(get_called_class());
     }
-
     public function getFieldValues()
     {
         return $this->hasOne(FieldValues::className(), ['field_id' => 'id']);
@@ -90,4 +89,5 @@ class Fields extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Forms::className(), ['id' => 'form_id']);
     }
+
 }

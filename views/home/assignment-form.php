@@ -13,9 +13,9 @@ $this->title = 'Assignment Form';
     </div>
     <hr style="margin: 0; margin-bottom: 10px;">
     <?php $form = ActiveForm::begin([
-            'options' => [
-                    'enctype' => 'multipart/form-data'
-            ],
+        'options' => [
+            'enctype' => 'multipart/form-data'
+        ],
     ]); ?>
     <?php foreach ($fields as $field): ?>
         <div class="form-group">
@@ -35,14 +35,14 @@ $this->title = 'Assignment Form';
                         <select name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type">
                             <option value="">เลือก<?= Html::encode($field['field_name']) ?></option>
                             <?php
-                                $options = json_decode($field['options'], true);
-                                if (is_array($options)) {
-                                    foreach ($options as $option): ?>
-                                        <option value="<?= Html::encode($option)?>"><?= Html::encode($option) ?></option>
-                                    <?php endforeach;
-                                }else{
-                                    echo '<option value="">ไม่มีตัวเลือก</option>';
-                                }
+                            $options = json_decode($field['options'], true);
+                            if (is_array($options)) {
+                                foreach ($options as $option): ?>
+                                    <option value="<?= Html::encode($option)?>"><?= Html::encode($option) ?></option>
+                                <?php endforeach;
+                            }else{
+                                echo '<option value="">ไม่มีตัวเลือก</option>';
+                            }
                             ?>
                         </select>
                         <?php break;
@@ -72,19 +72,18 @@ $this->title = 'Assignment Form';
 
                     case 'checkbox': ?>
                         <?php
-                        $options = json_decode($field['options'], true, 512, JSON_UNESCAPED_UNICODE);
-                        if (is_array($options)) {
+                        $options = json_decode($field['options'], true);
+                        if (is_array($options) && !empty($options)) {
                             foreach ($options as $option): ?>
                                 <label>
-                                    <input type="checkbox" name="DynamicForm[<?= $field['id'] ?>][]" value="<?= Html::encode($option) ?>"> <?= Html::encode($option) ?>
+                                    <input type="radio" name="DynamicForm[<?= $field['id'] ?>]" value="<?= Html::encode($option) ?>"> <?= Html::encode($option) ?>
                                 </label>
                             <?php endforeach;
                         } else {
-                            echo "<span style='margin-left: 10px;'>ไม่มีตัวเลือก</span>";
+                            echo "ไม่มีตัวเลือก";
                         }
                         ?>
                         <?php break;
-
                     case 'date': ?>
                         <input type="date" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type">
                         <?php break;
@@ -93,8 +92,22 @@ $this->title = 'Assignment Form';
                         <input type="time" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type">
                         <?php break;
 
+//                    case 'file': ?>
+<!--                        <input type="file" name="DynamicForm[--><?php //= $field['id'] ?><!--]" class="form-control input-type">-->
+<!--                        --><?php //break;
+
                     case 'file': ?>
-                        <input type="file" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type">
+                        <div class="form-group">
+                            <?php if (!empty($fieldValue['value'])): ?>
+                                <div class="uploaded-file">
+                                    <a href="<?= Yii::getAlias('@web') . '/' . Html::encode($fieldValue['value']) ?>" target="_blank">
+                                        ดาวน์โหลดไฟล์ที่แนบไว้
+                                    </a>
+                                </div>
+                                <p>หากต้องการเปลี่ยนไฟล์ ให้แนบไฟล์ใหม่:</p>
+                            <?php endif; ?>
+                            <input type="file" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type">
+                        </div>
                         <?php break;
 
                     case 'text'; ?>
@@ -106,16 +119,16 @@ $this->title = 'Assignment Form';
         </div>
     <?php endforeach; ?>
 </div>
-    <div class="group-btn-preview text-center" style="margin-top: 5px;">
-        <?= Html::a('ยกเลิก', ['home/assignment'],
-            [
-                'class' => 'btn-d-preview btn btn-cancel',
-                'data-confirm'=>'ยกเลิกการกรอกข้อมูล'
-            ])
-        ?>
-        <?= Html::submitButton('ตกลง', ['class' => 'btn-d-preview btn btn-confirm']) ?>
-        <?php ActiveForm::end(); ?>
-    </div>
+<div class="group-btn-preview text-center" style="margin-top: 5px;">
+    <?= Html::a('ยกเลิก', ['home/assignment'],
+        [
+            'class' => 'btn-d-preview btn btn-cancel',
+            'data-confirm'=>'ยกเลิกการกรอกข้อมูล'
+        ])
+    ?>
+    <?= Html::submitButton('ตกลง', ['class' => 'btn-d-preview btn btn-confirm']) ?>
+    <?php ActiveForm::end(); ?>
+</div>
 
 <script>
     document.querySelectorAll('input[type="file"]').forEach(function (input){

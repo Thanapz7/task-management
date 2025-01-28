@@ -222,34 +222,6 @@ $this->title = 'Create Form' . Html::encode($form_id);
                     </ul>
                 </div>
             </div>
-<!--            <div class="">-->
-<!--                <div class="text-center">-->
-<!--                    <label for="" class="label-text" style="margin-top: 10px;">การแสดงผล</label>-->
-<!--                </div>-->
-<!--                <div class="text-center" style="margin-top: 10px; margin-bottom: 10px;">-->
-<!--                    <div class="radio">-->
-<!--                        <input type="radio" class="radio-input" value="grid" name="display" id="radio1">-->
-<!--                        <label for="radio1" class="radio-label">ตาราง</label>-->
-<!--                        <input type="radio" class="radio-input" value="list" name="display" id="radio2">-->
-<!--                        <label for="radio2" class="radio-label">รายการ</label>-->
-<!--                        <input type="radio" class="radio-input" value="gallery" name="display" id="radio3">-->
-<!--                        <label for="radio3" class="radio-label">แกลเลอรี่</label>-->
-<!--                        <input type="radio" class="radio-input" value="calendar" name="display" id="radio4">-->
-<!--                        <label for="radio4" class="radio-label">ปฏิทิน</label>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="form-group">-->
-<!--                    <label class="label-content">เลือกฟิลด์ที่จะแสดง</label>-->
-<!--                    <div style="margin-left: 15px; margin-top: -5px;">-->
-<!--                        --><?php //foreach($fields as $filter) :?>
-<!--                        <div class="checkbox">-->
-<!--                            <label><input type="checkbox" value="">--><?php //= Html::encode($filter->field_name)?><!--</label>-->
-<!--                        </div>-->
-<!--                        --><?php //endforeach; ?>
-<!--                    </div>-->
-<!--                </div>-->
-<!---->
-<!--            </div>-->
         </div>
     </div>
     <div class="col-md-12 text-right">
@@ -268,41 +240,53 @@ $this->title = 'Create Form' . Html::encode($form_id);
 <?php
 function getFieldHtml($type, $id, $options) {
     switch ($type) {
-//        case "text":
-//            return '<input type="text" class="form-control" placeholder="Text">';
         case "short-text":
-            return '<input type="text" class="form-control" placeholder="Short Text">';
+            return '<input type="text" class="form-control" name="field_' . $id . '" placeholder="Short Text">';
         case "long-text":
-            return '<textarea class="form-control" placeholder="Long Text"></textarea>';
+            return '<textarea class="form-control" name="field_' . $id . '" placeholder="Long Text"></textarea>';
+        case "phone":
+            return '<input type="number" class="form-control" name="field_' . $id . '" placeholder="Phone Number">';
+        case "date":
+            return '<input type="date" class="form-control" name="field_' . $id . '">';
+        case "time":
+            return '<input type="time" class="form-control" name="field_' . $id . '">';
+        case "file":
+            return '<input type="file" class="form-control" name="field_' . $id . '">';
+
         case "dropdown":
             $html = '<select class="form-control" name="field_' . $id . '">';
-            foreach($options as $option) {
-                $html .="<option value='$option'>$option</option>";
+            if (is_array($options) && !empty($options)) {
+                foreach ($options as $option) {
+                    $html .= "<option value='$option'>$option</option>";
+                }
+            } else {
+                $html .= "<option value=''>ไม่มีตัวเลือก</option>";
             }
             $html .= '</select>';
             return $html;
-        case "phone":
-            return '<input type="number" class="form-control" placeholder="Phone Number">';
-        case "date":
-            return '<input type="date" class="form-control">';
-        case "time":
-            return '<input type="time" class="form-control">';
-        case "file":
-            return '<input type="file" class="form-control">';
+
         case "radio":
             $html = "";
-            foreach ($options as $option) {
-                $html .= "<label><input type='radio' name='field_$id' value='$option'>$option</label><br>";
+            if (is_array($options) && !empty($options)) {
+                foreach ($options as $option) {
+                    $html .= "<label><input type='radio' name='field_$id' value='$option'>$option</label><br>";
+                }
+            } else {
+                $html .= "<label>ไม่มีตัวเลือก</label><br>";
             }
             return $html;
+
         case "checkbox":
             $html = "";
-            foreach ($options as $option) {
-                $html .= "<label><input type='checkbox' name='field_{$id}[]' value='$option'>$option</label><br>";
+            if (is_array($options) && !empty($options)) {
+                foreach ($options as $option) {
+                    $html .= "<label><input type='checkbox' name='field_{$id}[]' value='$option'>$option</label><br>";
+                }
+            } else {
+                $html .= "<label>ไม่มีตัวเลือก</label><br>";
             }
             return $html;
-        case "number":
-            return '<input type="number" class="form-control" placeholder="Number">';
+
         default:
             return '';
     }

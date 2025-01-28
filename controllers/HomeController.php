@@ -21,6 +21,8 @@ use yii\web\NotFoundHttpException;
 use yii\web\View;
 use yii\web\Response;
 use Mpdf\Mpdf;
+use yii\web\UploadedFile;
+use yii\helpers\FileHelper;
 
 class HomeController extends Controller
 {
@@ -462,11 +464,11 @@ class HomeController extends Controller
         ]);
     }
 
-    public function actionAssignmentForm($id) //form_id
+    public function actionAssignmentForm($id)
     {
         $this->layout = 'layout';
 
-        // show
+        // show form
         $form = Forms::find()
             ->select(['form_name', 'department.department_name'])
             ->innerJoinWith('users.department')
@@ -474,6 +476,7 @@ class HomeController extends Controller
             ->asArray()
             ->one();
 
+        // query fields
         $query = (new \yii\db\Query())
             ->select(['fields.id', 'fields.field_name', 'fields.field_type', 'fields.options'])
             ->from('forms')
@@ -481,57 +484,76 @@ class HomeController extends Controller
             ->where(['forms.id' => $id]);
         $fields = $query->all();
 
-        // save
-        if(Yii::$app->request->isPost){
+        if (Yii::$app->request->isPost) {
+            // get form data
             $formData = Yii::$app->request->post('DynamicForm');
 
-            //บันทึก record
+            // create new record
             $records = new Records();
             $records->form_id = $id;
             $records->user_id = Yii::$app->user->id;
-            $records->save();
+            if (!$records->save()) {
+                Yii::$app->session->setFlash('error', 'ไม่สามารถบันทึกข้อมูล Record ได้');
+                return $this->redirect(['home/assignment']);
+            }
 
-            //บันทึก field values
+            // save field values
             foreach ($fields as $field) {
-                if(isset($formData[$field['id']])){
-                    $fieldValue = new FieldValues();
-                    $fieldValue->record_id = $records->id;
-                    $fieldValue->field_id = $field['id'];
+                $fieldValue = new FieldValues();
+                $fieldValue->record_id = $records->id;
 
-                    if ($field['field_type'] === 'file' && isset($_FILES['DynamicForm']['name'][$field['id']])) {
-                        $file = UploadedFile::getInstanceByName("DynamicForm[{$field['id']}]");
+                // ensure field_id exists
+                if (!isset($field['id']) || empty($field['id'])) {
+                    Yii::error("ไม่พบ field_id สำหรับฟิลด์ {$field['field_name']}", 'field-value-errors');
+                    continue;
+                }
 
-                        if ($file) {
-                            $filePath = 'uploads/' . uniqid() . '_' . $file->baseName . '.' . $file->extension;
-                            $uploadPath = Yii::getAlias('@webroot/uploads');
-                            if (!is_dir($uploadPath)) {
-                                \yii\helpers\FileHelper::createDirectory($uploadPath, 0775, true); // สร้างโฟลเดอร์พร้อมกำหนดสิทธิ์
-                            }
+                $fieldValue->field_id = $field['id'];
 
-                            if ($file->saveAs(Yii::getAlias('@webroot/') . $filePath)) {
-                                $fieldValue->value = $filePath; // บันทึกเส้นทางไฟล์ในฐานข้อมูล
-                            } else {
-                                Yii::$app->session->setFlash('error', 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์');
-                                return $this->redirect(['home/assignment']);
-                            }
+                // handle file upload fields
+                if ($field['field_type'] === 'file') {
+                    $file = UploadedFile::getInstanceByName("DynamicForm[{$field['id']}]");
+                    if ($file) {
+                        // upload the file
+                        $filePath = $fieldValue->uploadFile($file, $records->id);
+                        if ($filePath) {
+                            $fieldValue->value = $filePath; // store the file path
+                        } else {
+                            Yii::error("ไม่สามารถบันทึกไฟล์สำหรับฟิลด์ {$field['field_name']}", 'file-upload');
+                            continue;
                         }
-                    }else{
-                        $fieldValue->value = is_array($formData[$field['id']])
-                            ? json_encode($formData[$field['id']])
-                            : $formData[$field['id']];
                     }
-                    $fieldValue->save();
+                } else {
+                    // save non-file data
+                    if (isset($formData[$field['id']])) {
+                        $fieldValue->value = is_array($formData[$field['id']])
+                            ? json_encode($formData[$field['id']])  // handle array data (for checkboxes, multiple selections, etc.)
+                            : $formData[$field['id']];  // for simple text, dropdown, etc.
+                    } else {
+                        Yii::$app->session->setFlash('error', "ฟิลด์ {$field['field_name']} ไม่มีข้อมูล");
+                        continue;
+                    }
+                }
+
+                // save the field value
+                if (!$fieldValue->save()) {
+                    Yii::debug($fieldValue->getErrors(), 'field-value-errors');
+                    Yii::$app->session->setFlash('error', "เกิดข้อผิดพลาดในการบันทึกข้อมูลสำหรับฟิลด์ {$field['field_name']}");
+                    return $this->redirect(['home/assignment']);
                 }
             }
-            Yii::$app->session->setFlash('success','บันทึกข้อมูลสำเร็จ');
+
+            // success message
+            Yii::$app->session->setFlash('success', 'บันทึกข้อมูลสำเร็จ');
             return $this->redirect(['home/assigned']);
         }
 
-        return $this->render('assignment-form',[
+        return $this->render('assignment-form', [
             'form' => $form,
             'fields' => $fields,
         ]);
     }
+
 
     public function actionLogout()
     {

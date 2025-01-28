@@ -111,6 +111,9 @@ class HomeController extends Controller
 
             // Loop เพื่อจัดกลุ่มข้อมูลตาม record_id
             foreach ($query as $row) {
+                if (isset($row['value']) && is_string($row['value'])) {
+                    $row['value'] = str_replace(["\r", "\n"], '', $row['value']);
+                }
                 // ตรวจสอบว่า record_id มีข้อมูลอยู่ใน pivotData หรือยัง
                 if (!isset($pivotData[$row['record_id']])) {
                     // ถ้าไม่มีให้เริ่มต้นเป็นอาร์เรย์ว่าง

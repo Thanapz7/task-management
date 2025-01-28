@@ -2,6 +2,9 @@
 body{
     font-family: "Noto Sans Thai", serif;
 }
+.help-block{
+    color: #cc5555;
+}
 /*login*/
 .forgot-pass{
     text-decoration: underline;
@@ -101,7 +104,7 @@ body{
 .login-eye {
     position: absolute;
     right: 10px;
-    top: 43px;
+    top: 47px;
     font-size: 16px;
     color: #656565cc;
     cursor: pointer;
@@ -454,6 +457,9 @@ input:checked + .slider:before {
     border: 1px solid #cccccc;
     border-radius: 20px;
     width: 260px;
+    height: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .gallery a,
 .gallery-item{
@@ -512,10 +518,6 @@ input:checked + .slider:before {
     margin-top: 10px;
     display: flex;
     flex-direction: row;
-}
-.search-bar{
-    position: relative;
-    margin-right: 10px;
 }
 .search{
     position: relative;

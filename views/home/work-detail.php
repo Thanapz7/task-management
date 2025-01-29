@@ -171,8 +171,8 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                             return [
                                 'attribute' => $fieldName,
                                 'label' => str_replace('_', ' ', $fieldName),
-                                'contentOptions' => ['class' => "'field-column-' . $fieldName", 'style' => 'max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap'], // เพิ่มคลาสสำหรับการซ่อน/แสดง
-                                'headerOptions' => ['class' => 'field-column-' . $fieldName ],
+                                'contentOptions' => ['class' => 'field-column-' . $fieldName, 'style' => 'max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap'],
+                                'headerOptions' => ['class' => 'field-column-' . $fieldName],
                                 'value' => function($model) use ($fieldName) {
                                     $value = $model[$fieldName] ?? '';
                                     if(!$value){
@@ -303,38 +303,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
         </div>
 
         <?php elseif ($viewType == 'calendar' && isset($events) && !empty($events)): ?>
-
-            <?php
-            $this->registerCssFile('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css');
-            $this->registerJsFile('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js', ['position' => \yii\web\View::POS_END]);
-            $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
-            ?>
             <div id="calendar"></div>
-            <?php
-            // Register FullCalendar JS
-            $this->registerJsFile('https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js', ['position' => \yii\web\View::POS_END]);
-            $this->registerCssFile('https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css');
-
-            // ตรวจสอบค่า $events ก่อนส่งไปที่ JavaScript
-            if (empty($events)) {
-                echo "No events available"; // แจ้งว่าไม่มีข้อมูลเหตุการณ์
-            } else {
-                $this->registerJs(new JsExpression("
-            document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                events: " . json_encode($events) . ",  // ส่งข้อมูล events ที่ถูกต้อง
-                eventRender: function(info) {
-                    console.log(info.event);
-                }
-            });
-            calendar.render();
-        });
-    "));
-            }
-
-            ?>
         <?php else: ?>
             <p>No events available for the calendar view.</p>
         <?php endif; ?>

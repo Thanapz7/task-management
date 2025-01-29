@@ -409,7 +409,7 @@ input:checked + .slider:before {
     flex-direction: row;
     justify-content: center;
     width: auto;
-    background: rgba(204, 204, 204, 0.63);
+    background: rgba(204, 204, 204, 0.22);
 }
 .pagination a{
     margin: 5px;

@@ -408,8 +408,12 @@ input:checked + .slider:before {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    width: 50px;
+    width: auto;
     background: rgba(204, 204, 204, 0.63);
+}
+.pagination a{
+    margin: 5px;
+    padding: 3px 6px;
 }
 .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover {
     z-index: 3;
@@ -417,6 +421,7 @@ input:checked + .slider:before {
     cursor: default;
     background-color: #55AD9B;
     border-color: #55AD9B;
+    border-radius: 5px;
 }
 .pagination>li>a, .pagination>li>span {
     color: #55AD9B;
@@ -473,7 +478,7 @@ input:checked + .slider:before {
 }
 #calendar {
     max-width: 90%; /* กำหนดความกว้าง */
-    height: 400px;    /* กำหนดความสูง */
+    height: 480px;    /* กำหนดความสูง */
     margin: 0 auto;   /* จัดกึ่งกลาง */
     font-size: 0.8em; /* ลดขนาดฟอนต์ */
 }
@@ -555,7 +560,7 @@ table th, table td {
     color: #000000;
 }
 .grid-view a:hover{
-    text-decoration: none;
+    text-decoration: underline;
 }
 /*assigned-preview*/
 .assignment-preview{
@@ -753,6 +758,14 @@ img{
 .btn-preview-detail {
     color: #ffffff;
     background-color: #F0B754;
+}
+.btn-link-file{
+    font-size: 14px;
+}
+.btn-link-file:hover{
+    opacity: 0.9;
+    text-decoration: underline;
+    margin: auto;
 }
 
 /* On small screens, set height to 'auto' for sidenav and grid */

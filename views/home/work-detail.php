@@ -173,8 +173,38 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                                 'label' => str_replace('_', ' ', $fieldName),
                                 'contentOptions' => ['class' => "'field-column-' . $fieldName", 'style' => 'max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap'], // เพิ่มคลาสสำหรับการซ่อน/แสดง
                                 'headerOptions' => ['class' => 'field-column-' . $fieldName ],
-                                'value' => function ($model) use ($fieldName) {
-                                    return isset($model[$fieldName]) ? nl2br(Html::encode($model[$fieldName])) : '(ไม่ได้ตั้ง)';
+                                'value' => function($model) use ($fieldName) {
+                                    $value = $model[$fieldName] ?? '';
+                                    if(!$value){
+                                        return '(ไม่ได้กรอก)';
+                                    }
+
+                                    $isFilePath = (bool) preg_match('/\.(jpg|jpeg|png|gif|pdf|docx?|xlsx?|txt)$/i', $value);
+                                    $baseUrl = Yii::getAlias('@web/uploads/');
+                                    if(strpos($value, 'uploads/') !== false){
+                                        $fileUrl = Yii::getAlias('@web/' ) . ltrim($value, '/');
+                                    }else{
+                                        $fileUrl = $baseUrl .ltrim($value, '/');
+                                    }
+
+                                    if($isFilePath){
+                                        $fileExtension = strtolower(pathinfo($value, PATHINFO_EXTENSION));
+                                        if(in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])){
+                                            return Html::a('<i class="fa-solid fa-image"></i> เปิดรูปภาพ', $fileUrl,
+                                                ['target' => '_blank',
+                                                 'class' => 'btn-link-file']);
+                                        }elseif ($fileExtension == 'pdf') {
+                                            return Html::a('<i class="fa-solid fa-file-pdf"></i> เปิด PDF', $fileUrl,
+                                                ['target' => '_blank',
+                                                 'class' => 'btn-link-file']);
+                                        }else{
+                                            return Html::a('<i class="fa-solid fa-file-arrow-down"></i> ดาวน์โหลดไฟล์', $fileUrl,
+                                                ['target' => '_blank',
+                                                 'class' => 'btn-link-file',
+                                                 'download' => true]);
+                                        }
+                                    }
+                                    return nl2br(Html::encode($value));
                                 },
                                 'format' => 'raw',
                             ];

@@ -111,40 +111,49 @@ class HomeController extends Controller
 
             // Loop เพื่อจัดกลุ่มข้อมูลตาม record_id
             foreach ($query as $row) {
-                if (isset($row['value']) && is_string($row['value'])) {
-                    $row['value'] = str_replace(["\r", "\n"], '', $row['value']);
+                // ตรวจสอบว่า row มี record_id และ field_name หรือไม่
+                if (!isset($row['record_id']) || !isset($row['field_name'])) {
+                    continue; // ข้ามกรณีที่ไม่มี record_id หรือ field_name
                 }
-                // ตรวจสอบว่า record_id มีข้อมูลอยู่ใน pivotData หรือยัง
+                // การแปลงค่า value ถ้าเป็นสตริง
+                if (isset($row['value']) && is_string($row['value'])) {
+                    $row['value'] = str_replace(["\r", "\n"], '', $row['value']);  // ลบการขึ้นบรรทัดใหม่
+                }
+                // ตรวจสอบว่า pivotData[$row['record_id']] ถูกสร้างหรือยัง
                 if (!isset($pivotData[$row['record_id']])) {
-                    // ถ้าไม่มีให้เริ่มต้นเป็นอาร์เรย์ว่าง
                     $pivotData[$row['record_id']] = [];
                 }
-
-                // แปลง value ให้เป็นข้อความภาษาไทยปกติ
+                // ตรวจสอบชื่อฟิลด์ซ้ำ
+                $fieldName = $row['field_name'];
+                $originalFieldName = $fieldName;  // เก็บชื่อฟิลด์ต้นฉบับ
+                // ตรวจสอบว่าฟิลด์มีชื่อซ้ำหรือไม่
+                $count = 1;
+                while (isset($pivotData[$row['record_id']][$fieldName])) {
+                    // ถ้ามีชื่อซ้ำ ให้เพิ่มตัวเลขหรืออักษร
+                    $fieldName = $originalFieldName . $count;
+                    $count++;
+                }
+                // การแปลงค่า value ในกรณีที่เป็น JSON string
                 $value = $row['value'];
                 if (is_string($value)) {
-                    $decodedValue = json_decode($value, true); // ลอง decode JSON string
-                    if (is_array($decodedValue)) {
-                        // ถ้าเป็น array ให้แปลงค่าภายใน
+                    $decodedValue = json_decode($value, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decodedValue)) {
+                        // ถ้า value เป็น array จาก JSON จะทำการแปลงให้เป็น string ด้วย comma
                         $value = implode(', ', array_map(function ($item) {
-                            return json_decode('"' . $item . '"');
+                            return json_decode('"' . $item . '"');  // แปลงให้เป็น string ที่ถูกต้อง
                         }, $decodedValue));
                     } else {
-                        // ถ้าเป็น string ให้แปลง Unicode escape sequence
-                        $value = json_decode('"' . $value . '"');
+                        // ถ้าเป็น string ธรรมดา แต่ไม่ใช่ JSON array ให้แปลงเป็น JSON string
+                        $value = json_decode('"' . $value . '"') ?: $value;
                     }
                 }
-
-                // จัดกลุ่ม field_name และ value โดยใช้ record_id
-                $pivotData[$row['record_id']][$row['field_name']] = $value;
-
-                // เก็บ record_id ไว้ใน array
+                // เพิ่มข้อมูลลงใน pivotData
+                $pivotData[$row['record_id']][$fieldName] = $value;
+                // เก็บ record_id
                 $recordIds[] = $row['record_id'];
             }
-
             // คำนวณจำนวนแถวสูงสุดจาก pivotData
             $maxRows = !empty($pivotData) ? count($pivotData) : 0;
-
             // สร้าง formattedData โดยรวมข้อมูลจาก pivotData
             $formattedData = [];
             foreach ($pivotData as $recordId => $fields) {
@@ -162,7 +171,6 @@ class HomeController extends Controller
                 // เพิ่ม row เข้าไปใน formattedData
                 $formattedData[] = $row;
             }
-
             $events = [];
             foreach ($results as $data) {
                 // ตรวจสอบว่า 'event_start' และ 'event_end' มีข้อมูลเป็น timestamp หรือ datetime
@@ -196,6 +204,7 @@ class HomeController extends Controller
             }
 
         }
+
         // สร้าง data provider
         $dataProvider = new ArrayDataProvider([
             'allModels' => $formattedData,
@@ -288,10 +297,16 @@ class HomeController extends Controller
             throw new \yii\web\NotFoundHttpException('Form not found.');
         }
 
+        $existingFields = Fields::find()
+            ->where(['form_id' => $id])
+            ->asArray()
+            ->all();
+
         $this->layout = 'blank_page';
         return $this->render('create-form', [
             'form' => $form,
             'formId' => $id,
+            'existingFields' => $existingFields,
         ]);
     }
 

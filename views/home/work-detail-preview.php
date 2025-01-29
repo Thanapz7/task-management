@@ -113,13 +113,15 @@ use yii\helpers\Html; ?>
                             // สร้าง URL ที่สามารถเข้าถึงได้จากเว็บ
                             $fileUrl = Yii::getAlias('@web/' . $value);
                             echo '<img src="' . $fileUrl . '" alt="Image" class="mx-auto d-block" style="margin:auto; display:block;" width="500">';
-                        }
-                        // ตรวจสอบว่าเป็นไฟล์ PDF
-                        elseif ($fileExtension === 'pdf') {
+                        } elseif ($fileExtension === 'pdf') {
                             // ถ้าเป็นไฟล์ PDF แสดงลิงก์ให้ดาวน์โหลด
                             $fileUrl = Yii::getAlias('@web/' . $value);
                             echo '<a href="' . $fileUrl . '" target="_blank" class="btn btn-primary show-info">เปิดไฟล์ PDF</a>';
                             echo '<iframe src="'. $fileUrl .'" width="100%" height="600px" class="show-info"></iframe>';
+                        } elseif (in_array($fileExtension, ['xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'txt', 'csv'])) {
+                            $fileUrl = Yii::getAlias('@web/' . $value);
+                            echo '<a href="'. $fileUrl . '" target="_blank" class="btn btn-primary show-info">เปิดไฟล์</a>';
+
                         } else {
                             // ถ้าไม่ใช่ไฟล์ภาพหรือ PDF แสดงข้อความหรือข้อมูลอื่น ๆ
                             echo Html::encode($value);

@@ -19,7 +19,7 @@ $this->title = 'Assignment';
                     <h5><?= htmlspecialchars($form['form_name']) ?></h5>
                 </div>
                 <p class="department" style="color: #454d55">
-                    แผนก : <?= htmlspecialchars(mb_strtoupper($form['department_name'])) ?>
+                    แผนก : <?= htmlspecialchars(mb_strtoupper($form['owner_department_name'])) ?>
                 </p>
             </div>
         </div>

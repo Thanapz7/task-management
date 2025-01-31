@@ -95,8 +95,8 @@ class Forms extends \yii\db\ActiveRecord
             ->from('forms')
             ->innerJoin('users', 'forms.user_id = users.id')
             ->innerJoin('department', 'users.department = department.id')
-            ->where(['forms.id' => $formId]) // ใช้ where สำหรับฟิลด์ form_id
-            ->one(); // เพราะว่า id จะต้องไม่ซ้ำกัน ใช้ one() เพื่อดึงแค่ 1 แถว
+            ->where(['forms.id' => $formId])
+            ->one();
     }
 
     public function getViewPermissions()
@@ -123,8 +123,6 @@ class Forms extends \yii\db\ActiveRecord
             ])
             ->all();
     }
-
-
 
 }
 

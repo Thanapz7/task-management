@@ -304,29 +304,6 @@ $this->title = 'Create Form' . Html::encode($form_id);
 </script>
 
 
-<!--<script>-->
-<!--    $(document).ready(function () {-->
-<!--        function toggleSelectAll(buttonId, checkboxName) {-->
-<!--            $(buttonId + '-checkbox').click(function () {-->
-<!--                var isChecked = $(this).prop('checked');-->
-<!--                $(checkboxName).prop('checked', isChecked);-->
-<!--            });-->
-<!---->
-<!--            $(checkboxName).change(function () {-->
-<!--                var allChecked = $(checkboxName).length === $(checkboxName + ':checked').length;-->
-<!--                $(buttonId + '-checkbox').prop('checked', allChecked);-->
-<!--            });-->
-<!--        }-->
-<!---->
-<!--        // เลือกแผนกที่กรอกข้อมูล-->
-<!--        toggleSelectAll('#select-all-departments', 'input[name="departments[]"]');-->
-<!--        toggleSelectAll('#select-all-view-departments', 'input[name="view_departments[]"]');-->
-<!---->
-<!--    });-->
-<!---->
-<!--</script>-->
-
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

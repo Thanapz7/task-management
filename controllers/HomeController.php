@@ -60,7 +60,6 @@ class HomeController extends Controller
             ->all();
 
 
-        // จัดข้อมูลในรูปแบบที่เหมาะสม
         $formattedData = [];
         foreach ($data as $item) {
             $formattedData[] = [
@@ -74,7 +73,6 @@ class HomeController extends Controller
             ];
         }
 
-        // ส่งข้อมูลไปยัง view
         return $this->render('work', ['data' => $formattedData]);
     }
 

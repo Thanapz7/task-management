@@ -154,30 +154,32 @@ $this->title = 'Create Form' . Html::encode($form_id);
 <div class="form-group">
     <?= Html::a('<i class="fa-solid fa-arrow-left back-icon"></i>', ['home/create-form', 'id' => $form_id], ['class' => 'btn btn-secondary mb-3']) ?>
 </div>
-<div class="container-fluid">
-    <div class="row g-3">
+<div class="row" style="margin: 13px">
+    <div>
         <!-- ส่วนแสดงตัวอย่างฟอร์ม -->
         <div class="col-md-8 form-preview" id="form-preview">
-            <p>Content here!</p>
-            <?php if (!empty($fields)) : ?>
-                <?php foreach ($fields as $field) : ?>
-                    <div class="field-header d-flex align-items-center justify-content-between mt-3">
-                        <span class="field-label fw-bold fs-5"><?= Html::encode($field->field_name) ?></span>
+            <!-- content here! -->
+            <?php foreach ($fields as $field) :?>
+                <div class="field-header" style="display: flex; align-items: center; justify-content: space-between;">
+                    <span class="field-label" style="font-weight: bold; font-size: 16px; margin-top: 15px"><?= Html::encode($field->field_name)?></span>
+                    <div class="field-actions" style="margin-left: 10px;">
                     </div>
-                    <div class="field-input">
-                        <?= getFieldHtml($field->field_type, $field->id, $field->options) ?>
-                    </div>
-                <?php endforeach; ?>
-            <?php else : ?>
-                <p>ไม่มีข้อมูลฟอร์มให้แสดง</p>
-            <?php endif; ?>
+                </div>
+                <div class="field-input">
+                    <?php
+                    $options = $field->options;
+                    echo getFieldHtml($field->field_type, $field->id, $options);
+                    ?>
+                </div>
+            <?php endforeach; ?>
         </div>
 
+        <div class="col-md-3 data-type form-setting">
+            <div class="form-horizontal" style="padding: 5px">
         <!-- ส่วนจัดการฟอร์ม -->
-        <div class="col-md-4">
             <?php $form = ActiveForm::begin(['options' => ['class' => 'form-horizontal p-3']]); ?>
 
-            <div class="mb-3">
+            <div class="form-group" style="display: flex">
                 <label class="label-text">ชื่อแฟ้ม <span class="text-danger">*</span>:</label>
                 <?= $form->field($model, 'form_name')->textInput(['maxlength' => true, 'class' => 'form-control'])->label(false) ?>
             </div>
@@ -248,7 +250,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
                 </select>
             </div>
 
-            <div class="text-end">
+            <div class="col-md-12 text-right">
                 <?= Html::submitButton('บันทึก', ['class' => 'btn btn-primary btn-save']) ?>
             </div>
 
@@ -256,6 +258,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
         </div>
     </div>
 </div>
+
 
 <script>
     // Toggle Select All functionality

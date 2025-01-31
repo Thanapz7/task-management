@@ -15,7 +15,7 @@ class JobController extends Controller
     public function actionAssignment()
     {
         $this->layout = 'layout';
-        $forms = Forms::getFormsWithDepartments();
+        $forms = Forms::getFormsForGuest();
         return $this->render('assignment',[
             'forms' => $forms
         ]);

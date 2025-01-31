@@ -3,6 +3,7 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\web\JqueryAsset;
 use yii\widgets\ActiveForm;
 
 /** @var yii\web\View $this */
@@ -119,14 +120,9 @@ $this->title = 'Create Form' . Html::encode($form_id);
         background-color: #55AD9B;
     }
     .btn-save {
-        /*position: absolute; !* ใช้ absolute positioning สำหรับปุ่ม *!*/
-        /*bottom: 10px;*/
-        /*right: 10px;*/
-        /*background-color: #6DB2E5;*/
-        /*padding: 10px 20px;*/
-        /*font-size: 16px;*/
-        /*color: white;*/
-        /*border-radius: 5px;*/
+        position: absolute; /* ใช้ absolute positioning สำหรับปุ่ม */
+        bottom: 10px;
+        right: 10px;
         border: 1px solid #ffffff;
         border-radius: 20px;
         background-color: #55AD9B;
@@ -174,12 +170,12 @@ $this->title = 'Create Form' . Html::encode($form_id);
         </div>
 
         <!-- ส่วนจัดการฟอร์ม -->
-        <div class="col-md-4">
-            <?php $form = ActiveForm::begin(['options' => ['class' => 'form-horizontal p-3']]); ?>
+        <div class="col-md-3 data-type form-setting">
+            <?php $form = ActiveForm::begin(['options' => ['class' => 'form-group']]); ?>
 
-            <div class="mb-3">
+            <div class="mb-3 form" style="display: flex; flex-direction: row">
                 <label class="label-text">ชื่อแฟ้ม <span class="text-danger">*</span>:</label>
-                <?= $form->field($model, 'form_name')->textInput(['maxlength' => true, 'class' => 'form-control'])->label(false) ?>
+                <?= $form->field($model, 'form_name')->textInput(['maxlength' => true, 'class' => 'form-control', 'style'=> 'border-radius:20px; margin-top:-5px; margin-left:10px;'])->label(false) ?>
             </div>
 
             <div class="text-center">
@@ -187,7 +183,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
             </div>
 
             <!-- เลือกแผนกที่สามารถกรอกข้อมูลได้ -->
-            <div class="mb-3">
+            <div style="margin-bottom: 6px;">
                 <label class="label-content">เลือกแผนกที่สามารถกรอกข้อมูลได้</label>
                 <button class="btn btn-default btn-sort dropdown-toggle" data-bs-toggle="dropdown">
                     ตัวเลือก <span class="caret"></span>
@@ -212,7 +208,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
             </div>
 
             <!-- เลือกแผนกที่สามารถดูข้อมูลได้ -->
-            <div class="mb-3">
+            <div style="margin-bottom: 10px;">
                 <label class="label-content">เลือกแผนกที่สามารถดูข้อมูลได้</label>
                 <button class="btn btn-default btn-sort dropdown-toggle" data-bs-toggle="dropdown">
                     ตัวเลือก <span class="caret"></span>
@@ -246,6 +242,9 @@ $this->title = 'Create Form' . Html::encode($form_id);
                         </option>
                     <?php endforeach; ?>
                 </select>
+                <div class="mt-2">
+                    <strong class="text-warning">บุคคลที่เลือก:</strong> <span id="selected-users">ยังไม่มีการเลือก</span>
+                </div>
             </div>
 
             <div class="text-end">
@@ -258,6 +257,24 @@ $this->title = 'Create Form' . Html::encode($form_id);
 </div>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectBox = document.getElementById("view_users");
+        const selectedUsersDisplay = document.getElementById("selected-users");
+
+        function updateSelectedUsers() {
+            // ดึงค่าทั้งหมดที่ถูกเลือก
+            let selectedOptions = Array.from(selectBox.selectedOptions).map(option => option.text);
+
+            // อัปเดตข้อความที่แสดง
+            selectedUsersDisplay.textContent = selectedOptions.length > 0 ? selectedOptions.join(", ") : "ยังไม่มีการเลือก";
+        }
+
+        // เมื่อมีการเปลี่ยนแปลงใน select, อัปเดตรายชื่อที่เลือก
+        selectBox.addEventListener("change", updateSelectedUsers);
+
+        // อัปเดตค่าเริ่มต้น
+        updateSelectedUsers();
+    });
     // Toggle Select All functionality
     $(document).ready(function () {
         function handleSelectAll(selectAllId, checkboxesName) {
@@ -303,10 +320,8 @@ $this->title = 'Create Form' . Html::encode($form_id);
     });
 </script>
 
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 
 <?php
 function getFieldHtml($type, $id, $options) {

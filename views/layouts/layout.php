@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 $username = isset($this->params['username']) ? $this->params['username'] : 'Guest';
 $department = isset($this->params['department']) ? $this->params['department'] : 'บุคคลภายนอก';
@@ -29,9 +30,15 @@ $department = isset($this->params['department']) ? $this->params['department'] :
     <div class="container-fluid">
         <div class="row content">
             <div class="col-md-2 sidenav" style="background-color:#55AD9B;">
+                <?php if (!Yii::$app->user->isGuest): ?>
                 <a href="<?= Yii::$app->urlManager->createUrl(['home/work'])?>" class="logo d-flex align-items-center">
                     <i class="fa-solid fa-briefcase"></i>
                 </a>
+                <?php else: ?>
+                    <a href="<?= Yii::$app->urlManager->createUrl(['job/assignment'])?>" class="logo d-flex align-items-center">
+                        <i class="fa-solid fa-briefcase"></i>
+                    </a>
+                <?php endif; ?>
                 <div class="user-info mb-4">
                     <p class="nav-fonts mb-1"><?= htmlspecialchars($username)?></p>
                     <p class="nav-fonts mb-1">แผนก: <?= !empty($department) ? htmlspecialchars(mb_strtoupper($department)) : 'บุคคลภายนอก'?></p>
@@ -59,6 +66,7 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                         </li>
                     <?php endif; ?>
                 </ul>
+                <?php if(!Yii::$app->user->isGuest): ?>
                 <div class="logout">
                     <?= Html::beginForm(['logout'], 'post', ['onsubmit' => 'return confirm("ต้องการออกจากระบบ ? ")']) ?>
                     <button type="submit" style="background: none; border: none">
@@ -66,6 +74,14 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                     </button>
                     <?= Html::endForm() ?>
                 </div>
+                <?php else: ?>
+                <div class="logout">
+                    <button type="submit" style="background: none; border: none" onclick="location.href='<?= Url::to(['./home']) ?>' ">
+                        <i class="fa-solid fa-power-off" style="color: #cc5555"></i>
+                    </button>
+                </div>
+                <?php endif; ?>
+
             </div>
 
             <div class="col-sm-10 main-content">

@@ -84,6 +84,25 @@ class Forms extends \yii\db\ActiveRecord
             ->all();
     }
 
+    public static function getFormsForGuest()
+    {
+        return (new Query())
+            ->select([
+                'forms.id',
+                'forms.form_name',
+                'owner_department.department_name AS owner_department_name' // แผนกของเจ้าของฟอร์ม
+            ])
+            ->from('forms')
+            ->innerJoin('users', 'users.id = forms.user_id') // เชื่อม forms กับ users ผ่าน user_id
+            ->innerJoin('department AS owner_department', 'owner_department.id = users.department') // ดึง department ของเจ้าของฟอร์ม
+            ->innerJoin('department_submission_permissions', 'department_submission_permissions.form_id = forms.id')
+            ->where([
+                'department_submission_permissions.department_id' => 99,
+                'department_submission_permissions.can_submit' => 1
+            ])
+            ->all();
+    }
+
     public static function getFormWithUserAndDepartmentById($formId)
     {
         return (new Query())

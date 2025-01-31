@@ -8,10 +8,10 @@ AppAsset::register($this);
     <div class="container-fluid">
         <div class="row w-100">
             <div class="col-md-6 info-log text-center">
-                <h2>Job Management <i class="fa-solid fa-briefcase"></i></h2>
-                <p>A robust and user-friendly platform designed to streamline task assignments, tracking, and reporting for organizations.
-                    This system is tailored to facilitate efficient collaboration between internal teams and external users,
-                    ensuring transparency and accountability across all levels of operations.</p>
+                <h2>ระบบจัดการงาน <i class="fa-solid fa-briefcase"></i></h2>
+                <p>แพลตฟอร์มที่มีความแข็งแกร่งและใช้งานง่าย ออกแบบมาเพื่อทำให้การมอบหมายงาน การติดตาม
+                    และการรายงานเป็นไปอย่างมีประสิทธิภาพสำหรับองค์กร ระบบนี้ถูกปรับให้เหมาะสมกับการทำงานร่วมกันอย่างมีประสิทธิภาพระหว่างทีมภายในและผู้ใช้ภายนอก
+                    เพื่อให้มั่นใจในความโปร่งใสและความรับผิดชอบในทุกระดับของการดำเนินงาน</p>
                 <h5 style="color: #cc5555">สนใจจ้างงาน? <?= Html::a('คลิกที่นี่',['job/assignment'], ['class'=>'btn btn-guest']) ?></h5>
             </div>
             <div class="col-md-1 divider"></div>

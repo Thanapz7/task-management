@@ -426,6 +426,9 @@ input:checked + .slider:before {
 .pagination>li>a, .pagination>li>span {
     color: #55AD9B;
 }
+.pagination>li>a:hover, .pagination>li>span:hover {
+    font-size: 20px;
+}
 .pagination>li:last-child>a, .pagination>li:last-child>span {
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;

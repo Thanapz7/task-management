@@ -347,10 +347,16 @@ class HomeController extends Controller
             throw new \yii\web\NotFoundHttpException('Form not found.');
         }
 
+        $existingFields = Fields::find()
+            ->where(['form_id' => $id])
+            ->asArray()
+            ->all();
+
         $this->layout = 'blank_page';
         return $this->render('create-form', [
             'form' => $form,
             'formId' => $id,
+            'existingFields' => $existingFields,
         ]);
     }
 

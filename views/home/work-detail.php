@@ -175,10 +175,12 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                                 'headerOptions' => ['class' => 'field-column-' . $fieldName],
                                 'value' => function($model) use ($fieldName) {
                                     $value = $model[$fieldName] ?? '';
-                                    if(!$value){
+                                    if (is_string($value)) {
+                                        $value = str_replace(["\r", "\n"], '', $value);
+                                    }
+                                    if ($value === null || $value === '') {
                                         return '(ไม่ได้กรอก)';
                                     }
-
                                     $isFilePath = (bool) preg_match('/\.(jpg|jpeg|png|gif|pdf|docx?|xlsx?|txt)$/i', $value);
                                     $baseUrl = Yii::getAlias('@web/uploads/');
                                     if(strpos($value, 'uploads/') !== false){
@@ -198,7 +200,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                                                 ['target' => '_blank',
                                                  'class' => 'btn-link-file']);
                                         }else{
-                                            return Html::a('<i class="fa-solid fa-file-arrow-down"></i> ดาวน์โหลดไฟล์', $fileUrl,
+                                            return Html::a('<i class="fa-solid fa-file"></i> ดาวน์โหลดไฟล์', $fileUrl,
                                                 ['target' => '_blank',
                                                  'class' => 'btn-link-file',
                                                  'download' => true]);

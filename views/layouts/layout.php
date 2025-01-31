@@ -39,7 +39,7 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                 <ul class="nav flex-column">
                     <?php if (!Yii::$app->user->isGuest): ?>
                         <li class="<?= Yii::$app->controller->id ==='home' && Yii::$app->controller->action->id ==='work' ? 'actived' : '' ?> nav-item">
-                            <a href="<?= Yii::$app->urlManager->createUrl(['home/work']) ?>" class="nav-link nav-fonts"><i class="fa-regular fa-clipboard" style="margin-right: 10px;"></i>งาน</a>
+                            <a href="<?= Yii::$app->urlManager->createUrl(['home/work']) ?>" class="nav-link nav-fonts"><i class="fa-solid fa-clipboard" style="margin-right: 10px;"></i>งาน</a>
                         </li>
                         <li class="<?= Yii::$app->controller->id === 'home' && Yii::$app->controller->action->id === 'add-form' ? 'actived' : '' ?> nav-item">
                             <a href="<?= Yii::$app->urlManager->createUrl(['home/add-form']) ?>" class="nav-link nav-fonts"><i class="fa-regular fa-folder-open" style="margin-right: 10px;"></i>สร้างฟอร์ม</a>

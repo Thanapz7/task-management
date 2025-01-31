@@ -72,22 +72,22 @@ $this->title = 'Assignment Form';
                                 </label>
                             <?php endforeach;
                         } else {
-                            echo "ไม่มีตัวเลือก";
+                            echo "<span style='margin-left: 10px;'>ไม่มีตัวเลือก</span>";
                         }
                         ?>
                         <?php break;
 
                     case 'checkbox': ?>
                         <?php
-                        $options = json_decode($field['options'], true);
-                        if (is_array($options) && !empty($options)) {
+                        $options = json_decode($field['options'], true, 512, JSON_UNESCAPED_UNICODE);
+                        if (is_array($options)) {
                             foreach ($options as $option): ?>
                                 <label>
-                                    <input type="radio" name="DynamicForm[<?= $field['id'] ?>]" value="<?= Html::encode($option) ?>"> <?= Html::encode($option) ?>
+                                    <input type="checkbox" name="DynamicForm[<?= $field['id'] ?>][]" value="<?= Html::encode($option) ?>"> <?= Html::encode($option) ?>
                                 </label>
                             <?php endforeach;
                         } else {
-                            echo "ไม่มีตัวเลือก";
+                            echo "<span style='margin-left: 10px;'>ไม่มีตัวเลือก</span>";
                         }
                         ?>
                         <?php break;

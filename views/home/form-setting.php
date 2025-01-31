@@ -150,93 +150,187 @@ $this->title = 'Create Form' . Html::encode($form_id);
     }
 
 </style>
-<!--<i class="fa-solid fa-arrow-left back-icon"></i>-->
+
 <div class="form-group">
-    <?= Html::a('<i class="fa-solid fa-arrow-left back-icon"></i>', ['home/create-form', 'id' => $form_id], ['class' => 'btn btn-secondary']) ?>
+    <?= Html::a('<i class="fa-solid fa-arrow-left back-icon"></i>', ['home/create-form', 'id' => $form_id], ['class' => 'btn btn-secondary mb-3']) ?>
 </div>
-<div class="row" style="margin: 13px">
-    <div class="col-md-8 form-preview" id="form-preview">
-        <!-- content here! -->
-        <?php foreach ($fields as $field) :?>
-            <div class="field-header" style="display: flex; align-items: center; justify-content: space-between;">
-                <span class="field-label" style="font-weight: bold; font-size: 16px; margin-top: 15px"><?= Html::encode($field->field_name)?></span>
-                <div class="field-actions" style="margin-left: 10px;">
-                </div>
-            </div>
-            <div class="field-input">
-                <?php
-                $options = $field->options;
-                echo getFieldHtml($field->field_type, $field->id, $options);
-                ?>
-            </div>
-        <?php endforeach; ?>
-    </div>
-    <?php $form = ActiveForm::begin(); ?>
-    <div class="col-md-3 data-type form-setting">
-        <div class="form-horizontal" style="padding: 5px">
+<div class="container-fluid">
+    <div class="row g-3">
+        <!-- ส่วนแสดงตัวอย่างฟอร์ม -->
+        <div class="col-md-8 form-preview" id="form-preview">
+            <p>Content here!</p>
+            <?php if (!empty($fields)) : ?>
+                <?php foreach ($fields as $field) : ?>
+                    <div class="field-header d-flex align-items-center justify-content-between mt-3">
+                        <span class="field-label fw-bold fs-5"><?= Html::encode($field->field_name) ?></span>
+                    </div>
+                    <div class="field-input">
+                        <?= getFieldHtml($field->field_type, $field->id, $field->options) ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php else : ?>
+                <p>ไม่มีข้อมูลฟอร์มให้แสดง</p>
+            <?php endif; ?>
+        </div>
 
-                <div class="form-group" style="display: flex">
-                    <label for="" class="label-text">ชื่อแฟ้ม<span style="color: #cc5555">*</span>:</label>
-                    <?= $form->field($model, 'form_name')->textInput(['maxlength' => 'true', 'class' => 'input-form', 'style' => 'margin: 0px 20px'])->label(false) ?>
-                </div>
+        <!-- ส่วนจัดการฟอร์ม -->
+        <div class="col-md-4">
+            <?php $form = ActiveForm::begin(['options' => ['class' => 'form-horizontal p-3']]); ?>
 
-<!--            <div class="form-group">-->
-<!--                <label for="" class="label-text">icon:</label>-->
-<!--                <button class="btn btn-default btn-sort dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
-<!--                    ตัวเลือก-->
-<!--                    <span class="caret"></span>-->
-<!--                </button>-->
-<!--                <ul class="dropdown-menu">-->
-<!--                    <li><a href=""><i class="fa-regular fa-folder-closed"></i></a></li>-->
-<!--                    <li><a href=""><i class="fa-solid fa-suitcase"></i></a></li>-->
-<!--                    <li><a href=""><i class="fa-regular fa-star"></i></a></li>-->
-<!--                    <li><a href=""><i class="fa-solid fa-chart-column"></i></a></li>-->
-<!--                </ul>-->
-<!--            </div>-->
-            <div class="">
-                <div class="text-center">
-                    <label for="" class="label-text" style="margin-top: 10px;">จัดการการเข้าถึง</label>
-                </div>
-
-                <div class="form-group">
-                    <label for="" class="label-content">บุคคลที่สามารถเข้ากรอกข้อมูลได้</label>
-                    <button class="btn btn-default btn-sort dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        ตัวเลือก
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a href="">พนักงานทั้งหมด</a></li>
-                        <li><a href="">บุคคลภายนอก</a></li>
-                    </ul>
-                </div>
-                <div class="form-group">
-                    <label for="" class="label-content">บุคคลที่สามารถเข้ามาดูข้อมูลได้</label>
-                    <button class="btn btn-default btn-sort dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        ตัวเลือก
-                        <span class="caret"></span>
-                    </button>
-                    <input type="text" placeholder=" @" class="add-people" style="width: 50px; padding: 6px">
-                    <ul class="dropdown-menu">
-                        <li><a href="">พนักงานทั้งหมด</a></li>
-                        <li><a href="">บุคคลภายนอก</a></li>
-                    </ul>
-                </div>
+            <div class="mb-3">
+                <label class="label-text">ชื่อแฟ้ม <span class="text-danger">*</span>:</label>
+                <?= $form->field($model, 'form_name')->textInput(['maxlength' => true, 'class' => 'form-control'])->label(false) ?>
             </div>
+
+            <div class="text-center">
+                <label class="label-text mb-2">จัดการการเข้าถึง</label>
+            </div>
+
+            <!-- เลือกแผนกที่สามารถกรอกข้อมูลได้ -->
+            <div class="mb-3">
+                <label class="label-content">เลือกแผนกที่สามารถกรอกข้อมูลได้</label>
+                <button class="btn btn-default btn-sort dropdown-toggle" data-bs-toggle="dropdown">
+                    ตัวเลือก <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" id="select-all-departments-checkbox">
+                            ทั้งหมด
+                        </label>
+                    </li>
+                    <?php foreach ($departments as $department) : ?>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" name="departments[]" value="<?= $department->id ?>"
+                                    <?= in_array($department->id, $selectedDepartments) ? 'checked' : '' ?>>
+                                <?= Html::encode($department->department_name) ?>
+                            </label>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+
+            <!-- เลือกแผนกที่สามารถดูข้อมูลได้ -->
+            <div class="mb-3">
+                <label class="label-content">เลือกแผนกที่สามารถดูข้อมูลได้</label>
+                <button class="btn btn-default btn-sort dropdown-toggle" data-bs-toggle="dropdown">
+                    ตัวเลือก <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" id="select-all-view-departments-checkbox">
+                            ทั้งหมด
+                        </label>
+                    </li>
+                    <?php foreach ($departments as $department) : ?>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" name="view_departments[]" value="<?= $department->id ?>"
+                                    <?= in_array($department->id, $selectedViewDepartments) ? 'checked' : '' ?>>
+                                <?= Html::encode($department->department_name) ?>
+                            </label>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+
+            <!-- เลือกบุคคลที่สามารถดูข้อมูลได้ -->
+            <div class="mb-3">
+                <label class="label-content">เลือกบุคคลที่สามารถดูข้อมูลได้</label>
+                <select class="form-control" name="view_users[]" id="view_users" multiple>
+                    <?php foreach ($users as $user) : ?>
+                        <option value="<?= $user->id ?>" <?= in_array($user->id, $selectedViewUsers) ? 'selected' : '' ?>>
+                            <?= Html::encode($user->name) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="text-end">
+                <?= Html::submitButton('บันทึก', ['class' => 'btn btn-primary btn-save']) ?>
+            </div>
+
+            <?php ActiveForm::end(); ?>
         </div>
     </div>
-    <div class="col-md-12 text-right">
-        <?= Html::submitButton('บันทึก', ['class' => 'btn btn-default btn-save', ]) ?>
-    </div>
-    <?php ActiveForm::end(); ?>
 </div>
 
+<script>
+    // Toggle Select All functionality
+    $(document).ready(function () {
+        function handleSelectAll(selectAllId, checkboxesName) {
+            $(selectAllId).change(function () {
+                var isChecked = $(this).prop('checked');
+                $('input[name="' + checkboxesName + '[]"]').prop('checked', isChecked);
+            });
+
+            $('input[name="' + checkboxesName + '[]"]').change(function () {
+                var allChecked = $('input[name="' + checkboxesName + '[]"]').length ===
+                    $('input[name="' + checkboxesName + '[]"]:checked').length;
+                $(selectAllId).prop('checked', allChecked);
+            });
+        }
+
+        handleSelectAll('#select-all-departments-checkbox', 'departments');
+        handleSelectAll('#select-all-view-departments-checkbox', 'view_departments');
+    });
+</script>
+
+<script>
+    $('#view_users').autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: '" . \yii\helpers\Url::to(['user/search']) . "',
+                data: { term: request.term },
+            success: function(data) {
+                response(data);
+            }
+        });
+        },
+        select: function(event, ui) {
+            let selectedUsers = $('#view_users').val().split(',').map(function(item) {
+                return item.trim();
+            });
+
+            if (selectedUsers.indexOf(ui.item.label) === -1) {
+                selectedUsers.push(ui.item.label);
+                $('#view_users').val(selectedUsers.join(', '));
+                $('#view_users-hidden').val(selectedUsers.join(', '));  // อัปเดตค่าใน hidden input
+            }
+        }
+    });
+</script>
 
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-    </script>
+<!--<script>-->
+<!--    $(document).ready(function () {-->
+<!--        function toggleSelectAll(buttonId, checkboxName) {-->
+<!--            $(buttonId + '-checkbox').click(function () {-->
+<!--                var isChecked = $(this).prop('checked');-->
+<!--                $(checkboxName).prop('checked', isChecked);-->
+<!--            });-->
+<!---->
+<!--            $(checkboxName).change(function () {-->
+<!--                var allChecked = $(checkboxName).length === $(checkboxName + ':checked').length;-->
+<!--                $(buttonId + '-checkbox').prop('checked', allChecked);-->
+<!--            });-->
+<!--        }-->
+<!---->
+<!--        // เลือกแผนกที่กรอกข้อมูล-->
+<!--        toggleSelectAll('#select-all-departments', 'input[name="departments[]"]');-->
+<!--        toggleSelectAll('#select-all-view-departments', 'input[name="view_departments[]"]');-->
+<!---->
+<!--    });-->
+<!---->
+<!--</script>-->
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
 <?php
 function getFieldHtml($type, $id, $options) {
     switch ($type) {
@@ -257,7 +351,7 @@ function getFieldHtml($type, $id, $options) {
             $html = '<select class="form-control" name="field_' . $id . '">';
             if (is_array($options) && !empty($options)) {
                 foreach ($options as $option) {
-                    $html .= "<option value='$option'>$option</option>";
+                    $html .= "<option value='" . Html::encode($option) . "'>" . Html::encode($option) . "</option>";
                 }
             } else {
                 $html .= "<option value=''>ไม่มีตัวเลือก</option>";

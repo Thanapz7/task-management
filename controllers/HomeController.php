@@ -2,9 +2,12 @@
 
 namespace app\controllers;
 
+use app\models\Department;
+use app\models\DepartmentSubmissionPermissions;
 use app\models\FieldValues;
 use app\models\Fields;
 use app\models\Forms;
+use app\models\FormViewPermissions;
 use app\models\LoginForm;
 use app\models\Records;
 use app\models\Users;
@@ -35,20 +38,44 @@ class HomeController extends Controller
     public function actionWork()
     {
         $this->layout = 'layout';
+        $user = Yii::$app->user->identity; // ผู้ใช้ที่ล็อกอิน
 
-        // ตรวจสอบว่าผู้ใช้ล็อกอินหรือไม่
-        $user = Yii::$app->user->identity;
-        $departmentName = $user->department;
-
-        // ดึงข้อมูลของผู้ใช้ที่ล็อกอิน พร้อมข้อมูล Forms และ Department ที่เกี่ยวข้อง
-        $data = Users::find()
-            ->joinWith(['forms', 'department']) // ความสัมพันธ์ต้องกำหนดในโมเดล User
-            ->select(['users.id', 'forms.form_name', 'department.department_name']) // เลือกเฉพาะฟิลด์ที่ต้องการ
-            ->where(['department.id' => $departmentName])
-            ->asArray()
+        $data = (new \yii\db\Query())
+            ->select([
+                'forms.id',
+                'forms.form_name',
+                'department.department_name' // ดึงแผนกของผู้สร้างฟอร์ม
+            ])
+            ->from('forms')
+            ->innerJoin('form_view_permissions', 'forms.id = form_view_permissions.form_id') // ตรวจสอบสิทธิ์
+            ->leftJoin('users AS perm_user', 'form_view_permissions.user_id = perm_user.id') // ดึง user ที่ได้รับสิทธิ์
+            ->leftJoin('department AS perm_dept', 'form_view_permissions.department_id = perm_dept.id') // ดึง department ที่ได้รับสิทธิ์
+            ->innerJoin('users AS owner', 'forms.user_id = owner.id') // เชื่อม forms กับ users เพื่อดึงแผนกของฟอร์ม
+            ->innerJoin('department', 'owner.department = department.id') // ดึงแผนกของผู้สร้างฟอร์ม
+            ->where(['or',
+                ['form_view_permissions.user_id' => $user->id], // เปรียบเทียบ user ที่ได้รับสิทธิ์
+                ['form_view_permissions.department_id' => $user->department] // เปรียบเทียบ department ที่ได้รับสิทธิ์
+            ])
+            ->groupBy(['forms.id', 'department.department_name']) // ป้องกันข้อมูลซ้ำ
             ->all();
 
-        return $this->render('work', ['data' => $data]);
+
+        // จัดข้อมูลในรูปแบบที่เหมาะสม
+        $formattedData = [];
+        foreach ($data as $item) {
+            $formattedData[] = [
+                'forms' => [
+                    [
+                        'id' => $item['id'],
+                        'form_name' => $item['form_name'],
+                    ]
+                ],
+                'department_name' => $item['department_name']
+            ];
+        }
+
+        // ส่งข้อมูลไปยัง view
+        return $this->render('work', ['data' => $formattedData]);
     }
 
     public function actionWorkDetail($id, $viewType = 'table')
@@ -111,40 +138,49 @@ class HomeController extends Controller
 
             // Loop เพื่อจัดกลุ่มข้อมูลตาม record_id
             foreach ($query as $row) {
-                if (isset($row['value']) && is_string($row['value'])) {
-                    $row['value'] = str_replace(["\r", "\n"], '', $row['value']);
+                // ตรวจสอบว่า row มี record_id และ field_name หรือไม่
+                if (!isset($row['record_id']) || !isset($row['field_name'])) {
+                    continue; // ข้ามกรณีที่ไม่มี record_id หรือ field_name
                 }
-                // ตรวจสอบว่า record_id มีข้อมูลอยู่ใน pivotData หรือยัง
+                // การแปลงค่า value ถ้าเป็นสตริง
+                if (isset($row['value']) && is_string($row['value'])) {
+                    $row['value'] = str_replace(["\r", "\n"], '', $row['value']);  // ลบการขึ้นบรรทัดใหม่
+                }
+                // ตรวจสอบว่า pivotData[$row['record_id']] ถูกสร้างหรือยัง
                 if (!isset($pivotData[$row['record_id']])) {
-                    // ถ้าไม่มีให้เริ่มต้นเป็นอาร์เรย์ว่าง
                     $pivotData[$row['record_id']] = [];
                 }
-
-                // แปลง value ให้เป็นข้อความภาษาไทยปกติ
+                // ตรวจสอบชื่อฟิลด์ซ้ำ
+                $fieldName = $row['field_name'];
+                $originalFieldName = $fieldName;  // เก็บชื่อฟิลด์ต้นฉบับ
+                // ตรวจสอบว่าฟิลด์มีชื่อซ้ำหรือไม่
+                $count = 1;
+                while (isset($pivotData[$row['record_id']][$fieldName])) {
+                    // ถ้ามีชื่อซ้ำ ให้เพิ่มตัวเลขหรืออักษร
+                    $fieldName = $originalFieldName . $count;
+                    $count++;
+                }
+                // การแปลงค่า value ในกรณีที่เป็น JSON string
                 $value = $row['value'];
                 if (is_string($value)) {
-                    $decodedValue = json_decode($value, true); // ลอง decode JSON string
-                    if (is_array($decodedValue)) {
-                        // ถ้าเป็น array ให้แปลงค่าภายใน
+                    $decodedValue = json_decode($value, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decodedValue)) {
+                        // ถ้า value เป็น array จาก JSON จะทำการแปลงให้เป็น string ด้วย comma
                         $value = implode(', ', array_map(function ($item) {
-                            return json_decode('"' . $item . '"');
+                            return json_decode('"' . $item . '"');  // แปลงให้เป็น string ที่ถูกต้อง
                         }, $decodedValue));
                     } else {
-                        // ถ้าเป็น string ให้แปลง Unicode escape sequence
-                        $value = json_decode('"' . $value . '"');
+                        // ถ้าเป็น string ธรรมดา แต่ไม่ใช่ JSON array ให้แปลงเป็น JSON string
+                        $value = json_decode('"' . $value . '"') ?: $value;
                     }
                 }
-
-                // จัดกลุ่ม field_name และ value โดยใช้ record_id
-                $pivotData[$row['record_id']][$row['field_name']] = $value;
-
-                // เก็บ record_id ไว้ใน array
+                // เพิ่มข้อมูลลงใน pivotData
+                $pivotData[$row['record_id']][$fieldName] = $value;
+                // เก็บ record_id
                 $recordIds[] = $row['record_id'];
             }
-
             // คำนวณจำนวนแถวสูงสุดจาก pivotData
             $maxRows = !empty($pivotData) ? count($pivotData) : 0;
-
             // สร้าง formattedData โดยรวมข้อมูลจาก pivotData
             $formattedData = [];
             foreach ($pivotData as $recordId => $fields) {
@@ -162,7 +198,6 @@ class HomeController extends Controller
                 // เพิ่ม row เข้าไปใน formattedData
                 $formattedData[] = $row;
             }
-
             $events = [];
             foreach ($results as $data) {
                 // ตรวจสอบว่า 'event_start' และ 'event_end' มีข้อมูลเป็น timestamp หรือ datetime
@@ -196,6 +231,7 @@ class HomeController extends Controller
             }
 
         }
+
         // สร้าง data provider
         $dataProvider = new ArrayDataProvider([
             'allModels' => $formattedData,
@@ -213,6 +249,29 @@ class HomeController extends Controller
             'fields' => $fields,
         ]);
     }
+
+        public function actionUpdateDepartment()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $data = Yii::$app->request->post();
+
+        if (!isset($data['form_id']) || !isset($data['department_id'])) {
+            return ['success' => false, 'message' => 'ข้อมูลไม่ครบถ้วน'];
+        }
+
+        $form = Forms::findOne($data['form_id']);
+        if (!$form) {
+            return ['success' => false, 'message' => 'ไม่พบฟอร์ม'];
+        }
+
+        $form->department_id = $data['department_id'];
+        if ($form->save()) {
+            return ['success' => true];
+        } else {
+            return ['success' => false, 'message' => 'ไม่สามารถอัปเดตข้อมูลได้'];
+        }
+    }
+
 
     public function actionWorkDetailPreview($id)
     {
@@ -332,34 +391,88 @@ class HomeController extends Controller
     {
         $model = Forms::findOne($id);
 
-        if(!$model) {
+        if (!$model) {
             throw new \yii\web\NotFoundHttpException('Form not found.');
         }
 
-        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
-            if ($model->validate()) {
-                if ($model->save()) {
-                    Yii::$app->session->setFlash('success', 'อัปเดตชื่อแฟ้มสำเร็จ');
-                    return $this->redirect(['home/work']);
-//                    return $this->redirect(['form-setting', 'id' => $id]);
-                } else {
-                    Yii::$app->session->setFlash('error', 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . json_encode($model->getErrors()));
-                }
-            } else {
-                Yii::$app->session->setFlash('error', 'ข้อมูลไม่ผ่านการตรวจสอบ: ' . json_encode($model->getErrors()));
-            }
+        $fields = Fields::find()->where(['form_id' => $id])->all();
+        $departments = Department::find()->all();
+        $users = Users::find()->all();
+
+        $selectedDepartments = Yii::$app->request->post('departments', []);
+        $selectAllDepartments = Yii::$app->request->post('departments_all', 0) == 1;
+        $selectedViewDepartments = Yii::$app->request->post('view_departments', []);
+        $selectedViewUsers = Yii::$app->request->post('view_users', []);
+
+        if ($selectAllDepartments) {
+            $selectedDepartments = array_column($departments, 'id');
         }
 
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            // ลบข้อมูลเก่าก่อนเพื่อป้องกันข้อมูลซ้ำ
+            DepartmentSubmissionPermissions::deleteAll(['form_id' => $model->id]);
+            FormViewPermissions::deleteAll(['form_id' => $model->id]);
 
-        $fields = Fields::find()->where(['form_id' =>$id])->all();
+            // บันทึกสิทธิ์การกรอกข้อมูล (แผนก)
+            foreach ($selectedDepartments as $departmentId) {
+                $permission = new DepartmentSubmissionPermissions([
+                    'form_id' => $model->id,
+                    'department_id' => $departmentId,
+                    'can_submit' => 1,
+                ]);
+                if (!$permission->save()) {
+                    Yii::error($permission->errors);
+                    Yii::$app->session->setFlash('error', 'ไม่สามารถบันทึกสิทธิ์การกรอกข้อมูลได้: ' . json_encode($permission->errors));
+                }
+            }
+
+            // บันทึกสิทธิ์การดูข้อมูล (แผนกและผู้ใช้)
+            foreach ($selectedViewDepartments as $departmentId) {
+                $viewPermission = new FormViewPermissions([
+                    'form_id' => $model->id,
+                    'department_id' => $departmentId,
+                    'allow_type' => 'department',
+                    'can_view' => 1,
+                ]);
+                if (!$viewPermission->save()) {
+                    Yii::error($viewPermission->errors);
+                    Yii::$app->session->setFlash('error', 'ไม่สามารถบันทึกสิทธิ์การดูข้อมูลแผนกได้: ' . json_encode($viewPermission->errors));
+                }
+            }
+
+            foreach ($selectedViewUsers as $userId) {
+                $viewPermission = new FormViewPermissions([
+                    'form_id' => $model->id,
+                    'user_id' => $userId,
+                    'allow_type' => 'user',
+                    'can_view' => 1,
+                ]);
+                if (!$viewPermission->save()) {
+                    Yii::error($viewPermission->errors);
+                    Yii::$app->session->setFlash('error', 'ไม่สามารถบันทึกสิทธิ์การดูข้อมูลผู้ใช้ได้: ' . json_encode($viewPermission->errors));
+                }
+            }
+
+            Yii::$app->session->setFlash('success', 'บันทึกข้อมูลสำเร็จ');
+            return $this->redirect(['home/work']);
+        } else {
+            Yii::$app->session->setFlash('error', 'เกิดข้อผิดพลาด: ' . json_encode($model->getErrors()));
+        }
 
         $this->layout = 'blank_page';
-        return $this->render('form-setting',[
-            'fields' =>$fields,
-            'form_id'=>$id,
-            'model'=>$model,
+
+        return $this->render('form-setting', [
+            'model' => $model,
+            'form_id' => $id,
+            'fields' => $fields,
+            'departments' => $departments,
+            'users' => $users,
+            'selectedDepartments' => array_column($model->departmentPermissions, 'department_id'),
+            'selectedViewUsers' => array_column($model->viewPermissions, 'user_id'),
+            'selectedViewDepartments' => array_column($model->viewDepartmentsPermissions, 'department_id'),
         ]);
     }
+
 
     public function actionGetFields($id)
     {
@@ -461,8 +574,21 @@ class HomeController extends Controller
     public function actionAssignment()
     {
         $this->layout = 'layout';
-        $forms = Forms::getFormsWithDepartments();
-        return $this->render('assignment',[
+        $userDepartmentId = Yii::$app->user->identity->department;
+
+        // ดึงฟอร์มทั้งหมดที่สามารถส่งได้สำหรับแผนกของผู้ใช้
+        $forms = Forms::getFormsWithDepartments($userDepartmentId);
+
+        // เพิ่มข้อมูลแผนกในแต่ละฟอร์ม
+        foreach ($forms as &$form) {
+            // ส่ง formId ไปยังฟังก์ชันเพื่อดึงข้อมูลแผนก
+            $departmentInfo = Forms::getFormWithUserAndDepartmentById($form['id']);
+            // เพิ่มข้อมูลแผนกลงในฟอร์ม
+            $form['department_name'] = $departmentInfo ? $departmentInfo['department_name'] : null;
+        }
+
+        // ส่งค่าฟอร์มที่มีข้อมูลแผนกไปยัง View
+        return $this->render('assignment', [
             'forms' => $forms,
         ]);
     }

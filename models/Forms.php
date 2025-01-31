@@ -1,32 +1,17 @@
 <?php
-
 namespace app\models;
 
 use Yii;
+use yii\db\Query;
 use yii\data\ActiveDataProvider;
 
-/**
- * This is the model class for table "forms".
- *
- * @property int $id
- * @property int $user_id
- * @property string $form_name ชื่อแฟ้ม
- * @property string $create_at เวลาที่สร้าง
- * @property string $update_at เวลาที่อัปเดต
- */
 class Forms extends \yii\db\ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
     public static function tableName()
     {
         return 'forms';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rules()
     {
         return [
@@ -37,9 +22,6 @@ class Forms extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function attributeLabels()
     {
         return [
@@ -54,44 +36,95 @@ class Forms extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            $this->update_at = date('Y-m-d H:i:s'); // อัปเดตเวลาทุกครั้งที่บันทึก
+            $this->update_at = date('Y-m-d H:i:s');
             if ($this->isNewRecord) {
-                $this->create_at = date('Y-m-d H:i:s'); // ตั้งเวลาสำหรับการสร้างใหม่
+                $this->create_at = date('Y-m-d H:i:s');
             }
             return true;
         }
         return false;
     }
 
-
-    /**
-     * {@inheritdoc}
-     * @return FormsQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new FormsQuery(get_called_class());
-    }
-
     public function getUsers()
     {
-        return $this->hasOne(Users::className(), ['id' => 'user_id']);
+        return $this->hasOne(Users::class, ['id' => 'user_id']);
     }
 
-    public function getFormsWithDepartments()
+    public function getDepartment()
     {
-        return (new \yii\db\Query())
-            ->select(['forms.id','forms.form_name', 'department.department_name'])
-            ->from('forms')
-            ->leftJoin('users', 'forms.user_id = users.id')
-            ->leftJoin('department', 'users.department = department.id')
-            ->where(['not in', 'forms.id', [23, 24, 25]])
-            ->all();
+        return $this->hasOne(Department::class, ['id' => 'department_id'])
+            ->via('user'); // เชื่อมผ่าน user
     }
 
     public function getFields()
     {
-        return $this->hasMany(Fields::className(), ['form_id' => 'id']);
+        return $this->hasMany(Fields::class, ['form_id' => 'id']);
     }
 
+    public function getDepartmentPermissions()
+    {
+        return $this->hasMany(DepartmentSubmissionPermissions::class, ['form_id' => 'id']);
+    }
+
+    public static function getFormsWithDepartments($departmentId)
+    {
+        return (new Query())
+            ->select([
+                'forms.id',
+                'forms.form_name',
+                'department.department_name', // ตรวจสอบว่าชื่อฟิลด์นี้ตรงกับฐานข้อมูล
+            ])
+            ->from('forms')
+            ->innerJoin('department_submission_permissions', 'department_submission_permissions.form_id = forms.id')
+            ->innerJoin('department', 'department.id = department_submission_permissions.department_id')
+            ->where([
+                'department_submission_permissions.department_id' => $departmentId,
+                'department_submission_permissions.can_submit' => 1
+            ])
+            ->all();
+    }
+
+    public static function getFormWithUserAndDepartmentById($formId)
+    {
+        return (new Query())
+            ->select([
+                'forms.id',
+                'forms.form_name',
+                'department.department_name'
+            ])
+            ->from('forms')
+            ->innerJoin('users', 'forms.user_id = users.id')
+            ->innerJoin('department', 'users.department = department.id')
+            ->where(['forms.id' => $formId]) // ใช้ where สำหรับฟิลด์ form_id
+            ->one(); // เพราะว่า id จะต้องไม่ซ้ำกัน ใช้ one() เพื่อดึงแค่ 1 แถว
+    }
+
+    public function getViewPermissions()
+    {
+        return $this->hasMany(FormViewPermissions::class, ['form_id' => 'id']);
+    }
+
+    public function getViewDepartmentsPermissions()
+    {
+        return $this->hasMany(FormViewPermissions::class, ['form_id' => 'id'])->andWhere(['allow_type' => 'department']);
+    }
+
+    public static function getAccessibleForms($userId, $departmentId)
+    {
+        return (new Query())
+            ->select(['forms.id', 'forms.form_name', 'department.department_name'])
+            ->from('forms')
+            ->innerJoin('form_view_permissions', 'forms.id = form_view_permissions.form_id')
+            ->innerJoin('users', 'form_view_permissions.user_id = users.id')
+            ->innerJoin('department', 'users.department = department.id')
+            ->where(['or',
+                ['users.id' => $userId],
+                ['form_view_permissions.department_id' => $departmentId]
+            ])
+            ->all();
+    }
+
+
+
 }
+

@@ -15,20 +15,25 @@ $this->title = 'Assignment';
     </div>
 </div>
 <div class="row folders">
-    <?php foreach ($forms as $form): ?>
-    <div class="col-xs-3 folder" style="cursor: pointer" onclick="location.href='<?= Yii::$app->urlManager->createUrl(['home/assignment-form', 'id' => $form['id']]) ?>'">
-        <div style="margin: 10px">
-            <div class="folder-head">
-                <i class="fa-regular fa-folder-open"></i>
-                <h5><?= htmlspecialchars($form['form_name']) ?></h5>
+    <?php if (empty($forms)): ?>
+        <p>ไม่มีฟอร์มที่สามารถส่งได้สำหรับแผนกนี้</p>
+    <?php else: ?>
+        <?php foreach ($forms as $form): ?>
+            <div class="col-xs-3 folder" style="cursor: pointer" onclick="location.href='<?= Yii::$app->urlManager->createUrl(['home/assignment-form', 'id' => $form['id']]) ?>'">
+                <div style="margin: 10px">
+                    <div class="folder-head">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <h5><?= htmlspecialchars($form['form_name']) ?></h5>
+                    </div>
+                    <p class="department" style="color: #454d55">
+                        แผนก : <?= htmlspecialchars(mb_strtoupper($form['department_name'])) ?>
+                    </p>
+                </div>
             </div>
-            <p class="department" style="color: #454d55">
-                แผนก : <?= htmlspecialchars(mb_strtoupper($form['department_name'])) ?>
-            </p>
-        </div>
-    </div>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </div>
+
 <script>
     document.getElementById('mainSearch').addEventListener('input', function (){
         const searchTerm = this.value.toLowerCase();

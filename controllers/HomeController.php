@@ -53,6 +53,7 @@ class HomeController extends Controller
             ->innerJoin('users AS owner', 'forms.user_id = owner.id') // เชื่อม forms กับ users เพื่อดึงแผนกของฟอร์ม
             ->innerJoin('department', 'owner.department = department.id') // ดึงแผนกของผู้สร้างฟอร์ม
             ->where(['or',
+                ['forms.user_id' => $user->id],
                 ['form_view_permissions.user_id' => $user->id], // เปรียบเทียบ user ที่ได้รับสิทธิ์
                 ['form_view_permissions.department_id' => $user->department] // เปรียบเทียบ department ที่ได้รับสิทธิ์
             ])

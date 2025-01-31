@@ -184,7 +184,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
 
             <!-- เลือกแผนกที่สามารถกรอกข้อมูลได้ -->
             <div style="margin-bottom: 6px;">
-                <label class="label-content">เลือกแผนกที่สามารถกรอกข้อมูลได้</label>
+                <label class="label-content">เลือกแผนกที่สามารถกรอกข้อมูลได้<span class="text-warning">*</span></label>
                 <button class="btn btn-default btn-sort dropdown-toggle" data-bs-toggle="dropdown">
                     ตัวเลือก <span class="caret"></span>
                 </button>
@@ -209,7 +209,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
 
             <!-- เลือกแผนกที่สามารถดูข้อมูลได้ -->
             <div style="margin-bottom: 10px;">
-                <label class="label-content">เลือกแผนกที่สามารถดูข้อมูลได้</label>
+                <label class="label-content">เลือกแผนกที่สามารถดูข้อมูลได้<span class="text-warning">*</span></label>
                 <button class="btn btn-default btn-sort dropdown-toggle" data-bs-toggle="dropdown">
                     ตัวเลือก <span class="caret"></span>
                 </button>
@@ -275,6 +275,30 @@ $this->title = 'Create Form' . Html::encode($form_id);
         // อัปเดตค่าเริ่มต้น
         updateSelectedUsers();
     });
+    // เลือกแผนกที่สามารถกรอกข้อมูลได้   // เลือกแผนกที่สามารถดูข้อมูลได้
+    document.addEventListener("DOMContentLoaded", function () {
+        function setupSelectAll(selectAllId, checkboxesName) {
+            const selectAllCheckbox = document.getElementById(selectAllId);
+            const checkboxes = document.querySelectorAll(`input[name="${checkboxesName}"]`);
+
+            selectAllCheckbox.addEventListener("change", function () {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            });
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", function () {
+                    selectAllCheckbox.checked = [...checkboxes].every(cb => cb.checked);
+                });
+            });
+        }
+        setupSelectAll("select-all-departments-checkbox", "departments[]");
+        setupSelectAll("select-all-view-departments-checkbox", "view_departments[]");
+    });
+
+
+
     // Toggle Select All functionality
     $(document).ready(function () {
         function handleSelectAll(selectAllId, checkboxesName) {

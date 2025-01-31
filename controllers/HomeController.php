@@ -84,6 +84,8 @@ class HomeController extends Controller
         $viewType = Yii::$app->request->get('viewType', 'table');
         // ค้นหาข้อมูลฟอร์มตาม ID
         $form = Forms::findOne($id);
+        $departments = Department::find()->all();
+        $users = Users::find()->all();
 
         // คิวรีข้อมูลฟิลด์ที่เกี่ยวข้อง
         $fields = (new \yii\db\Query())
@@ -238,14 +240,25 @@ class HomeController extends Controller
                 'pageSize' => 8,
             ],
         ]);
+        // ดึงข้อมูลของแผนกที่เลือกมาแล้วจากฐานข้อมูลหรือจากการตั้งค่า
+        $selectedDepartments = [];
+        $selectedViewDepartments = [];
+        $selectedViewUsers = [];
+
         // ส่งข้อมูลไปที่ view
         return $this->render('work-detail', [
             'form' => $form,
+            'users' => $users,
+            'departments' => $departments,
+            'selectedDepartments' => $selectedDepartments,
+            'selectedViewDepartments' => $selectedViewDepartments,
+            'selectedViewUsers' => $selectedViewUsers,
             'dataProvider' => $dataProvider,
             'results' => $results,
             'viewType' => $viewType,
             'events' => $events,
             'fields' => $fields,
+            'formId' => $id,
         ]);
     }
 
@@ -478,6 +491,82 @@ class HomeController extends Controller
         ]);
     }
 
+
+    public function actionUpdatePermissions()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $request = Yii::$app->request;
+
+        if ($request->isPost) {
+
+            Yii::trace($request->post(), 'debug');
+
+            $formId = $request->post('form_id');
+            $departments = $request->post('departments', []);
+            $viewDepartments = $request->post('view_departments', []);
+            $viewUsers = $request->post('view_users', []);
+
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                // Delete existing permissions
+                FormViewPermissions::deleteAll(['form_id' => $formId]);
+                DepartmentSubmissionPermissions::deleteAll(['form_id' => $formId]);
+
+                // Save new Department Submission Permissions
+                foreach ($departments as $deptId) {
+                    $permission = new DepartmentSubmissionPermissions();
+                    $permission->form_id = $formId;
+                    $permission->department_id = $deptId;
+                    $permission->can_submit = 1;
+
+                    if (!$permission->save()) {
+                        Yii::error('Error saving DepartmentSubmissionPermissions: ' . json_encode($permission->errors));
+                        throw new \yii\db\Exception('Error saving DepartmentSubmissionPermissions');
+                    }
+                }
+
+                // Save new View Permissions for Departments
+                foreach ($viewDepartments as $deptId) {
+                    $viewPermission = new FormViewPermissions();
+                    $viewPermission->form_id = $formId;
+                    $viewPermission->department_id = $deptId;
+                    $viewPermission->allow_type = 'department';
+                    $viewPermission->can_view = 1;
+
+                    if (!$viewPermission->save()) {
+                        Yii::error('Error saving FormViewPermissions (Department): ' . json_encode($viewPermission->errors));
+                        throw new \yii\db\Exception('Error saving FormViewPermissions (Department)');
+                    }
+                }
+
+                // Save new View Permissions for Users
+                foreach ($viewUsers as $userId) {
+                    $userPermission = new FormViewPermissions();
+                    $userPermission->form_id = $formId;
+                    $userPermission->user_id = $userId;
+                    $userPermission->allow_type = 'user';
+                    $userPermission->can_view = 1;
+
+                    if (!$userPermission->save()) {
+                        Yii::error('Error saving FormViewPermissions (User): ' . json_encode($userPermission->errors));
+                        throw new \yii\db\Exception('Error saving FormViewPermissions (User)');
+                    }
+                }
+
+                // Commit transaction
+                $transaction->commit();
+
+                return ['status' => 'success', 'message' => 'อัปเดตสิทธิ์เรียบร้อย'];
+            } catch (\Exception $e) {
+                // Rollback transaction if any error occurs
+                $transaction->rollBack();
+                Yii::error('Error: ' . $e->getMessage());
+                return ['status' => 'error', 'message' => 'เกิดข้อผิดพลาดในการอัปเดตสิทธิ์'];
+            }
+        }
+
+        return ['status' => 'error', 'message' => 'คำขอไม่ถูกต้อง'];
+    }
 
     public function actionGetFields($id)
     {

@@ -51,57 +51,151 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 <div class="head-each-work">
     <h4 style="font-size: 36px"><?= Html::encode($form['form_name'])?></h4>
     <button style="background: none; border: none" data-toggle="modal" data-target="#myModal" id="openModalButton">
-            <i class="fa-solid fa-gear"></i>
-        </button>
+        <i class="fa-solid fa-gear"></i>
+    </button>
 
     <!-- Modal -->
     <div class="modal fade" id="myModal" role="dialog">
         <div class="modal-dialog modal-md modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" style="font-size: 20px; text-align: center;">จัดการการเข้าถึง</h5>
+                    <h5 class="modal-title" style="font-size: 20px; text-align: center;">อัปเดตการเข้าถึง</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <!-- ส่วนการจัดการการเข้าถึงการกรอกข้อมูล -->
+
+                    <!-- ส่วนการจัดการการอัปเดตแผนกที่สามารถกรอกข้อมูลได้ -->
                     <div class="d-flex align-items-center mb-3">
-                        <h6 class="mb-0">บุคคลที่สามารถเข้ากรอกข้อมูลได้</h6>
+                        <h6 class="mb-0">เลือกแผนกที่สามารถกรอกข้อมูลได้</h6>
                         <div class="dropdown ml-3">
-                            <button class="btn btn-default btn-sort dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button class="btn btn-default btn-sort dropdown-toggle" type="button" id="dropdownDepartments" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 ตัวเลือก
                             </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                <a class="dropdown-item" href="#">พนักงานทั้งหมด</a>
-                                <a class="dropdown-item" href="#">บุคคลภายนอก</a>
-                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownDepartments">
+                                <li>
+                                    <label class="dropdown-item">
+                                        <input type="checkbox" id="select-all-departments-checkbox">
+                                        ทั้งหมด
+                                    </label>
+                                </li>
+                                <?php foreach ($departments as $department) : ?>
+                                    <li>
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" name="departments[]" value="<?= $department->id ?>"
+                                                <?= in_array($department->id, $selectedDepartments) ? 'checked' : '' ?>>
+                                            <?= Html::encode($department->department_name) ?>
+                                        </label>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
                         </div>
                     </div>
 
-                    <!-- ส่วนการจัดการการเข้าดูข้อมูล -->
-                    <div class="d-flex align-items-center">
-                        <h6 class="mb-0">บุคคลที่สามารถเข้ามาดูข้อมูลได้</h6>
+                    <!-- ส่วนการจัดการการอัปเดตแผนกที่สามารถดูข้อมูลได้ -->
+                    <div class="d-flex align-items-center mb-3">
+                        <h6 class="mb-0">เลือกแผนกที่สามารถดูข้อมูลได้</h6>
                         <div class="dropdown ml-3">
-                            <button class="btn btn-default btn-sort dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button class="btn btn-default btn-sort dropdown-toggle" type="button" id="dropdownViewDepartments" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 ตัวเลือก
                             </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                <a class="dropdown-item" href="#">พนักงานทั้งหมด</a>
-                                <a class="dropdown-item" href="#">ฝ่าย HR</a>
-                                <a class="dropdown-item" href="#">ฝ่าย DDS</a>
-                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownViewDepartments">
+                                <li>
+                                    <label class="dropdown-item">
+                                        <input type="checkbox" id="select-all-view-departments-checkbox">
+                                        ทั้งหมด
+                                    </label>
+                                </li>
+                                <?php foreach ($departments as $department) : ?>
+                                    <li>
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" name="view_departments[]" value="<?= $department->id ?>"
+                                                <?= in_array($department->id, $selectedViewDepartments) ? 'checked' : '' ?>>
+                                            <?= Html::encode($department->department_name) ?>
+                                        </label>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
                         </div>
-                        <input type="text" placeholder="@" class="form-control ml-3 add-people" style="width: 200px;">
                     </div>
+
+                    <!-- ส่วนการจัดการการเลือกผู้ใช้ -->
+                    <div class="mb-3">
+                        <h6 class="mb-0">เลือกบุคคลที่สามารถดูข้อมูลได้</h6>
+                        <select class="form-control" name="view_users[]" id="view_users" multiple>
+                            <?php foreach ($users as $user) : ?>
+                                <option value="<?= $user->id ?>" <?= in_array($user->id, $selectedViewUsers) ? 'selected' : '' ?>>
+                                    <?= Html::encode($user->name) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-dismiss="modal">บันทึก</button>
+                    <button type="button" class="btn btn-success" data-dismiss="modal">บันทึกการอัปเดต</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- JavaScript ส่วนการใช้งาน AJAX -->
+<script>
+    $(document).ready(function() {
+        $('#submit-permission-form').on('click', function(e) {
+            e.preventDefault(); // ป้องกันการส่งฟอร์มแบบปกติ
+
+            var formId = $('#formId').val(); // สมมติว่า formId ถูกเก็บใน input hidden
+            var departments = [];
+            var viewDepartments = [];
+            var viewUsers = [];
+
+            // เก็บข้อมูลที่เลือกจากแผนกที่สามารถกรอกข้อมูล
+            $('input[name="departments[]"]:checked').each(function() {
+                departments.push($(this).val());
+            });
+
+            // เก็บข้อมูลที่เลือกจากแผนกที่สามารถดูข้อมูล
+            $('input[name="view_departments[]"]:checked').each(function() {
+                viewDepartments.push($(this).val());
+            });
+
+            // เก็บข้อมูลที่เลือกจากผู้ใช้ที่สามารถดูข้อมูล
+            $('#view_users option:selected').each(function() {
+                viewUsers.push($(this).val());
+            });
+
+            console.log('Form ID:', formId);
+            console.log('Departments:', departments);
+            console.log('View Departments:', viewDepartments);
+            console.log('View Users:', viewUsers);
+
+            // ส่งข้อมูลผ่าน AJAX
+            $.ajax({
+                url: '/Home/UpdatePermissions',
+                type: 'POST',
+                data: {
+                    form_id: formId,
+                    departments: departments, // ใช้ข้อมูลที่เก็บจากการเลือก
+                    view_departments: viewDepartments, // ใช้ข้อมูลที่เก็บจากการเลือก
+                    view_users: viewUsers // ใช้ข้อมูลที่เก็บจากการเลือก
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert('อัปเดตสิทธิ์เรียบร้อย');
+                    } else {
+                        alert('เกิดข้อผิดพลาด: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error: ' + error);
+                }
+            });
+        });
+    });
+</script>
 
 <div class="search-group">
     <div class="search-bar">

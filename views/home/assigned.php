@@ -46,7 +46,7 @@ $this->title = 'Assigned';
             ],
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{preview} {download}',
+                'template' => '{preview} <i class="fa-solid fa-ellipsis-vertical" style="color: #cccccc"></i> {download}',
                 'header' => '<i class="fa-solid fa-file-circle-check"></i>',
                 'buttons' => [
                     'preview' => function ($url, $model) {

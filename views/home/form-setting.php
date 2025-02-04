@@ -13,9 +13,6 @@ use yii\widgets\ActiveForm;
 $this->title = 'Create Form' . Html::encode($form_id);
 ?>
 <style>
-    label{
-        font-weight: normal;
-    }
     .back-icon{
         margin-top: 10px;
         margin-bottom: 0px;
@@ -34,7 +31,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
     }
     .form-preview{
         margin-top: 10px;
-        padding: 10px;
+        padding: 20px;
         height: 85vh;
         overflow-y: auto;
         border: 1px solid #cccccc;
@@ -78,6 +75,13 @@ $this->title = 'Create Form' . Html::encode($form_id);
         display: flex;
         flex-direction: column;
     }
+    .field-label{
+        font-size: 16px;
+        font-weight: bold;
+    }
+    .field-input .form-control{
+        margin-bottom: 20px;
+    }
     .btn-sort{
         border-radius: 20px;
         box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
@@ -89,6 +93,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
     }
     .label-content{
         font-size: 16px;
+        font-weight: 500;
     }
     .radio{
         display: inline-flex;
@@ -119,10 +124,13 @@ $this->title = 'Create Form' . Html::encode($form_id);
     .radio-input:checked + .radio-label{
         background-color: #55AD9B;
     }
-    .btn-save {
+    .group-btn{
         position: absolute; /* ใช้ absolute positioning สำหรับปุ่ม */
         bottom: 10px;
         right: 10px;
+        display: flex;
+    }
+    .btn-save {
         border: 1px solid #ffffff;
         border-radius: 20px;
         background-color: #55AD9B;
@@ -131,8 +139,23 @@ $this->title = 'Create Form' . Html::encode($form_id);
         font-weight: bold;
         padding: 5px 25px ;
     }
+    .btn-cancel{
+        border: 1px solid #ffffff;
+        border-radius: 20px;
+        background-color: #cc5555;
+        color: #ffffff;
+        font-size: 20px;
+        font-weight: bold;
+        padding: 5px 25px ;
+        margin-right: 5px;
+    }
     .btn-save:hover{
         background-color: #55AD9B;
+        color: #ffffff;
+        opacity: 0.8;
+    }
+    .btn-cancel:hover{
+        background-color: #cc5555;
         color: #ffffff;
         opacity: 0.8;
     }
@@ -144,7 +167,21 @@ $this->title = 'Create Form' . Html::encode($form_id);
         border-radius: 20px;
         bottom: 10px;
     }
-
+    .form-control#view_users{
+        border-radius: 15px;
+        height: auto;
+    }
+    .font-min{
+        font-size: 14px;
+        font-style: italic;
+        margin-left: 10px;
+    }
+    ul.dropdown-menu.show {
+        border-radius: 20px;
+    }
+    .dropdown-menu li {
+        margin-left: 15px;
+    }
 </style>
 
 <div class="form-group">
@@ -154,7 +191,6 @@ $this->title = 'Create Form' . Html::encode($form_id);
     <div class="row g-3">
         <!-- ส่วนแสดงตัวอย่างฟอร์ม -->
         <div class="col-md-8 form-preview" id="form-preview">
-            <p>Content here!</p>
             <?php if (!empty($fields)) : ?>
                 <?php foreach ($fields as $field) : ?>
                     <div class="field-header d-flex align-items-center justify-content-between mt-3">
@@ -235,6 +271,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
             <!-- เลือกบุคคลที่สามารถดูข้อมูลได้ -->
             <div class="mb-3">
                 <label class="label-content">เลือกบุคคลที่สามารถดูข้อมูลได้</label>
+                <input type="text" id="searchUser" class="form-control" style="margin-bottom: 5px; border-radius: 20px" placeholder="พิมพ์ชื่อเพื่อค้นหา...">
                 <select class="form-control" name="view_users[]" id="view_users" multiple>
                     <?php foreach ($users as $user) : ?>
                         <option value="<?= $user->id ?>" <?= in_array($user->id, $selectedViewUsers) ? 'selected' : '' ?>>
@@ -242,15 +279,21 @@ $this->title = 'Create Form' . Html::encode($form_id);
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <div class="mt-2">
+                <div class="mt-2 font-min">
                     <strong class="text-warning">บุคคลที่เลือก:</strong> <span id="selected-users">ยังไม่มีการเลือก</span>
                 </div>
             </div>
 
-            <div class="text-end">
-                <?= Html::submitButton('บันทึก', ['class' => 'btn btn-primary btn-save']) ?>
+            <div class="group-btn">
+                <?= Html::a('ยกเลิก', ['home/delete-form', 'id' => $model->id], [
+                    'class' => 'btn-d-preview btn btn-cancel',
+                    'data-confirm' => 'ยกเลิกการสร้างฟอร์มนี้?',
+                    'onclick' => 'return confirm("ยกเลิกการสร้างฟอร์มนี้?");'
+                ])?>
+                <div class="text-end">
+                    <?= Html::submitButton('บันทึก', ['class' => 'btn btn-primary btn-save']) ?>
+                </div>
             </div>
-
             <?php ActiveForm::end(); ?>
         </div>
     </div>
@@ -295,6 +338,27 @@ $this->title = 'Create Form' . Html::encode($form_id);
         }
         setupSelectAll("select-all-departments-checkbox", "departments[]");
         setupSelectAll("select-all-view-departments-checkbox", "view_departments[]");
+    });
+
+    document.addEventListener("DOMContentLoaded", function (){
+        const searchInput = document.getElementById("searchUser");
+        const selectBox = document.getElementById("view_users");
+        const selectedUserDisplay = document.getElementById("selected-users")
+
+        searchInput.addEventListener("input", function (){
+            let filter = searchInput.value.toLowerCase();
+            let options = selectBox.options;
+
+            for(let i = 0; i < options.length; i++){
+                let optionText = options[i].text.toLowerCase();
+                options[i].style.display = optionText.includes(filter) ? "" : "none";
+            }
+        });
+
+        selectBox.addEventListener("change", function() {
+            let selectedOptions = [...selectBox.selectOptions].map(optoin => option.text).join(",");
+            selectedUserDisplay.textContent = selectedOptions || "ยังไม่ได้เลือก";
+        });
     });
 
 
@@ -355,7 +419,10 @@ function getFieldHtml($type, $id, $options) {
         case "long-text":
             return '<textarea class="form-control" name="field_' . $id . '" placeholder="Long Text"></textarea>';
         case "phone":
-            return '<input type="number" class="form-control" name="field_' . $id . '" placeholder="Phone Number">';
+            return '<input type="tel" class="form-control" name="field_' . $id . '" placeholder="Phone Number">';
+        case "number":
+            return '<input type="number" class="form-control" name="field_' . $id . '" placeholder="Number">';
+        case "date":
         case "date":
             return '<input type="date" class="form-control" name="field_' . $id . '">';
         case "time":
@@ -379,10 +446,10 @@ function getFieldHtml($type, $id, $options) {
             $html = "";
             if (is_array($options) && !empty($options)) {
                 foreach ($options as $option) {
-                    $html .= "<label><input type='radio' name='field_$id' value='$option'>$option</label><br>";
+                    $html .= "<label><input type='radio' name='field_$id' value='$option'>$option</label>";
                 }
             } else {
-                $html .= "<label>ไม่มีตัวเลือก</label><br>";
+                $html .= "<label>ไม่มีตัวเลือก</label>";
             }
             return $html;
 
@@ -390,10 +457,10 @@ function getFieldHtml($type, $id, $options) {
             $html = "";
             if (is_array($options) && !empty($options)) {
                 foreach ($options as $option) {
-                    $html .= "<label><input type='checkbox' name='field_{$id}[]' value='$option'>$option</label><br>";
+                    $html .= "<label><input type='checkbox' name='field_{$id}[]' value='$option'>$option</label>";
                 }
             } else {
-                $html .= "<label>ไม่มีตัวเลือก</label><br>";
+                $html .= "<label>ไม่มีตัวเลือก</label>";
             }
             return $html;
 

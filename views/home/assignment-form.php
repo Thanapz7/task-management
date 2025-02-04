@@ -20,7 +20,7 @@ $this->title = 'Assignment Form';
     <?php foreach ($fields as $field): ?>
         <div class="form-group">
             <div class="input-g">
-                <label for="<?= $field['field_name'] ?>"><?= Html::encode($field['field_name']) ?></label>
+                <label for="<?= $field['field_name'] ?>" class="<?= ($field['field_type'] == 'text') ? 'label-text' : '' ?>"><?= Html::encode($field['field_name']) ?></label>
 
                 <?php switch ($field['field_type']):
                     case 'short-text': ?>

@@ -80,7 +80,6 @@ class HomeController extends Controller
     public function actionWorkDetail($id, $viewType = 'table')
     {
         $this->layout = 'layout';
-        $searchModel = new WorkDetailSearch();
         // รับค่าจาก dropdown (ค่าเริ่มต้นเป็น 'table')
         $viewType = Yii::$app->request->get('viewType', 'table');
         // ค้นหาข้อมูลฟอร์มตาม ID
@@ -343,7 +342,7 @@ class HomeController extends Controller
         $forms = Forms::find()
             ->select(['forms.*', 'users.department'])
             ->joinWith('users')
-            ->where(['forms.id' => [237, 6]])
+            ->where(['forms.id' => [237, 1, 152]])
             ->all();
 
         $this->layout = 'layout';
@@ -875,57 +874,41 @@ class HomeController extends Controller
 //        ]);
 //    }
 
-    public function actionEditTemplate($id)
+    //creat from template
+    public function actionCreateFromTemplate($templateId)
     {
-        $this->layout = 'blank_page';
-
-        $form = Forms::findOne($id);
-
-        if (!$form) {
-            throw new \yii\web\NotFoundHttpException('Form not found.');
+        $templateForm = Forms::findOne($templateId);
+        if (!$templateForm) {
+            throw new \yii\web\NotFoundHttpException('Template form not found.');
         }
 
-        $existingFields = Fields::find()
-            ->where(['form_id' => $id])
-            ->asArray()
-            ->all();
-
-        return $this->render('edit-template', [
-            'form' => $form,
-            'formId' => $id,
-            'existingFields' => $existingFields,
-        ]);
-
-    }
-
-    public function actionSaveForm()
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-
-        $postDataRaw = Yii::$app->request->post('fields', '');
-        $postData = json_decode($postDataRaw, true);
-        $templateId = Yii::$app->request->post('template_id');
-
-        if(!$templateId || !($template = Forms::findOne($templateId))){
-            return ['success' => false, 'message' => 'Template not found.'];
-        }
-        if(!is_array($postData) || empty($postData)){
-            return ['success' => false, 'message' => 'Invalid field data'];
-        }
-
+        // คัดลอกฟอร์มเดิมเป็นฟอร์มใหม่
         $newForm = new Forms();
-        $newForm->form_name = $template->form_name . ' (Copy)';
-        $newForm->save(false);
-
-        foreach ($postData as $field) {
-            $model = new Fields();
-            $model->form_id = $newForm->id;
-            $model->field_name = $field['label'];
-            $model->field_type = $field['type'];
-            $model->options = isset($field['options']) ? json_encode($field['options']) : null;
-            $model->save(false);
+        $newForm->form_name = $templateForm->form_name . " (คัดลอก)"; // ตั้งชื่อให้แตกต่าง
+        $newForm->user_id = Yii::$app->user->id;
+        $newForm->create_at = date('Y-m-d H:i:s');
+        $newForm->update_at = date('Y-m-d H:i:s');
+        if (!$newForm->save()) {
+            throw new \yii\web\ServerErrorHttpException('Failed to create new form');
         }
-        return ['success' => true, 'message' => 'Form Created Successfully.', 'form_id' => $newForm->id];
+
+        // คัดลอกฟิลด์ของฟอร์มเดิม
+        $templateFields = Fields::find()->where(['form_id' => $templateId])->all();
+        foreach ($templateFields as $field) {
+            $newField = new Fields();
+            $newField->form_id = $newForm->id;
+            $newField->field_name = $field->field_name;
+            $newField->field_type = $field->field_type;
+            if (in_array($field->field_type, ['dropdown', 'checkbox', 'radio'])) {
+                $newField->options = $field->options !== null ? $field->options : '[]';
+            } else {
+                // ฟิลด์ที่ไม่ต้องการ options เช่น text, short-text, phone, number
+                $newField->options = '[]';
+            }            $newField->save();
+        }
+
+        // ส่งผู้ใช้ไปยังหน้าสร้างฟอร์มใหม่
+        return $this->redirect(['home/create-form', 'id' => $newForm->id]);
     }
 
 }

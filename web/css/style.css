@@ -96,7 +96,6 @@ body{
 }
 .form-control {
     border-radius: 20px;
-    padding: 20px;
 }
 .password-input{
     position: relative;
@@ -290,6 +289,12 @@ body{
 }
 .head-each-work i{
     margin-right: 20px;
+}
+button#openModalButton{
+    transition: 0.3s;
+}
+button#openModalButton:hover{
+    transform: scale(1.2);
 }
 .modal{
     border-radius: 20px;
@@ -628,6 +633,9 @@ table th, table td {
 }
 .input-type{
     margin:  0 10px 0 10px;
+}
+.label-text{
+    font-style: italic;
 }
 .input-g label{
     font-size: 16px;

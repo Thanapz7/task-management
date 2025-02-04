@@ -53,15 +53,15 @@ $this->title = 'Assignment Form';
 
                 <?php switch ($field['field_type']):
                     case 'short-text': ?>
-                        <input type="text" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" placeholder="กรอก<?= Html::encode($field['field_name']) ?>">
+                        <input type="text" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" placeholder="กรอก<?= Html::encode($field['field_name']) ?>" required>
                         <?php break;
 
                     case 'long-text': ?>
-                        <textarea name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" rows="5" placeholder="กรอก<?= Html::encode($field['field_name']) ?>"></textarea>
+                        <textarea name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" rows="5" placeholder="กรอก<?= Html::encode($field['field_name']) ?>" required></textarea>
                         <?php break;
 
                     case 'dropdown': ?>
-                    <select name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" id="dropdown_<?= $field['id'] ?>" onchange="updateDropdownValue(this)">
+                    <select name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" id="dropdown_<?= $field['id'] ?>" onchange="updateDropdownValue(this)" required>
                         <option value="">เลือก<?= Html::encode($field['field_name']) ?></option>
                         <?php
                         $options = json_decode($field['options'], true);
@@ -84,11 +84,11 @@ $this->title = 'Assignment Form';
                         <?php break;
 
                     case 'number': ?>
-                        <input type="number" id="<?= $field['field_name']?>" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" placeholder="กรอก<?= $field['field_name']?>">
+                        <input type="number" id="<?= $field['field_name']?>" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" placeholder="กรอก<?= $field['field_name']?>" required>
                         <?php break;
 
                     case 'phone': ?>
-                        <input type="tel" id="<?= $field['field_name']?>" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" placeholder="กรอก<?= $field['field_name']?>">
+                        <input type="tel" id="<?= $field['field_name']?>" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" placeholder="กรอก<?= $field['field_name']?>" required>
                         <?php break;
 
                     case 'radio': ?>
@@ -97,7 +97,7 @@ $this->title = 'Assignment Form';
                         if (is_array($options)) {
                             foreach ($options as $option): ?>
                                 <label>
-                                    <input type="radio" name="DynamicForm[<?= $field['id'] ?>]" value="<?= Html::encode($option) ?>"> <?= Html::encode($option) ?>
+                                    <input type="radio" name="DynamicForm[<?= $field['id'] ?>]" value="<?= Html::encode($option) ?>" required> <?= Html::encode($option) ?>
                                 </label>
                             <?php endforeach;
                         } else {
@@ -112,7 +112,7 @@ $this->title = 'Assignment Form';
                         if (is_array($options)) {
                             foreach ($options as $option): ?>
                                 <label>
-                                    <input type="checkbox" name="DynamicForm[<?= $field['id'] ?>][]" value="<?= Html::encode($option) ?>"> <?= Html::encode($option) ?>
+                                    <input type="checkbox" name="DynamicForm[<?= $field['id'] ?>][]" value="<?= Html::encode($option) ?>" required> <?= Html::encode($option) ?>
                                 </label>
                             <?php endforeach;
                         } else {
@@ -122,15 +122,15 @@ $this->title = 'Assignment Form';
                         <?php break;
 
                     case 'date': ?>
-                        <input type="date" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type">
+                        <input type="date" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" required>
                         <?php break;
 
                     case 'time': ?>
-                        <input type="time" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type">
+                        <input type="time" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" required>
                         <?php break;
 
                     case 'file': ?>
-                        <input type="file" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type">
+                        <input type="file" name="DynamicForm[<?= $field['id'] ?>]" class="form-control input-type" required>
                         <?php break;
 
                     case 'text'; ?>

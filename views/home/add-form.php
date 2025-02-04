@@ -5,7 +5,7 @@ $this->title='Add Forms';
 <h4 class="text-header">เพิ่มแฟ้มงาน</h4>
 <div class="row folders">
     <?php foreach ($forms as $form):?>
-    <div class="col-xs-3 folder" style="cursor: pointer">
+    <div class="col-xs-3 folder" style="cursor: pointer" onclick="location.href='<?= Yii::$app->urlManager->createUrl(['home/edit-template', 'id' => $form->id]) ?>'">
         <div style="margin: 10px">
             <div class="folder-head">
                 <i class="fa-regular fa-folder-open"></i>

@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
@@ -168,6 +169,65 @@ $this->title = 'สร้างฟอร์ม';
     <div class="col-md-8 form-preview" id="form-preview" style="border: 1px dashed #ccc; padding: 20px; min-height: 200px; margin-bottom: 20px;">
         <!-- ฟิลด์ที่สร้างแบบ Drag-and-Drop จะถูกเพิ่มที่นี่ -->
         <p style="color: #999;">ลากฟิลด์ไปยังพื้นที่นี้...</p>
+        <?php if (!empty($existingFields)): ?>
+            <?php foreach ($existingFields as $field): ?>
+                <?php
+                $options = isset($field['options']) ? json_decode($field['options'], true) : [];
+                if (!is_array($options)) {
+                    $options = []; // ป้องกัน error กรณี decode ไม่สำเร็จ
+                }
+                ?>
+                <div class="form-item" draggable="true" data-id="<?= Html::encode($field['id']) ?>" data-type="<?= Html::encode($field['field_type']) ?>" data-options='<?= json_encode($options, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
+                    <div class="field-header" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="field-label" style="font-weight: bold;"><?= Html::encode($field['field_name']) ?></span>
+                        <div class="field-actions" style="margin-left: 10px;">
+                            <i class="fa-solid fa-pen edit-icon" style="cursor: pointer; margin-right: 10px;" onclick="openEditModalForExistingField(this.closest('.form-item'))"></i>
+                            <i class="fa-solid fa-trash delete-icon" style="cursor: pointer;" onclick="openDeleteModal(this.closest('.form-item'))"></i>
+                        </div>
+                    </div>
+                    <div class="field-input">
+                        <?php if ($field['field_type'] == 'short-text'): ?>
+                            <input type="text" class="form-control" placeholder="Short Text">
+                        <?php elseif ($field['field_type'] == 'long-text'): ?>
+                            <textarea class="form-control" placeholder="Long Text"></textarea>
+                        <?php elseif ($field['field_type'] == 'dropdown'): ?>
+                            <select class="form-control">
+                                <?php foreach ($options as $option): ?>
+                                    <option><?= Html::encode($option) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        <?php elseif ($field['field_type'] == 'number'): ?>
+                            <input type="number" class="form-control" placeholder="Number">
+                        <?php elseif ($field['field_type'] == 'phone'): ?>
+                            <input type="tel" class="form-control" placeholder="Phone Number">
+                        <?php elseif ($field['field_type'] == 'radio'): ?>
+                            <?php foreach ($options as $option): ?>
+                                <label>
+                                    <input type="radio" name="radio_<?= Html::encode($field['id']) ?>" value="<?= Html::encode($option) ?>">
+                                    <?= Html::encode($option) ?>
+                                </label>
+                            <?php endforeach; ?>
+
+                        <?php elseif ($field['field_type'] == 'checkbox'): ?>
+                            <?php foreach ($options as $option): ?>
+                                <label>
+                                    <input type="checkbox" name="checkbox_<?= Html::encode($field['id']) ?>[]" value="<?= Html::encode($option) ?>">
+                                    <?= Html::encode($option) ?>
+                                </label>
+                            <?php endforeach; ?>
+                        <?php elseif ($field['field_type'] == 'date'): ?>
+                            <input type="date" class="form-control" >
+                        <?php elseif ($field['field_type'] == 'time'): ?>
+                            <input type="time" class="form-control">
+                        <?php elseif ($field['field_type'] == 'file'): ?>
+                            <input type="file" class="form-control">
+                        <?php elseif ($field['field_type'] == 'text'): ?>
+                            <?php echo ''; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
 
     </div>
 
@@ -288,9 +348,6 @@ $this->title = 'สร้างฟอร์ม';
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         const formPreview = document.getElementById("form-preview");
         const fieldsInput = document.getElementById("fields-input");
@@ -364,11 +421,51 @@ $this->title = 'สร้างฟอร์ม';
             }
         }
 
-        // function openEditModal(field, type) {
-        //     currentEditField = field;
-        //     $("#editLabelModal").modal("show");
-        //     document.getElementById("editLabelInput").value = field.querySelector(".field-label").textContent.trim();
-        // }
+        function openEditModalForExistingField(field) {
+            console.log("openEditModalForExistingField called");
+
+            const type = field.getAttribute("data-type");
+            currentEditField = field;
+            currentEditType = type;
+
+            $("#editLabelModal").modal("show");
+
+            const label = field.querySelector(".field-label").textContent.trim();
+            document.getElementById("editLabelInput").value = label;
+
+            // โหลดตัวเลือกที่มีอยู่แล้วจาก data-options
+            let options = [];
+            try {
+                options = JSON.parse(field.getAttribute("data-options")) || [];
+            } catch (e) {
+                options = [];
+            }
+
+            console.log("Options:", options);
+
+            if (["dropdown", "radio", "checkbox", "status"].includes(type)) {
+                const optionsList = document.getElementById("optionsList");
+                optionsList.innerHTML = options
+                    .map(
+                        (option, index) =>
+                            `<li class="list-group-item">
+                        <input type="text" class="form-control option-input" value="${option}"
+                            oninput="updateOption(${index}, this.value)">
+                        <button class="btn btn-danger btn-sm pull-right" onclick="deleteOption(${index})">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                    </li>`
+                    )
+                    .join("");
+
+                document.getElementById("newOptionInput").value = ""; // ล้าง input ตัวเลือกใหม่
+                $("#editOptionsModal").modal("show");
+            } else {
+                $("#editLabelModal").modal("show");
+            }
+        }
+
+
 
         function openEditModal(field, type) {
             currentEditField = field; // เก็บฟิลด์ปัจจุบัน
@@ -412,9 +509,10 @@ $this->title = 'สร้างฟอร์ม';
             document.querySelectorAll(".form-item").forEach(item => {
                 const label = item.querySelector(".field-label").textContent.trim();
                 const type = item.getAttribute("data-type");
+                const id = item.getAttribute("data-id") || null; //ดึง id ถ้ามี
                 const options = Array.from(item.querySelectorAll(".field-input option, .field-input label"))
                     .map(opt => opt.textContent.trim());
-                fields.push({ label, type, options });
+                fields.push({ id, label, type, options });
             });
             fieldsInput.value = JSON.stringify(fields);
         }
@@ -466,33 +564,51 @@ $this->title = 'สร้างฟอร์ม';
                 )
                 .join("");
         }
-
         function saveOptions() {
-            const newLabel = document.getElementById("editLabelInput").value.trim();
-            if (newLabel) {
-                currentEditField.querySelector(".field-label").textContent = newLabel;
-            }
+            if (!currentEditField) return;
 
-            // แก้ไขตัวเลือกใน <select>
-            if (currentEditType === "dropdown" || currentEditType === "status") {
-                const fieldInput = currentEditField.querySelector(".field-input select");
-                fieldInput.innerHTML = options
-                    .map(option => `<option>${option}</option>`)
+            const optionInputs = document.querySelectorAll(".option-input");
+            let updatedOptions = [];
+
+            optionInputs.forEach(input => {
+                if (input.value.trim() !== "") {
+                    updatedOptions.push(input.value.trim());
+                }
+            });
+
+            // อัปเดตค่าลงใน data-options ของฟิลด์
+            currentEditField.setAttribute("data-options", JSON.stringify(updatedOptions));
+
+            // อัปเดตตัวเลือกที่แสดงในฟิลด์
+            const fieldType = currentEditField.getAttribute("data-type");
+            const fieldInput = currentEditField.querySelector(".field-input");
+
+            if (fieldType === "dropdown") {
+                fieldInput.innerHTML = `<select class="form-control">
+            ${updatedOptions.map(option => `<option>${option}</option>`).join("")}
+        </select>`;
+            } else if (fieldType === "radio") {
+                fieldInput.innerHTML = updatedOptions
+                    .map(option => `
+                <label>
+                    <input type="radio" name="radio_${currentEditField.getAttribute("data-id")}" value="${option}">
+                    ${option}
+                </label>
+            `)
                     .join("");
-            } else if (currentEditType === "radio") {
-                const fieldInput = currentEditField.querySelector(".field-input");
-                fieldInput.innerHTML = options
-                    .map(option => `<label><input type="radio" name="temp">${option}</label>`)
-                    .join("");
-            } else if (currentEditType === "checkbox") {
-                const fieldInput = currentEditField.querySelector(".field-input");
-                fieldInput.innerHTML = options
-                    .map(option => `<label><input type="checkbox" name="temp">${option}</label>`)
+            } else if (fieldType === "checkbox") {
+                fieldInput.innerHTML = updatedOptions
+                    .map(option => `
+                <label>
+                    <input type="checkbox" name="checkbox_${currentEditField.getAttribute("data-id")}[]" value="${option}">
+                    ${option}
+                </label>
+            `)
                     .join("");
             }
-
-            $("#editOptionsModal").modal("hide");
+            $("#editOptionsModal").modal("hide"); // ปิด Modal
         }
+
 
         // ฟังก์ชันที่ใช้สำหรับเปิด/ปิด Modal การแก้ไขฟิลด์
         function openDeleteModal(field) {
@@ -500,17 +616,31 @@ $this->title = 'สร้างฟอร์ม';
             $("#deleteFieldModal").modal("show");
         }
 
-        function openAccessModal(field){
-            $("#accessFieldModal").modal("show");
-        }
-
         // เมื่อยืนยันการลบฟิลด์
         document.getElementById("confirmDeleteFieldBtn").onclick = () => {
-            if (fieldToDelete) {
+            if(!fieldToDelete) return;
+
+            const fieldId = fieldToDelete.getAttribute("data-id");
+
+            if(fieldId){
+                fetch(`<?= Url::to(['home/delete-field']) ?>?id=${fieldId}`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-Token": "<?= Yii::$app->request->getCsrfToken() ?>"
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        location.reload();
+                    })
+                    .catch(error => {
+                        console.error("Error:" ,error)
+                    });
+            }else{
                 fieldToDelete.remove();
-                fieldToDelete = null;
-                $("#deleteFieldModal").modal("hide");
             }
+            fieldToDelete = null;
+            $("#deleteFieldModal").modal("hide");
         };
 
         document.getElementById("saveLabelBtn").addEventListener("click", () => {

@@ -80,12 +80,14 @@ class HomeController extends Controller
     public function actionWorkDetail($id, $viewType = 'table')
     {
         $this->layout = 'layout';
+        $searchModel = new WorkDetailSearch();
         // รับค่าจาก dropdown (ค่าเริ่มต้นเป็น 'table')
         $viewType = Yii::$app->request->get('viewType', 'table');
         // ค้นหาข้อมูลฟอร์มตาม ID
         $form = Forms::findOne($id);
         $departments = Department::find()->all();
         $users = Users::find()->all();
+        $userID = Yii::$app->user->id;
 
         // คิวรีข้อมูลฟิลด์ที่เกี่ยวข้อง
         $fields = (new \yii\db\Query())
@@ -259,6 +261,7 @@ class HomeController extends Controller
             'events' => $events,
             'fields' => $fields,
             'formId' => $id,
+            'userID' => $userID
         ]);
     }
 
@@ -340,7 +343,7 @@ class HomeController extends Controller
         $forms = Forms::find()
             ->select(['forms.*', 'users.department'])
             ->joinWith('users')
-            ->where(['forms.id' => [23, 24, 25]])
+            ->where(['forms.id' => [237, 6]])
             ->all();
 
         $this->layout = 'layout';
@@ -785,7 +788,7 @@ class HomeController extends Controller
     }
 
     public function actionField($id = null) {
-        $this->layout='blank_page';
+        $this->layout = 'blank_page';
         if ($id === null) {
             $id = Yii::$app->request->post('id');
         }
@@ -797,41 +800,37 @@ class HomeController extends Controller
         if (Yii::$app->request->isPost) {
             Yii::$app->response->format = Response::FORMAT_JSON;
 
-
             $postDataRaw = Yii::$app->request->post('fields', '');
             Yii::debug($postDataRaw, 'debug_raw_fields');
 
             $postData = json_decode($postDataRaw, true);
 
             if (!is_array($postData)) {
-                return [
-                    'success' => false,
-                    'message' => 'Invalid JSON format',
-                    'debug' => $postDataRaw
-                ];
+                return ['success' => false, 'message' => 'Invalid JSON format', 'debug' => $postDataRaw];
             }
 
             if (empty($postData)) {
-                return [
-                    'success' => false,
-                    'message' => 'No valid field data provided.',
-                    'debug' => $postData
-                ];
+                return ['success' => false, 'message' => 'No valid field data provided.', 'debug' => $postData];
             }
 
             Yii::debug($postData, 'debug_postData');
 
             foreach ($postData as $field) {
                 if (!is_array($field) || !isset($field['label'], $field['type'])) {
-                    return [
-                        'success' => false,
-                        'message' => 'Invalid field data provided.',
-                        'debug' => $field
-                    ];
+                    return ['success' => false, 'message' => 'Invalid field data provided.', 'debug' => $field];
                 }
 
-                $model = new Fields();
-                $model->form_id = $id;
+                // ตรวจสอบว่ามี ID ของฟิลด์หรือไม่ ถ้ามีให้ทำการอัปเดต
+                if (!empty($field['id'])) {
+                    $model = Fields::findOne($field['id']);
+                    if (!$model) {
+                        continue; // ข้ามถ้าไม่พบฟิลด์
+                    }
+                } else {
+                    $model = new Fields();
+                    $model->form_id = $id;
+                }
+
                 $model->field_name = $field['label'];
                 $model->field_type = $field['type'];
                 $model->options = isset($field['options']) ? json_encode($field['options']) : null;
@@ -847,6 +846,21 @@ class HomeController extends Controller
         return $this->render('create-form', ['form' => $form, 'formId' => $id]);
     }
 
+    public  function actionDeleteField($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $field = Fields::findOne($id);
+        if(!$field){
+            return ['success' => false, 'message' => 'Field Not Found'];
+        }
+        if($field->delete()){
+            return ['success' => true];
+        }
+        return ['success' => false, 'message' => 'Failed to delete field'];
+    }
+
+
 //    public function actionUpdateForms($id)
 //    {
 //        $model = Forms::findOne($id);
@@ -860,5 +874,58 @@ class HomeController extends Controller
 //            'model' => $model,
 //        ]);
 //    }
+
+    public function actionEditTemplate($id)
+    {
+        $this->layout = 'blank_page';
+
+        $form = Forms::findOne($id);
+
+        if (!$form) {
+            throw new \yii\web\NotFoundHttpException('Form not found.');
+        }
+
+        $existingFields = Fields::find()
+            ->where(['form_id' => $id])
+            ->asArray()
+            ->all();
+
+        return $this->render('edit-template', [
+            'form' => $form,
+            'formId' => $id,
+            'existingFields' => $existingFields,
+        ]);
+
+    }
+
+    public function actionSaveForm()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $postDataRaw = Yii::$app->request->post('fields', '');
+        $postData = json_decode($postDataRaw, true);
+        $templateId = Yii::$app->request->post('template_id');
+
+        if(!$templateId || !($template = Forms::findOne($templateId))){
+            return ['success' => false, 'message' => 'Template not found.'];
+        }
+        if(!is_array($postData) || empty($postData)){
+            return ['success' => false, 'message' => 'Invalid field data'];
+        }
+
+        $newForm = new Forms();
+        $newForm->form_name = $template->form_name . ' (Copy)';
+        $newForm->save(false);
+
+        foreach ($postData as $field) {
+            $model = new Fields();
+            $model->form_id = $newForm->id;
+            $model->field_name = $field['label'];
+            $model->field_type = $field['type'];
+            $model->options = isset($field['options']) ? json_encode($field['options']) : null;
+            $model->save(false);
+        }
+        return ['success' => true, 'message' => 'Form Created Successfully.', 'form_id' => $newForm->id];
+    }
 
 }

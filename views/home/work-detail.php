@@ -50,9 +50,18 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 
 <div class="head-each-work">
     <h4 style="font-size: 36px"><?= Html::encode($form['form_name'])?></h4>
+    <?php
+        $formUser = $form['user_id'];
+    ?>
+    <?php if ($userID == $formUser): ?>
     <button style="background: none; border: none" data-toggle="modal" data-target="#myModal" id="openModalButton">
         <i class="fa-solid fa-gear"></i>
     </button>
+    <?php else: ?>
+        <button style="background: none; border: none" data-toggle="modal" data-target="#myModal" id="openModalButton" disabled>
+            <i class="fa-solid fa-gear"></i>
+        </button>
+    <?php endif; ?>
 
     <!-- Modal -->
     <div class="modal fade" id="myModal" role="dialog">
@@ -315,7 +324,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                         ],
                         [
                             'class' => 'yii\grid\ActionColumn',
-                            'template' => '{preview} {download}',
+                            'template' => '{preview} <i class="fa-solid fa-ellipsis-vertical" style="color: #cccccc"></i> {download}',
                             'header' => '<i class="fa-solid fa-file-circle-check"></i>',
                             'buttons' => [
                                 'preview' => function ($url, $model) {

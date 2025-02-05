@@ -411,10 +411,10 @@ class HomeController extends Controller
         $selectedViewDepartments = Yii::$app->request->post('view_departments', []);
         $selectedViewUsers = Yii::$app->request->post('view_users', []);
 
-        $displayForTable = Yii::$app->request->post('display_for_table', []);
-        $displayForList = Yii::$app->request->post('display_for_list', null);
-        $displayForGallery = Yii::$app->request->post('display_for_gallery', []);
-        $displayForCalendar = Yii::$app->request->post('display_for_calendar', null);
+//        $displayForTable = Yii::$app->request->post('display_for_table', []);
+//        $displayForList = Yii::$app->request->post('display_for_list', null);
+//        $displayForGallery = Yii::$app->request->post('display_for_gallery', []);
+//        $displayForCalendar = Yii::$app->request->post('display_for_calendar', null);
 
         if ($selectAllDepartments) {
             $selectedDepartments = array_column($departments, 'id');
@@ -458,22 +458,22 @@ class HomeController extends Controller
                 $viewPermission->save(false);
             }
             // บันทึกการตั้งค่าฟิลด์
-            foreach ($fields as $field) {
-                $field->display_for_table = in_array($field->id, (array) $displayForTable) ? 1 : 0;
-                $field->display_for_list = ($displayForList && $displayForList == $field->id) ? 1 : 0;
-                $field->display_for_gallery = in_array($field->id, (array) $displayForGallery) ? 1 : 0;
-                $field->display_for_calendar = ($displayForCalendar && $displayForCalendar == $field->id) ? 1 : 0;
-
-
-                Yii::debug('display_for_table: ' . json_encode($displayForTable), __METHOD__);
-                Yii::debug('display_for_list: ' . json_encode($displayForList), __METHOD__);
-                Yii::debug('display_for_gallery: ' . json_encode($displayForGallery), __METHOD__);
-                Yii::debug('display_for_calendar: ' . json_encode($displayForCalendar), __METHOD__);
-
-                if (!$field->save(false)) {
-                    Yii::$app->session->addFlash('error', 'ไม่สามารถบันทึกการตั้งค่าฟิลด์ได้: ' . json_encode($field->errors));
-                }
-            }
+//            foreach ($fields as $field) {
+//                $field->display_for_table = in_array($field->id, (array) $displayForTable) ? 1 : 0;
+//                $field->display_for_list = ($displayForList && $displayForList == $field->id) ? 1 : 0;
+//                $field->display_for_gallery = in_array($field->id, (array) $displayForGallery) ? 1 : 0;
+//                $field->display_for_calendar = ($displayForCalendar && $displayForCalendar == $field->id) ? 1 : 0;
+//
+//
+//                Yii::debug('display_for_table: ' . json_encode($displayForTable), __METHOD__);
+//                Yii::debug('display_for_list: ' . json_encode($displayForList), __METHOD__);
+//                Yii::debug('display_for_gallery: ' . json_encode($displayForGallery), __METHOD__);
+//                Yii::debug('display_for_calendar: ' . json_encode($displayForCalendar), __METHOD__);
+//
+//                if (!$field->save(false)) {
+//                    Yii::$app->session->addFlash('error', 'ไม่สามารถบันทึกการตั้งค่าฟิลด์ได้: ' . json_encode($field->errors));
+//                }
+//            }
 
             Yii::$app->session->setFlash('success', 'บันทึกข้อมูลสำเร็จ');
             return $this->redirect(['home/work']);
@@ -491,19 +491,18 @@ class HomeController extends Controller
             'selectedViewUsers' => array_column($model->viewPermissions, 'user_id'),
             'selectedViewDepartments' => array_column($model->viewDepartmentsPermissions, 'department_id'),
 
-            'displayForTable' => array_column(array_filter($fields, function ($field) {
-                return $field->display_for_table;
-            }), 'id'),
-
-            'displayForList' => array_search(1, array_column($fields, 'display_for_list')) ?: '',
-
-            'displayForGallery' => array_column(array_filter($fields, function ($field) {
-                return $field->display_for_gallery;
-            }), 'id'),
-
-            'displayForCalendar' => array_search(1, array_column($fields, 'display_for_calendar')) ?: '',
+//            'displayForTable' => array_column(array_filter($fields, function ($field) {
+//                return $field->display_for_table;
+//            }), 'id'),
+//
+//            'displayForList' => array_search(1, array_column($fields, 'display_for_list')) ?: '',
+//
+//            'displayForGallery' => array_column(array_filter($fields, function ($field) {
+//                return $field->display_for_gallery;
+//            }), 'id'),
+//
+//            'displayForCalendar' => array_search(1, array_column($fields, 'display_for_calendar')) ?: '',
         ]);
-
     }
 
 

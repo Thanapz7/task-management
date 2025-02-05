@@ -8,9 +8,10 @@ body{
 /*login*/
 .forgot-pass{
     text-decoration: underline;
-    font-size: 16px;
+    font-size: 14px;
     color: #656565cc;
     cursor: pointer;
+    margin-top: -20px;
 }
 .forgot-pass:hover{
     color: #cc5555;

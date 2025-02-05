@@ -31,7 +31,7 @@ AppAsset::register($this);
                         <?= $form->field($model, 'password')->passwordInput(['placeholder' => 'รหัสผ่าน']) ?>
                         <i class="fa-solid fa-eye-slash login-eye"></i>
                     </div>
-                    <div class="form-group w-100 forgot-pass">
+                    <div class="form-group w-100 forgot-pass text-right">
                         <?= Html::a('ลืมรหัสผ่าน', ['./users'],['class'=>'forgot-pass']) ?>
                     </div>
                     <?= Html::submitButton('ล็อกอิน', ['class' => 'btn btn-custom', 'name'=>'login-button']) ?>

@@ -65,6 +65,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 
     <!-- Modal -->
     <div class="modal fade" id="myModal" role="dialog">
+        <input type="hidden" id="formId" value="<?= Html::encode($formId) ?>">
         <div class="modal-dialog modal-md modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -143,68 +144,13 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-dismiss="modal">บันทึกการอัปเดต</button>
+                    <button type="button" class="btn btn-success save-permission">บันทึกการอัปเดต</button>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- JavaScript ส่วนการใช้งาน AJAX -->
-<script>
-    $(document).ready(function() {
-        $('#submit-permission-form').on('click', function(e) {
-            e.preventDefault(); // ป้องกันการส่งฟอร์มแบบปกติ
-
-            var formId = $('#formId').val(); // สมมติว่า formId ถูกเก็บใน input hidden
-            var departments = [];
-            var viewDepartments = [];
-            var viewUsers = [];
-
-            // เก็บข้อมูลที่เลือกจากแผนกที่สามารถกรอกข้อมูล
-            $('input[name="departments[]"]:checked').each(function() {
-                departments.push($(this).val());
-            });
-
-            // เก็บข้อมูลที่เลือกจากแผนกที่สามารถดูข้อมูล
-            $('input[name="view_departments[]"]:checked').each(function() {
-                viewDepartments.push($(this).val());
-            });
-
-            // เก็บข้อมูลที่เลือกจากผู้ใช้ที่สามารถดูข้อมูล
-            $('#view_users option:selected').each(function() {
-                viewUsers.push($(this).val());
-            });
-
-            console.log('Form ID:', formId);
-            console.log('Departments:', departments);
-            console.log('View Departments:', viewDepartments);
-            console.log('View Users:', viewUsers);
-
-            // ส่งข้อมูลผ่าน AJAX
-            $.ajax({
-                url: '/Home/UpdatePermissions',
-                type: 'POST',
-                data: {
-                    form_id: formId,
-                    departments: departments, // ใช้ข้อมูลที่เก็บจากการเลือก
-                    view_departments: viewDepartments, // ใช้ข้อมูลที่เก็บจากการเลือก
-                    view_users: viewUsers // ใช้ข้อมูลที่เก็บจากการเลือก
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        alert('อัปเดตสิทธิ์เรียบร้อย');
-                    } else {
-                        alert('เกิดข้อผิดพลาด: ' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.log('Error: ' + error);
-                }
-            });
-        });
-    });
-</script>
 
 <div class="search-group">
     <div class="search-bar">
@@ -421,6 +367,65 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
+    <!-- JavaScript ส่วนการใช้งาน AJAX -->
+        $(document).ready(function() {
+        $('.save-permission').on('click', function(e) {  // ใช้ class แทน ID
+            e.preventDefault(); // ป้องกันการทำงานปกติของปุ่ม
+
+            // var formId = $('#formId').val(); // ตรวจสอบว่า input นี้มีอยู่จริง
+            var formId = document.getElementById('formId').value;
+            var departments = [];
+            var viewDepartments = [];
+            var viewUsers = [];
+
+            // เก็บค่าจาก checkbox ของแผนกที่สามารถกรอกข้อมูล
+            $('input[name="departments[]"]:checked').each(function() {
+                departments.push($(this).val());
+            });
+
+            // เก็บค่าจาก checkbox ของแผนกที่สามารถดูข้อมูล
+            $('input[name="view_departments[]"]:checked').each(function() {
+                viewDepartments.push($(this).val());
+            });
+
+            // เก็บค่าจาก select ผู้ใช้ที่สามารถดูข้อมูล
+            $('#view_users option:selected').each(function() {
+                viewUsers.push($(this).val());
+            });
+
+            // เช็คว่าเก็บค่ามาถูกต้องไหม
+            console.log('Form ID:', formId);
+            console.log('Departments:', departments);
+            console.log('View Departments:', viewDepartments);
+            console.log('View Users:', viewUsers);
+
+            // ส่งข้อมูล AJAX
+            $.ajax({
+                url: "<?= Yii::$app->urlManager->createUrl(['home/update-permissions']) ?>",                type: 'POST',
+                data: {
+                    _csrf: "<?= Yii::$app->request->csrfToken ?>",  // เพิ่ม CSRF Token
+                    form_id: formId,
+                    departments: departments,
+                    view_departments: viewDepartments,
+                    view_users: viewUsers
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert('อัปเดตสิทธิ์เรียบร้อย');
+                        $('#myModal').modal('hide');  // ปิด Modal หลังจากอัปเดตสำเร็จ
+                    } else {
+                        alert('เกิดข้อผิดพลาด: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error: ' + error);
+                    console.log("XHR:", xhr.responseText);
+                    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+                }
+            });
+        });
+    });
+
     document.addEventListener("DOMContentLoaded", function () {
         // ป้องกันการปิด dropdown เมื่อคลิกที่ submenu
         var submenuLinks = document.querySelectorAll(".submenu-link");

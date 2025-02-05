@@ -88,13 +88,6 @@ class HomeController extends Controller
         $users = Users::find()->all();
         $userID = Yii::$app->user->id;
 
-        // คิวรีข้อมูลฟิลด์ที่เกี่ยวข้อง
-        $fields = (new \yii\db\Query())
-            ->select(['field_name'])
-            ->from('fields')
-            ->innerJoin('forms', 'forms.id = fields.form_id') // เชื่อมกับตาราง forms
-            ->where(['forms.id' => $id]) // กรองข้อมูลโดยใช้ form_id
-            ->all();
 
         // การคิวรีข้อมูลที่เกี่ยวข้อง
         $query = (new \yii\db\Query())
@@ -109,14 +102,6 @@ class HomeController extends Controller
             ->innerJoin('field_values', 'fields.id = field_values.field_id')
             ->where(['forms.id' => $id])
             ->andWhere('records.id = field_values.record_id')
-            ->all();
-
-        $queryRecordIds = (new \yii\db\Query())
-            ->select(['records.id AS record_id'])
-            ->from('forms')
-            ->innerJoin('records', 'forms.id = records.form_id')
-            ->where(['forms.id' => $id])
-            ->orderBy(['records.id' => SORT_ASC])  // เรียงลำดับ record_id ให้ตรง
             ->all();
 
         $queryCal = (new \yii\db\Query())
@@ -258,13 +243,12 @@ class HomeController extends Controller
             'results' => $results,
             'viewType' => $viewType,
             'events' => $events,
-            'fields' => $fields,
             'formId' => $id,
             'userID' => $userID
         ]);
     }
 
-        public function actionUpdateDepartment()
+    public function actionUpdateDepartment()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $data = Yii::$app->request->post();
@@ -285,7 +269,6 @@ class HomeController extends Controller
             return ['success' => false, 'message' => 'ไม่สามารถอัปเดตข้อมูลได้'];
         }
     }
-
 
     public function actionWorkDetailPreview($id)
     {
@@ -415,6 +398,10 @@ class HomeController extends Controller
             throw new \yii\web\NotFoundHttpException('Form not found.');
         }
 
+        if (Yii::$app->request->isPost) {
+            Yii::debug(Yii::$app->request->post(), __METHOD__);
+        }
+
         $fields = Fields::find()->where(['form_id' => $id])->all();
         $departments = Department::find()->all();
         $users = Users::find()->all();
@@ -424,29 +411,33 @@ class HomeController extends Controller
         $selectedViewDepartments = Yii::$app->request->post('view_departments', []);
         $selectedViewUsers = Yii::$app->request->post('view_users', []);
 
+        $displayForTable = Yii::$app->request->post('display_for_table', []);
+        $displayForList = Yii::$app->request->post('display_for_list', null);
+        $displayForGallery = Yii::$app->request->post('display_for_gallery', []);
+        $displayForCalendar = Yii::$app->request->post('display_for_calendar', null);
+
         if ($selectAllDepartments) {
             $selectedDepartments = array_column($departments, 'id');
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            // ลบข้อมูลเก่าก่อนเพื่อป้องกันข้อมูลซ้ำ
+            // ลบข้อมูลเก่า
             DepartmentSubmissionPermissions::deleteAll(['form_id' => $model->id]);
             FormViewPermissions::deleteAll(['form_id' => $model->id]);
 
-            // บันทึกสิทธิ์การกรอกข้อมูล (แผนก)
+            // บันทึกสิทธิ์การกรอกข้อมูล
             foreach ($selectedDepartments as $departmentId) {
                 $permission = new DepartmentSubmissionPermissions([
                     'form_id' => $model->id,
                     'department_id' => $departmentId,
                     'can_submit' => 1,
                 ]);
-                if (!$permission->save()) {
+                if (!$permission->save(false)) {
                     Yii::error($permission->errors);
-                    Yii::$app->session->setFlash('error', 'ไม่สามารถบันทึกสิทธิ์การกรอกข้อมูลได้: ' . json_encode($permission->errors));
                 }
             }
 
-            // บันทึกสิทธิ์การดูข้อมูล (แผนกและผู้ใช้)
+            // บันทึกสิทธิ์การดูข้อมูล
             foreach ($selectedViewDepartments as $departmentId) {
                 $viewPermission = new FormViewPermissions([
                     'form_id' => $model->id,
@@ -454,10 +445,7 @@ class HomeController extends Controller
                     'allow_type' => 'department',
                     'can_view' => 1,
                 ]);
-                if (!$viewPermission->save()) {
-                    Yii::error($viewPermission->errors);
-                    Yii::$app->session->setFlash('error', 'ไม่สามารถบันทึกสิทธิ์การดูข้อมูลแผนกได้: ' . json_encode($viewPermission->errors));
-                }
+                $viewPermission->save(false);
             }
 
             foreach ($selectedViewUsers as $userId) {
@@ -467,16 +455,28 @@ class HomeController extends Controller
                     'allow_type' => 'user',
                     'can_view' => 1,
                 ]);
-                if (!$viewPermission->save()) {
-                    Yii::error($viewPermission->errors);
-                    Yii::$app->session->setFlash('error', 'ไม่สามารถบันทึกสิทธิ์การดูข้อมูลผู้ใช้ได้: ' . json_encode($viewPermission->errors));
+                $viewPermission->save(false);
+            }
+            // บันทึกการตั้งค่าฟิลด์
+            foreach ($fields as $field) {
+                $field->display_for_table = in_array($field->id, (array) $displayForTable) ? 1 : 0;
+                $field->display_for_list = ($displayForList && $displayForList == $field->id) ? 1 : 0;
+                $field->display_for_gallery = in_array($field->id, (array) $displayForGallery) ? 1 : 0;
+                $field->display_for_calendar = ($displayForCalendar && $displayForCalendar == $field->id) ? 1 : 0;
+
+
+                Yii::debug('display_for_table: ' . json_encode($displayForTable), __METHOD__);
+                Yii::debug('display_for_list: ' . json_encode($displayForList), __METHOD__);
+                Yii::debug('display_for_gallery: ' . json_encode($displayForGallery), __METHOD__);
+                Yii::debug('display_for_calendar: ' . json_encode($displayForCalendar), __METHOD__);
+
+                if (!$field->save(false)) {
+                    Yii::$app->session->addFlash('error', 'ไม่สามารถบันทึกการตั้งค่าฟิลด์ได้: ' . json_encode($field->errors));
                 }
             }
 
             Yii::$app->session->setFlash('success', 'บันทึกข้อมูลสำเร็จ');
             return $this->redirect(['home/work']);
-        } else {
-            Yii::$app->session->setFlash('error', 'เกิดข้อผิดพลาด: ' . json_encode($model->getErrors()));
         }
 
         $this->layout = 'blank_page';
@@ -490,85 +490,80 @@ class HomeController extends Controller
             'selectedDepartments' => array_column($model->departmentPermissions, 'department_id'),
             'selectedViewUsers' => array_column($model->viewPermissions, 'user_id'),
             'selectedViewDepartments' => array_column($model->viewDepartmentsPermissions, 'department_id'),
+
+            'displayForTable' => array_column(array_filter($fields, function ($field) {
+                return $field->display_for_table;
+            }), 'id'),
+
+            'displayForList' => array_search(1, array_column($fields, 'display_for_list')) ?: '',
+
+            'displayForGallery' => array_column(array_filter($fields, function ($field) {
+                return $field->display_for_gallery;
+            }), 'id'),
+
+            'displayForCalendar' => array_search(1, array_column($fields, 'display_for_calendar')) ?: '',
         ]);
+
     }
 
 
     public function actionUpdatePermissions()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $request = Yii::$app->request;
 
-        if ($request->isPost) {
+        if (!Yii::$app->request->isPost) {
+            return ['status' => 'error', 'message' => 'Request ไม่ใช่ POST', 'method' => Yii::$app->request->method];
+        }
 
-            Yii::trace($request->post(), 'debug');
+        $formId = Yii::$app->request->post('form_id');
+        $departments = Yii::$app->request->post('departments', []);
+        $viewDepartments = Yii::$app->request->post('view_departments', []);
+        $viewUsers = Yii::$app->request->post('view_users', []);
 
-            $formId = $request->post('form_id');
-            $departments = $request->post('departments', []);
-            $viewDepartments = $request->post('view_departments', []);
-            $viewUsers = $request->post('view_users', []);
+        if (!$formId) {
+            return ['status' => 'error', 'message' => 'ไม่พบ Form ID'];
+        }
 
-            $transaction = Yii::$app->db->beginTransaction();
-            try {
-                // Delete existing permissions
-                FormViewPermissions::deleteAll(['form_id' => $formId]);
-                DepartmentSubmissionPermissions::deleteAll(['form_id' => $formId]);
+        // ลบสิทธิ์เก่าทั้งหมดก่อนบันทึกใหม่
+        DepartmentSubmissionPermissions::deleteAll(['form_id' => $formId]);
+        FormViewPermissions::deleteAll(['form_id' => $formId]);
 
-                // Save new Department Submission Permissions
-                foreach ($departments as $deptId) {
-                    $permission = new DepartmentSubmissionPermissions();
-                    $permission->form_id = $formId;
-                    $permission->department_id = $deptId;
-                    $permission->can_submit = 1;
-
-                    if (!$permission->save()) {
-                        Yii::error('Error saving DepartmentSubmissionPermissions: ' . json_encode($permission->errors));
-                        throw new \yii\db\Exception('Error saving DepartmentSubmissionPermissions');
-                    }
-                }
-
-                // Save new View Permissions for Departments
-                foreach ($viewDepartments as $deptId) {
-                    $viewPermission = new FormViewPermissions();
-                    $viewPermission->form_id = $formId;
-                    $viewPermission->department_id = $deptId;
-                    $viewPermission->allow_type = 'department';
-                    $viewPermission->can_view = 1;
-
-                    if (!$viewPermission->save()) {
-                        Yii::error('Error saving FormViewPermissions (Department): ' . json_encode($viewPermission->errors));
-                        throw new \yii\db\Exception('Error saving FormViewPermissions (Department)');
-                    }
-                }
-
-                // Save new View Permissions for Users
-                foreach ($viewUsers as $userId) {
-                    $userPermission = new FormViewPermissions();
-                    $userPermission->form_id = $formId;
-                    $userPermission->user_id = $userId;
-                    $userPermission->allow_type = 'user';
-                    $userPermission->can_view = 1;
-
-                    if (!$userPermission->save()) {
-                        Yii::error('Error saving FormViewPermissions (User): ' . json_encode($userPermission->errors));
-                        throw new \yii\db\Exception('Error saving FormViewPermissions (User)');
-                    }
-                }
-
-                // Commit transaction
-                $transaction->commit();
-
-                return ['status' => 'success', 'message' => 'อัปเดตสิทธิ์เรียบร้อย'];
-            } catch (\Exception $e) {
-                // Rollback transaction if any error occurs
-                $transaction->rollBack();
-                Yii::error('Error: ' . $e->getMessage());
-                return ['status' => 'error', 'message' => 'เกิดข้อผิดพลาดในการอัปเดตสิทธิ์'];
+        // บันทึกข้อมูลใหม่
+        foreach ($departments as $depId) {
+            $perm = new DepartmentSubmissionPermissions();
+            $perm->form_id = $formId;
+            $perm->department_id = $depId;
+            $perm->can_submit = 1;
+            if (!$perm->save()) {
+                return ['status' => 'error', 'message' => 'บันทึกสิทธิ์แผนกไม่สำเร็จ'];
             }
         }
 
-        return ['status' => 'error', 'message' => 'คำขอไม่ถูกต้อง'];
+        foreach ($viewDepartments as $depId) {
+            $perm = new FormViewPermissions();
+            $perm->form_id = $formId;
+            $perm->department_id = $depId;
+            $perm->allow_type = 'department';
+            $perm->can_view = 1;
+            if (!$perm->save()) {
+                return ['status' => 'error', 'message' => 'บันทึกสิทธิ์แผนกที่ดูไม่ได้'];
+            }
+        }
+
+        foreach ($viewUsers as $userId) {
+            $perm = new FormViewPermissions();
+            $perm->form_id = $formId;
+            $perm->user_id = $userId;
+            $perm->allow_type = 'user';
+            $perm->can_view = 1;
+            if (!$perm->save()) {
+                return ['status' => 'error', 'message' => 'บันทึกสิทธิ์ผู้ใช้ไม่สำเร็จ'];
+            }
+        }
+
+        return ['status' => 'success'];
     }
+
 
     public function actionGetFields($id)
     {

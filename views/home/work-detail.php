@@ -95,13 +95,33 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                                         <label class="dropdown-item">
                                             <input type="checkbox" name="departments[]" value="<?= $department->id ?>"
                                                 <?= in_array($department->id, $selectedDepartments) ? 'checked' : '' ?>>
-                                            <?= Html::encode($department->department_name) ?>
+                                            <?php if($department->department_name === 'guest'): ?>
+                                                <?= Html::encode('บุคคลภายนอก') ?>
+                                            <?php else: ?>
+                                                <?= Html::encode($department->department_name) ?>
+                                            <?php endif; ?>
                                         </label>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
                         </div>
                     </div>
+                    <p class="p-lower">แผนกที่กรอกข้อมูลได้ในขณะนี้ :
+                        <span style="color: #000000">
+                            <?php if(!$submit_privilege): ?>
+                                <?php echo 'ไม่มี' ?>
+                            <?php else: ?>
+                                <?php foreach ($submit_privilege as $data): ?>
+                                    <?php if($data['department_name'] === 'guest'): ?>
+                                        <?= Html::encode('บุคคลภายนอก') ?>
+                                    <?php else: ?>
+                                        <?= mb_strtoupper(htmlspecialchars($data['department_name'])) ?>,
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </span>
+                    </p>
+                    <hr style="width: 100%; color: #cccccc">
 
                     <!-- ส่วนการจัดการการอัปเดตแผนกที่สามารถดูข้อมูลได้ -->
                     <div class="d-flex align-items-center mb-3">
@@ -122,17 +142,38 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                                         <label class="dropdown-item">
                                             <input type="checkbox" name="view_departments[]" value="<?= $department->id ?>"
                                                 <?= in_array($department->id, $selectedViewDepartments) ? 'checked' : '' ?>>
-                                            <?= Html::encode($department->department_name) ?>
+                                            <?php if($department->department_name === 'guest'): ?>
+                                                <?= Html::encode('บุคคลภายนอก') ?>
+                                            <?php else: ?>
+                                                <?= Html::encode($department->department_name) ?>
+                                            <?php endif; ?>
                                         </label>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
                         </div>
                     </div>
+                    <p class="p-lower">แผนกที่ดูข้อมูลได้ในขณะนี้ :
+                        <span style="color: #000000">
+                            <?php if(!$view_privilege): ?>
+                                <?php echo 'ไม่มี' ?>
+                            <?php else: ?>
+                                <?php foreach ($view_privilege as $data): ?>
+                                    <?php if($data['department_name'] === 'guest'): ?>
+                                        <?= Html::encode('บุคคลภายนอก') ?>
+                                    <?php else: ?>
+                                        <?= mb_strtoupper(htmlspecialchars($data['department_name'])) ?>,
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </span>
+                    </p>
+                    <hr style="width: 100%; color: #cccccc">
 
                     <!-- ส่วนการจัดการการเลือกผู้ใช้ -->
                     <div class="mb-3">
                         <h6 class="mb-0">เลือกบุคคลที่สามารถดูข้อมูลได้</h6>
+                        <input type="text" id="searchUser" class="form-control" style="margin-bottom: 5px; border-radius: 20px" placeholder="พิมพ์ชื่อเพื่อค้นหา...">
                         <select class="form-control" name="view_users[]" id="view_users" multiple>
                             <?php foreach ($users as $user) : ?>
                                 <option value="<?= $user->id ?>" <?= in_array($user->id, $selectedViewUsers) ? 'selected' : '' ?>>
@@ -141,11 +182,23 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                             <?php endforeach; ?>
                         </select>
                     </div>
-
+                    <div class="mt-2 font-min" style="margin-top: -20px">
+                        <strong class="text-warning">บุคคลที่เลือก:</strong> <span id="selected-users">ยังไม่มีการเลือก</span>
+                    </div>
+                    <p style="margin-top: -15px;" class="p-lower">บุคคลที่ดูข้อมูลได้ในขณะนี้ :
+                        <span style="color: #000000">
+                            <?php if(!$person_privilege): ?>
+                                <?php echo 'ไม่มี' ?>
+                            <?php else: ?>
+                                <?php foreach ($person_privilege as $data): ?>
+                                    <?= htmlspecialchars($data['name']) ?>,
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </span>
+                    </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success save-permission">บันทึกการอัปเดต</button>
-
                 </div>
             </div>
         </div>
@@ -382,23 +435,14 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             $('input[name="departments[]"]:checked').each(function() {
                 departments.push($(this).val());
             });
-
             // เก็บค่าจาก checkbox ของแผนกที่สามารถดูข้อมูล
             $('input[name="view_departments[]"]:checked').each(function() {
                 viewDepartments.push($(this).val());
             });
-
             // เก็บค่าจาก select ผู้ใช้ที่สามารถดูข้อมูล
             $('#view_users option:selected').each(function() {
                 viewUsers.push($(this).val());
             });
-
-            // เช็คว่าเก็บค่ามาถูกต้องไหม
-            console.log('Form ID:', formId);
-            console.log('Departments:', departments);
-            console.log('View Departments:', viewDepartments);
-            console.log('View Users:', viewUsers);
-
             // ส่งข้อมูล AJAX
             $.ajax({
                 url: "<?= Yii::$app->urlManager->createUrl(['home/update-permissions']) ?>",                type: 'POST',
@@ -412,7 +456,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                 success: function(response) {
                     if (response.status === 'success') {
                         alert('อัปเดตสิทธิ์เรียบร้อย');
-                        $('#myModal').modal('hide');  // ปิด Modal หลังจากอัปเดตสำเร็จ
+                        location.reload();
                     } else {
                         alert('เกิดข้อผิดพลาด: ' + response.message);
                     }
@@ -524,6 +568,68 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             item.style.display = text.includes(searchTerm) ? '' : 'none';
         });
 
+    });
+    // search for rights
+    document.addEventListener("DOMContentLoaded", function (){
+        const searchInput = document.getElementById("searchUser");
+        const selectBox = document.getElementById("view_users");
+        const selectedUserDisplay = document.getElementById("selected-users")
+
+        searchInput.addEventListener("input", function (){
+            let filter = searchInput.value.toLowerCase();
+            let options = selectBox.options;
+
+            for(let i = 0; i < options.length; i++){
+                let optionText = options[i].text.toLowerCase();
+                options[i].style.display = optionText.includes(filter) ? "" : "none";
+            }
+        });
+
+        selectBox.addEventListener("change", function() {
+            let selectedOptions = [...selectBox.selectOptions].map(optoin => option.text).join(",");
+            selectedUserDisplay.textContent = selectedOptions || "ยังไม่ได้เลือก";
+        });
+    });
+
+    // เลือกแผนกที่สามารถกรอกข้อมูลได้   // เลือกแผนกที่สามารถดูข้อมูลได้
+    document.addEventListener("DOMContentLoaded", function () {
+        function setupSelectAll(selectAllId, checkboxesName) {
+            const selectAllCheckbox = document.getElementById(selectAllId);
+            const checkboxes = document.querySelectorAll(`input[name="${checkboxesName}"]`);
+
+            selectAllCheckbox.addEventListener("change", function () {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            });
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", function () {
+                    selectAllCheckbox.checked = [...checkboxes].every(cb => cb.checked);
+                });
+            });
+        }
+        setupSelectAll("select-all-departments-checkbox", "departments[]");
+        setupSelectAll("select-all-view-departments-checkbox", "view_departments[]");
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectBox = document.getElementById("view_users");
+        const selectedUsersDisplay = document.getElementById("selected-users");
+
+        function updateSelectedUsers() {
+            // ดึงค่าทั้งหมดที่ถูกเลือก
+            let selectedOptions = Array.from(selectBox.selectedOptions).map(option => option.text);
+
+            // อัปเดตข้อความที่แสดง
+            selectedUsersDisplay.textContent = selectedOptions.length > 0 ? selectedOptions.join(", ") : "ยังไม่มีการเลือก";
+        }
+
+        // เมื่อมีการเปลี่ยนแปลงใน select, อัปเดตรายชื่อที่เลือก
+        selectBox.addEventListener("change", updateSelectedUsers);
+
+        // อัปเดตค่าเริ่มต้น
+        updateSelectedUsers();
     });
 
 </script>

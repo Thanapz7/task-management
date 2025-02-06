@@ -116,6 +116,31 @@ class HomeController extends Controller
 
         $results = $queryCal->all();
 
+        $view_privilege = (new \yii\db\Query())
+            ->select(['department.department_name'])
+            ->from('form_view_permissions')
+            ->innerJoin('department', 'form_view_permissions.department_id = department.id')
+            ->where(['form_view_permissions.can_view' => 1])
+            ->andWhere(['form_view_permissions.form_id' => $id])
+            ->all();
+
+        $person_privilege = (new \yii\db\Query())
+            ->select(['users.name'])
+            ->from('form_view_permissions')
+            ->innerJoin('users', 'form_view_permissions.user_id = users.id')
+            ->where(['form_view_permissions.can_view' => 1])
+            ->andWhere(['form_view_permissions.form_id' => $id])
+            ->andWhere(['form_view_permissions.allow_type' => "user"])
+            ->all();
+
+        $submit_privilege = (new \yii\db\Query())
+            ->select(['department.department_name'])
+            ->from('department_submission_permissions')
+            ->innerJoin('department', 'department_submission_permissions.department_id = department.id')
+            ->where(['department_submission_permissions.can_submit' => 1])
+            ->andWhere(['department_submission_permissions.form_id' => $id])
+            ->all();
+
         if (empty($query)) {
             $formattedData = []; // ไม่มีข้อมูล ส่ง array ว่างไปแสดงผล
             $events = []; // กำหนดให้ events เป็น array ว่าง
@@ -244,7 +269,10 @@ class HomeController extends Controller
             'viewType' => $viewType,
             'events' => $events,
             'formId' => $id,
-            'userID' => $userID
+            'userID' => $userID,
+            'view_privilege' => $view_privilege,
+            'submit_privilege' => $submit_privilege,
+            'person_privilege' => $person_privilege,
         ]);
     }
 

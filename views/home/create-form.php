@@ -10,6 +10,9 @@ use yii\widgets\ActiveForm;
 $this->title = 'สร้างฟอร์ม';
 ?>
 <style>
+    body{
+        font-family: "Noto Sans Thai", serif;
+    }
     label{
         font-weight: normal;
     }
@@ -46,7 +49,7 @@ $this->title = 'สร้างฟอร์ม';
         padding: 10px;
         height: 85vh;
         overflow-y: auto;
-        border: 1px solid #cccccc;
+        border: 2px dashed #cccccc;
         border-radius: 20px;
     }
     .form-item {
@@ -93,14 +96,14 @@ $this->title = 'สร้างฟอร์ม';
         margin-top: 12px;
     }
     .btn-next {
-        /*position: absolute; !* ใช้ absolute positioning สำหรับปุ่ม *!*/
-        /*bottom: 10px;*/
-        /*right: 10px;*/
-        /*background-color: #6DB2E5;*/
-        /*padding: 10px 20px;*/
-        /*font-size: 16px;*/
-        /*color: white;*/
-        /*border-radius: 5px;*/
+        position: absolute; /* ใช้ absolute positioning สำหรับปุ่ม */
+        bottom: -22px;
+        right: 97px;
+        background-color: #6DB2E5;
+        padding: 10px 20px;
+        font-size: 16px;
+        color: white;
+        border-radius: 5px;
         border: 1px solid #ffffff;
         border-radius: 20px;
         background-color: #6DB2E5;
@@ -114,7 +117,13 @@ $this->title = 'สร้างฟอร์ม';
         color: #000000;
         opacity: 0.8;
     }
-
+    .modal-content{
+        border-radius: 20px;
+    }
+    .modal-content .btn{
+        border-radius: 20px;
+        font-weight: bold;
+    }
 </style>
 <div>
     <form method="post" action="<?= \yii\helpers\Url::to(['home/delete-form', 'id'=>$form->id])?>">
@@ -126,7 +135,7 @@ $this->title = 'สร้างฟอร์ม';
 </div>
 
 
-<div class="row" style="margin: 13px">
+<div class="row" style="margin-left: 30px">
     <div id="drag-items" class="col-md-3 data-type">
         <h4 class="text-center" style="font-size:20px; font-weight: bold">ลากฟิลด์จากรายการ</h4>
         <div style="margin-left:20px; font-size: 18px;">
@@ -166,7 +175,7 @@ $this->title = 'สร้างฟอร์ม';
         </div>
     </div>
 
-    <div class="col-md-8 form-preview" id="form-preview" style="border: 1px dashed #ccc; padding: 20px; min-height: 200px; margin-bottom: 20px;">
+    <div class="col-md-8 form-preview" id="form-preview" style="margin-bottom: 20px;">
         <!-- ฟิลด์ที่สร้างแบบ Drag-and-Drop จะถูกเพิ่มที่นี่ -->
         <p style="color: #999;">ลากฟิลด์ไปยังพื้นที่นี้...</p>
         <?php if (!empty($existingFields)): ?>

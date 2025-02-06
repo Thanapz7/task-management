@@ -5,20 +5,23 @@ use yii\widgets\ActiveForm;
 AppAsset::register($this);
 ?>
 <body style="background-color: #cccccc">
-    <div class="container-fluid">
+    <div class="container-fluid logins">
         <div class="row w-100">
             <div class="col-md-6 info-log text-center">
-                <h2>ระบบจัดการงาน <i class="fa-solid fa-briefcase"></i></h2>
+                    <h2 style="font-size: 20px">ระบบจัดการงาน <i class="fa-solid fa-briefcase"></i></h2>
                 <p>แพลตฟอร์มที่มีความแข็งแกร่งและใช้งานง่าย ออกแบบมาเพื่อทำให้การมอบหมายงาน การติดตาม
                     และการรายงานเป็นไปอย่างมีประสิทธิภาพสำหรับองค์กร ระบบนี้ถูกปรับให้เหมาะสมกับการทำงานร่วมกันอย่างมีประสิทธิภาพระหว่างทีมภายในและผู้ใช้ภายนอก
                     เพื่อให้มั่นใจในความโปร่งใสและความรับผิดชอบในทุกระดับของการดำเนินงาน</p>
-                <h5 style="color: #cc5555">สนใจจ้างงาน? <?= Html::a('คลิกที่นี่',['job/assignment'], ['class'=>'btn btn-guest']) ?></h5>
+                <h5 style="color: #cc5555; font-size: 16px;">สนใจจ้างงาน? <?= Html::a('คลิกที่นี่',['job/assignment'], ['class'=>'btn btn-guest']) ?></h5>
             </div>
             <div class="col-md-1 divider"></div>
             <div class="col-md-5 login">
                 <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
                 <form class="login-form">
-                    <h2 class="logo"><i class="fa-solid fa-briefcase"></i></h2>
+                    <h2 class="logo">
+<!--                        <i class="fa-solid fa-briefcase"></i>-->
+                        <?= Html::img('@web/images/work2.png', ['alt' => 'logo', 'style'=>'width:130px']) ?>
+                    </h2>
                     <div class="form-group w-100">
                         <?= $form->field($model, 'username', [
                             'inputOptions' => ['placeholder' => 'ชื่อผู้ใช้ หรือ อีเมล', 'class' => 'form-control']

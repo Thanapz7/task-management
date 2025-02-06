@@ -80,7 +80,8 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                     <div class="d-flex align-items-center mb-3">
                         <h6 class="mb-0">เลือกแผนกที่สามารถกรอกข้อมูลได้</h6>
                         <div class="dropdown ml-3">
-                            <button class="btn btn-default btn-sort dropdown-toggle" type="button" id="dropdownDepartments" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button class="btn btn-default btn-sort dropdown-toggle" type="button" id="dropdownDepartments" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                    style="font-weight: normal; margin: 0;">
                                 ตัวเลือก
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownDepartments" id="submitDepartmentsList">
@@ -127,7 +128,8 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                     <div class="d-flex align-items-center mb-3">
                         <h6 class="mb-0">เลือกแผนกที่สามารถดูข้อมูลได้</h6>
                         <div class="dropdown ml-3">
-                            <button class="btn btn-default btn-sort dropdown-toggle" type="button" id="dropdownViewDepartments" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button class="btn btn-default btn-sort dropdown-toggle" type="button" id="dropdownViewDepartments" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                    style="font-weight: normal; margin: 0;">
                                 ตัวเลือก
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownViewDepartments" id="viewDepartmentsList">

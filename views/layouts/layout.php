@@ -33,6 +33,7 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                 <?php if (!Yii::$app->user->isGuest): ?>
                 <a href="<?= Yii::$app->urlManager->createUrl(['home/work'])?>" class="logo d-flex align-items-center">
                     <i class="fa-solid fa-briefcase"></i>
+<!--                    --><?php //= Html::img('@web/images/work.png', ['alt' => 'logo', 'style'=>'width:75px;']) ?>
                 </a>
                 <?php else: ?>
                     <a href="<?= Yii::$app->urlManager->createUrl(['job/assignment'])?>" class="logo d-flex align-items-center">
@@ -81,7 +82,6 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                     </button>
                 </div>
                 <?php endif; ?>
-
             </div>
 
             <div class="col-sm-10 main-content">

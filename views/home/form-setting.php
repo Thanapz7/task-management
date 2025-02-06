@@ -12,183 +12,12 @@ use yii\widgets\ActiveForm;
 
 $this->title = 'Create Form' . Html::encode($form_id);
 ?>
-<style>
-    .back-icon{
-        margin-top: 10px;
-        margin-bottom: 0px;
-        margin-left: 20px;
-        font-size: 20px;
-        cursor: pointer;
-    }
-    .form-setting{
-        overflow-y: auto;
-        height: 85vh;
-        padding: 20px;
-        border: none;
-        border-radius: 20px;
-        margin: 10px;
-        background-color: #e0e0e0;
-    }
-    .form-preview{
-        margin-top: 10px;
-        padding: 20px;
-        height: 85vh;
-        overflow-y: auto;
-        border: 1px solid #cccccc;
-        border-radius: 20px;
-    }
-    .form-item {
-        font-size: 16px;
-        margin-bottom: 5px;
-        padding: 10px;
-        position: relative;
-    }
-    .form-item .field-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px;
-    }
-    .form-item .field-actions {
-        display: flex;
-        gap: 5px;
-    }
-    .form-item .field-actions i {
-        cursor: pointer;
-    }
-    .form-item .field-actions .edit-icon {
-        color: #5bc0de;
-    }
-    .form-item .field-actions .delete-icon {
-        color: #d9534f;
-    }
-    .form-item .field-actions .access-icon {
-        color: #f0ad4e;
-    }
-    .list-group-item{
-        display: flex;
-    }
-    .input-group-add{
-        display: flex;
-        flex-direction: row;
-    }
-    .field-input{
-        display: flex;
-        flex-direction: column;
-    }
-    .field-label{
-        font-size: 16px;
-        font-weight: bold;
-    }
-    .field-input .form-control{
-        margin-bottom: 20px;
-    }
-    .btn-sort{
-        border-radius: 20px;
-        box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
-        margin-top: 12px;
-    }
-    .label-text{
-        font-size: 18px;
-        font-weight: bold;
-    }
-    .label-content{
-        font-size: 16px;
-        font-weight: 500;
-    }
-    .radio{
-        display: inline-flex;
-        overflow: hidden;
-        border-radius: 20px;
-        box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
-    }
-    .form-horizontal .checkbox, .form-horizontal .checkbox-inline, .form-horizontal .radio, .form-horizontal .radio-inline {
-        padding-top: 0;
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-    .radio-input{
-        display: none;
-    }
-    .radio-label{
-        padding: 7px;
-        font-size: 16px;
-        font-weight: bold;
-        color: #ffffff;
-        background-color: #95D2B3;
-        cursor: pointer;
-        transition: 0.1s;
-    }
-    .radio-label:not(:last-of-type){
-        border-right: 1px solid #a6a6a6;
-    }
-    .radio-input:checked + .radio-label{
-        background-color: #55AD9B;
-    }
-    .group-btn{
-        position: absolute; /* ใช้ absolute positioning สำหรับปุ่ม */
-        bottom: 10px;
-        right: 10px;
-        display: flex;
-    }
-    .btn-save {
-        border: 1px solid #ffffff;
-        border-radius: 20px;
-        background-color: #55AD9B;
-        color: #ffffff;
-        font-size: 20px;
-        font-weight: bold;
-        padding: 5px 25px ;
-    }
-    .btn-cancel{
-        border: 1px solid #ffffff;
-        border-radius: 20px;
-        background-color: #cc5555;
-        color: #ffffff;
-        font-size: 20px;
-        font-weight: bold;
-        padding: 5px 25px ;
-        margin-right: 5px;
-    }
-    .btn-save:hover{
-        background-color: #55AD9B;
-        color: #ffffff;
-        opacity: 0.8;
-    }
-    .btn-cancel:hover{
-        background-color: #cc5555;
-        color: #ffffff;
-        opacity: 0.8;
-    }
-    .add-people{
-        width: 100px;
-        padding: 5px;
-        font-size: 14px;
-        border: 1px solid #cccccc;
-        border-radius: 20px;
-        bottom: 10px;
-    }
-    .form-control#view_users{
-        border-radius: 15px;
-        height: auto;
-    }
-    .font-min{
-        font-size: 14px;
-        font-style: italic;
-        margin-left: 10px;
-    }
-    ul.dropdown-menu.show {
-        border-radius: 20px;
-    }
-    .dropdown-menu li {
-        margin-left: 15px;
-    }
-</style>
 
 <div class="form-group">
-    <?= Html::a('<i class="fa-solid fa-arrow-left back-icon"></i>', ['home/create-form', 'id' => $form_id], ['class' => 'btn btn-secondary mb-3']) ?>
+    <?= Html::a('<i class="fa-solid fa-arrow-left back-icon"></i>', ['home/create-form', 'id' => $form_id], ['class' => 'btn-back', 'style'=>'color:#000000']) ?>
 </div>
 <div class="container-fluid">
-    <div class="row g-3">
+    <div class="row g-3" style="margin-left: 30px;">
         <!-- ส่วนแสดงตัวอย่างฟอร์ม -->
         <div class="col-md-8 form-preview" id="form-preview">
             <?php if (!empty($fields)) : ?>
@@ -210,19 +39,19 @@ $this->title = 'Create Form' . Html::encode($form_id);
             <?php $form = ActiveForm::begin(['options' => ['class' => 'form-group']]); ?>
 
             <div class="mb-3 form" style="display: flex; flex-direction: row">
-                <label class="label-text">ชื่อแฟ้ม <span class="text-danger">*</span>:</label>
-                <?= $form->field($model, 'form_name')->textInput(['maxlength' => true, 'class' => 'form-control', 'style'=> 'border-radius:20px; margin-top:-5px; margin-left:10px;'])->label(false) ?>
+                <label class="label-text-form">ชื่อแฟ้ม <span class="text-danger">*</span>:</label>
+                <?= $form->field($model, 'form_name')->textInput(['maxlength' => true, 'class' => 'form-control', 'style'=> 'border-radius:20px;margin-top:-5px; margin-left:10px;max-width:190px; font-size:16px'])->label(false) ?>
             </div>
 
             <div class="text-center">
-                <label class="label-text mb-2">จัดการการเข้าถึง</label>
+                <label class="label-text-form mb-2">จัดการการเข้าถึง</label>
             </div>
 
             <!-- เลือกแผนกที่สามารถกรอกข้อมูลได้ -->
             <div style="margin-bottom: 6px;">
-                <label class="label-content">เลือกแผนกที่สามารถกรอกข้อมูลได้<span class="text-warning">*</span></label>
+                <label class="label-content-form">เลือกแผนกที่สามารถกรอกข้อมูลได้<span class="text-danger">*</span></label>
                 <button class="btn btn-default btn-sort dropdown-toggle" data-bs-toggle="dropdown">
-                    ตัวเลือก <span class="caret"></span>
+                    ตัวเลือก
                 </button>
                 <ul class="dropdown-menu">
                     <li>
@@ -245,9 +74,9 @@ $this->title = 'Create Form' . Html::encode($form_id);
 
             <!-- เลือกแผนกที่สามารถดูข้อมูลได้ -->
             <div style="margin-bottom: 10px;">
-                <label class="label-content">เลือกแผนกที่สามารถดูข้อมูลได้<span class="text-warning">*</span></label>
+                <label class="label-content-form">เลือกแผนกที่สามารถดูข้อมูลได้<span class="text-danger">*</span></label>
                 <button class="btn btn-default btn-sort dropdown-toggle" data-bs-toggle="dropdown">
-                    ตัวเลือก <span class="caret"></span>
+                    ตัวเลือก
                 </button>
                 <ul class="dropdown-menu">
                     <li>
@@ -270,7 +99,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
 
             <!-- เลือกบุคคลที่สามารถดูข้อมูลได้ -->
             <div class="mb-3">
-                <label class="label-content">เลือกบุคคลที่สามารถดูข้อมูลได้</label>
+                <label class="label-content-form">เลือกบุคคลที่สามารถดูข้อมูลได้</label>
                 <input type="text" id="searchUser" class="form-control" style="margin-bottom: 5px; border-radius: 20px" placeholder="พิมพ์ชื่อเพื่อค้นหา...">
                 <select class="form-control" name="view_users[]" id="view_users" multiple>
                     <?php foreach ($users as $user) : ?>
@@ -284,11 +113,10 @@ $this->title = 'Create Form' . Html::encode($form_id);
                 </div>
             </div>
 
-            <div class="group-btn">
+            <div class="group-btn-setting">
                 <?= Html::a('ยกเลิก', ['home/delete-form', 'id' => $model->id], [
-                    'class' => 'btn-d-preview btn btn-cancel',
+                    'class' => 'btn-cancel-setting',
                     'data-confirm' => 'ยกเลิกการสร้างฟอร์มนี้?',
-                    'onclick' => 'return confirm("ยกเลิกการสร้างฟอร์มนี้?");'
                 ])?>
                 <div class="text-end">
                     <?= Html::submitButton('บันทึก', ['class' => 'btn btn-primary btn-save']) ?>

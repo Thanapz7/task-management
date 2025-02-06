@@ -1,9 +1,10 @@
 <?php
 
 use yii\helpers\Html;
-
+\app\assets\AppAsset::register($this);
 ?>
 
+<?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,23 +16,16 @@ use yii\helpers\Html;
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background-color: #ffffff;
-            color: black;
-            font-family: "Noto Sans Thai", serif;
-        }
-        .w-100{
-            width: 100%;
-        }
-    </style>
+<?php $this->head() ?>
 </head>
 <body>
+<?php $this->beginBody() ?>
     <div class="container-fluid">
         <?= $content ?>
     </div>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<?php $this->endBody() ?>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </body>
 </html>
+<?php $this->endPage() ?>

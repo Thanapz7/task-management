@@ -394,6 +394,7 @@ class HomeController extends Controller
 
     public function actionCreateForm($id)
     {
+        $this->layout = 'blank';
         $form = Forms::findOne($id);
 
         if (!$form) {
@@ -405,7 +406,6 @@ class HomeController extends Controller
             ->asArray()
             ->all();
 
-        $this->layout = 'blank_page';
         return $this->render('create-form', [
             'form' => $form,
             'formId' => $id,
@@ -431,7 +431,7 @@ class HomeController extends Controller
     //Login
     public function actionIndex()
     {
-        $this->layout = 'blank';
+        $this->layout = 'blank_page';
         $model = new LoginForm();
 
         // ตรวจสอบการกรอกข้อมูลจากฟอร์ม

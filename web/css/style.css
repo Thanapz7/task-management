@@ -11,7 +11,7 @@ body{
     font-size: 14px;
     color: #656565cc;
     cursor: pointer;
-    margin-top: -20px;
+    margin-top: -15px;
 }
 .forgot-pass:hover{
     color: #cc5555;
@@ -28,28 +28,32 @@ body{
     padding: 8px 23px;
     transition: 0.3s;
 }
-.btn-guest:hover{
+.logins .btn-guest:hover{
     transform: scale(1.15);
     color: #343a40;
     background-color: #73a68b;
 }
-.w-100{
+.logins .w-100{
     width: 100%;
 }
-.info-log{
+.logins .info-log{
     padding: 20px;
     display: flex;
     align-items: center;
     flex-direction: column;
     justify-content: center;
 }
-.logo {
+.logins .logo {
     color: #95D2B3;
     margin: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 100px;
+}
+.logins label.control-label {
+    font-size: 18px;
+    font-weight: bold;
 }
 .login {
     background-color: #ffffff;
@@ -66,10 +70,10 @@ body{
     flex-direction: column;
     align-items: center;
 }
-.login-form{
+.logins .login-form{
     color: #000000;
 }
-.form-group label{
+.login-form .form-group label{
     font-size: 18px;
     color: #343a40;
     font-weight: bold;
@@ -95,8 +99,9 @@ body{
     border-left: 10px solid white;
     height: 100%;
 }
-.form-control {
+.logins .form-control {
     border-radius: 20px;
+    font-size: 18px;
 }
 .password-input{
     position: relative;
@@ -104,7 +109,7 @@ body{
 .login-eye {
     position: absolute;
     right: 10px;
-    top: 47px;
+    top: 43px;
     font-size: 16px;
     color: #656565cc;
     cursor: pointer;
@@ -159,17 +164,17 @@ body{
 .text-header{
     font-size: 30px;
     font-weight: bold;
-    margin-top: 100px;
+    margin-top: 85px;
     margin-left: 30px;
 }
 /*work*/
 .folder{
     padding: 10px;
-    border: 1px solid #cccccc;
+    border: 1px solid #d9d9d9;
     border-radius: 15px;
     width:240px;
     height: 130px;
-    margin:25px;
+    margin: 15px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
     transition: 0.3s;
 }
@@ -183,8 +188,9 @@ body{
 .folder-head i{
     color: #95D2B3;
 }
-.folder-head-add{
-
+.folder .folder-head-add{
+    margin: auto;
+    display: block;
 }
 .folder-head-add i{
     font-size: 30px;
@@ -240,7 +246,7 @@ body{
     font-weight: bold;
 }
 .department{
-    font-size: 20px;
+    font-size: 17px;
 }
 .group-btn{
     display: flex;
@@ -317,6 +323,7 @@ button#openModalButton:hover{
 .search-bar{
     position: relative;
     margin-right: 10px;
+    margin-top: 10px;
 }
 .search{
     position: relative;
@@ -621,6 +628,9 @@ table th, table td {
     border: 1px solid #cccccc;
     border-radius: 20px;
 }
+.assignment-form .form-control{
+    border-radius: 20px;
+}
 .info h4{
     font-size: 18px;
     font-weight: bold;
@@ -779,6 +789,398 @@ img{
     text-decoration: underline;
     margin: auto;
 }
+.modal-content{
+    border-radius: 20px;
+}
+.modal-content .modal-footer .btn{
+    border-radius: 20px;
+    font-weight: bold;
+}
+.modal-content .dropdown-menu.show{
+    border-radius: 20px;
+}
+.modal-content .dropdown-item{
+    padding: 0;
+    margin-left: 10px;
+}
+.modal-content .dropdown-item label{
+    margin-bottom: 0;
+    font-weight: bold;
+}
+.p-lower{
+    font-size: 12px;
+    margin-top: -20px;
+    margin-left: 10px;
+    color: #cc5555
+}
+.font-min{
+    position: absolute;
+    font-size: 12px;
+    font-style: italic;
+    margin-left: 10px;
+}
+
+/*create form*/
+label{
+    font-weight: normal;
+}
+.back-icon{
+    margin-top: 10px;
+    margin-bottom: 0px;
+    margin-left: 20px;
+    font-size: 20px;
+    cursor: pointer;
+}
+.data-type{
+    padding: 20px;
+    border: none;
+    border-radius: 20px;
+    margin: 10px;
+    background-color: #e0e0e0;
+}
+.data-item{
+    margin-bottom: 10px;
+    border-bottom: 1px solid #cccccc;
+    cursor: grab;
+    transition: 0.25s;
+}
+.data-item:hover{
+    background-color: #cccccc;
+    border-radius: 10px;
+    padding: 8px;
+}
+.data-item i{
+    margin-right: 8px;
+}
+.form-preview{
+    margin-top: 10px;
+    padding: 10px;
+    height: 85vh;
+    overflow-y: auto;
+    border: 2px dashed #cccccc;
+    border-radius: 20px;
+}
+.form-preview .form-control{
+    border-radius: 20px;
+}
+.form-preview input,
+.form-preview select,
+.form-preview textarea,
+.form-preview  label{
+    font-size: 16px;
+}
+.form-item {
+    font-size: 16px;
+    margin-bottom: 5px;
+    padding: 10px;
+    position: relative;
+}
+.form-item .field-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.form-item .field-actions {
+    display: flex;
+    gap: 5px;
+}
+.form-item .field-actions i {
+    cursor: pointer;
+}
+.form-item .field-actions .edit-icon {
+    color: #5bc0de;
+}
+.form-item .field-actions .delete-icon {
+    color: #d9534f;
+}
+.form-item .field-actions .access-icon {
+    color: #f0ad4e;
+}
+.list-group-item{
+    display: flex;
+}
+.input-group-add{
+    display: flex;
+    flex-direction: row;
+}
+.field-input{
+    display: flex;
+    flex-direction: column;
+}
+.btn-sort{
+    border-radius: 20px;
+    box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
+    margin-top: 12px;
+}
+.btn-next-ct {
+    position: absolute; /* ใช้ absolute positioning สำหรับปุ่ม */
+    top:88vh;
+    right: 40px;
+    background-color: #6DB2E5;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    border-radius: 5px;
+    border: 1px solid #ffffff;
+    border-radius: 20px;
+    background-color: #6DB2E5;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 5px 25px ;
+}
+.btn-next:hover{
+    background-color: #6DB2E5;
+    color: #000000;
+    opacity: 0.8;
+}
+.modal-content{
+    border-radius: 20px;
+}
+.modal-content .btn{
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+/*form-setting*/
+.back-icon{
+    margin-top: 10px;
+    margin-bottom: 0px;
+    margin-left: 20px;
+    font-size: 20px;
+    cursor: pointer;
+}
+.form-setting{
+    overflow-y: auto;
+    height: 85vh;
+    padding: 20px;
+    border: none;
+    border-radius: 20px;
+    margin: 10px;
+    background-color: #e0e0e0;
+}
+.form-setting input{
+    font-size: 16px;
+}
+.form-preview{
+    margin-top: 10px;
+    padding: 20px;
+    height: 85vh;
+    overflow-y: auto;
+    border: 2px dashed #cccccc;
+    border-radius: 20px;
+}
+.form-item {
+    font-size: 16px;
+    margin-bottom: 5px;
+    padding: 10px;
+    position: relative;
+}
+.form-item .field-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.form-item .field-actions {
+    display: flex;
+    gap: 5px;
+}
+.form-item .field-actions i {
+    cursor: pointer;
+}
+.form-item .field-actions .edit-icon {
+    color: #5bc0de;
+}
+.form-item .field-actions .delete-icon {
+    color: #d9534f;
+}
+.form-item .field-actions .access-icon {
+    color: #f0ad4e;
+}
+.list-group-item{
+    display: flex;
+}
+.input-group-add{
+    display: flex;
+    flex-direction: row;
+}
+.field-input{
+    display: flex;
+    flex-direction: column;
+}
+.field-label{
+    font-size: 16px;
+    font-weight: bold;
+}
+/*.field-input .form-control{*/
+/*    margin-bottom: 20px;*/
+/*}*/
+.form-preview .form-control input,
+.form-preview .form-control textarea{
+    height: 100px;
+}
+.form-setting .btn-sort{
+    border-radius: 20px;
+    box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
+    margin-top: 12px;
+    font-size: 16px;
+    background-color: #ffffff;
+    margin-top: -4px;
+}
+.label-text-form{
+    font-size: 18px;
+    font-weight: bold;
+}
+.label-content-form{
+    font-size: 16px;
+    font-weight: 500;
+}
+.radio{
+    display: inline-flex;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 2px 0 0 rgba(0,0,0,0.2);
+}
+.form-horizontal .checkbox, .form-horizontal .checkbox-inline, .form-horizontal .radio, .form-horizontal .radio-inline {
+    padding-top: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.radio-input{
+    display: none;
+}
+.radio-label{
+    padding: 7px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #95D2B3;
+    cursor: pointer;
+    transition: 0.1s;
+}
+.radio-label:not(:last-of-type){
+    border-right: 1px solid #a6a6a6;
+}
+.radio-input:checked + .radio-label{
+    background-color: #55AD9B;
+}
+.group-btn-setting{
+    position: absolute; /* ใช้ absolute positioning สำหรับปุ่ม */
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+}
+.btn-save {
+    border: 1px solid #ffffff;
+    border-radius: 20px;
+    background-color: #55AD9B;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 5px 25px ;
+}
+.btn-cancel-setting{
+    border: 1px solid #ffffff;
+    border-radius: 20px;
+    background-color: #cc5555;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 5px 25px ;
+    margin-right: 5px;
+}
+.btn-save:hover{
+    background-color: #55AD9B;
+    color: #ffffff;
+    opacity: 0.8;
+}
+.btn-cancel-setting:hover{
+    background-color: #cc5555;
+    color: #ffffff;
+    opacity: 0.8;
+    text-decoration: none;
+}
+.add-people{
+    width: 100px;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #cccccc;
+    border-radius: 20px;
+    bottom: 10px;
+}
+.form-control#view_users{
+    border-radius: 15px;
+    height: 150px;
+    font-size: 16px;
+}
+.font-min{
+    font-size: 14px;
+    font-style: italic;
+    margin-left: 10px;
+}
+ul.dropdown-menu.show {
+    border-radius: 20px;
+    font-size: 16px;
+}
+.dropdown-menu li {
+    margin-left: 10px;
+    margin-bottom: -8px;
+}
+
+/*work-detail*/
+.back-btn{
+    margin-left: 20px;
+    margin-top: 20px;
+    font-size: 20px;
+    border: none;
+    background: none;
+    transition: 0.3s;
+}
+.back-btn:hover{
+    transform: scale(1.2);
+}
+.detail-preview{
+    overflow-y: auto;
+    width: 90vw;
+    height: 80vh;
+    border: 1px solid #cccccc;
+    border-radius: 20px;
+    margin: 20px;
+    padding: 20px;
+}
+.btn-d-preview{
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px;
+    width: 120px;
+    border-radius: 30px;
+    border: 1px solid #ffffff;
+}
+.btn-d-preview:hover{
+    opacity: 0.7;
+}
+.btn-preview-detail{
+    color: #ffffff;
+    background-color: #F0B754;
+}
+.info h4{
+    font-size: 18px;
+    font-weight: bold;
+}
+.field-name{
+    font-size: 16px;
+    font-weight: bold;
+}
+.value{
+    font-size: 14px;
+    border: 1px solid rgba(204, 204, 204, 0.74);
+    border-radius: 10px;
+    padding: 10px;
+}
+.pad-lr20{
+    padding-left: 100px;
+    padding-right: 100px;
+}
 
 /* On small screens, set height to 'auto' for sidenav and grid */
 @media screen and (max-width: 767px) {
@@ -787,6 +1189,28 @@ img{
         padding: 15px;
     }
     .row.content {height: auto;}
+    .logout, .logo{
+        margin: 0;
+    }
+    .nav{
+        margin-top: -30px;
+    }
+    .text-header{
+        margin-top: 10px;
+    }
+    .folder{
+        margin: 5px;
+    }
+    .search-group{
+        display: block;
+        flex-direction: column;
+    }
+    .search-icon {
+        display: none;
+    }
+    .search-bar .search{
+        margin-bottom: 10px;
+    }
 }
 
 @media print {
@@ -808,5 +1232,18 @@ img{
     }
     .show-info{
         display: none;
+    }
+    .back-btn,
+    .show-info{
+        display: none;
+    }
+    .btn-d-preview{
+        display: none;
+    }
+    .detail-preview{
+        width: 100%;
+        height: auto;
+        margin: 0;
+        padding: 10px;
     }
 }

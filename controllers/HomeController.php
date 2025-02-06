@@ -88,6 +88,12 @@ class HomeController extends Controller
         $users = Users::find()->all();
         $userID = Yii::$app->user->id;
 
+        $fields = (new \yii\db\Query())
+            ->select(['field_name'])
+            ->from('fields')
+            ->innerJoin('forms', 'forms.id = fields.form_id') // เชื่อมกับตาราง forms
+            ->where(['forms.id' => $id]) // กรองข้อมูลโดยใช้ form_id
+            ->all();
 
         // การคิวรีข้อมูลที่เกี่ยวข้อง
         $query = (new \yii\db\Query())
@@ -273,6 +279,7 @@ class HomeController extends Controller
             'view_privilege' => $view_privilege,
             'submit_privilege' => $submit_privilege,
             'person_privilege' => $person_privilege,
+            'fields' => $fields,
         ]);
     }
 

@@ -1211,6 +1211,9 @@ ul.dropdown-menu.show {
     .search-bar .search{
         margin-bottom: 10px;
     }
+    .btn-next {
+        right: 10px;
+    }
 }
 
 @media print {

@@ -66,7 +66,7 @@ $config = [
                     // ดึงข้อมูลผู้ใช้จาก Users model
                     $user = Yii::$app->user->identity;  // ใช้ model ชื่อ Users
                     // ดึง username จาก Users model
-                    $username = $user->username;
+                    $username = $user->name;
                     // ดึงชื่อแผนกจากความสัมพันธ์ใน model
                     $departmentName = $user->departmentRelation ? $user->departmentRelation->department_name : 'บุคคลภายนอก';
                     // ส่งค่าชื่อผู้ใช้และชื่อแผนกไปยัง params

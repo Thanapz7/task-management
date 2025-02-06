@@ -247,7 +247,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
         <button class="btn btn-default btn-sort dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="fa-solid fa-bars"></i> รูปแบบการแสดงผล <span class="caret"></span>
         </button>
-        <div class="dropdown-menu">
+        <div class="dropdown-menu" style="border-radius:20px">
             <div class="dropdown-item">
                 <?= Html::a('<i class="fa-solid fa-table" style="margin-right: 5px;"></i> ตาราง', ['home/work-detail', 'id' => $form->id, 'viewType' => 'table'], ['class' => 'submenu-link']) ?>
             </div>

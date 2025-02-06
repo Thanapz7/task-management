@@ -52,6 +52,9 @@ $this->title = 'สร้างฟอร์ม';
         border: 2px dashed #cccccc;
         border-radius: 20px;
     }
+    .form-preview .form-control{
+        border-radius: 20px;
+    }
     .form-item {
         font-size: 16px;
         margin-bottom: 5px;
@@ -123,6 +126,12 @@ $this->title = 'สร้างฟอร์ม';
     .modal-content .btn{
         border-radius: 20px;
         font-weight: bold;
+    }
+
+    @media screen and (max-width: 767px) {
+        .btn-next {
+            right: 10px;
+        }
     }
 </style>
 <div>

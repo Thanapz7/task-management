@@ -276,6 +276,34 @@ class HomeController extends Controller
         ]);
     }
 
+    public function actionGetSelectedPermissions()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $formId = Yii::$app->request->get('form_id');
+
+
+        $view_privilege = (new \yii\db\Query())
+            ->select(['department.department_name', 'department.id'])
+            ->from('form_view_permissions')
+            ->innerJoin('department', 'form_view_permissions.department_id = department.id')
+            ->where(['form_view_permissions.can_view' => 1])
+            ->andWhere(['form_view_permissions.form_id' => $formId])
+            ->all();
+        $submit_privilege = (new \yii\db\Query())
+            ->select(['department.department_name', 'department.id'])
+            ->from('department_submission_permissions')
+            ->innerJoin('department', 'department_submission_permissions.department_id = department.id')
+            ->where(['department_submission_permissions.can_submit' => 1])
+            ->andWhere(['department_submission_permissions.form_id' => $formId])
+            ->all();
+
+        return [
+            'status' => 'success',
+            'view_privilege' => $view_privilege,
+            'submit_privilege' => $submit_privilege,
+        ];
+    }
+
     public function actionUpdateDepartment()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;

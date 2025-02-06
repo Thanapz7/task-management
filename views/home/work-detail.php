@@ -83,7 +83,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                             <button class="btn btn-default btn-sort dropdown-toggle" type="button" id="dropdownDepartments" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 ตัวเลือก
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownDepartments">
+                            <ul class="dropdown-menu" aria-labelledby="dropdownDepartments" id="submitDepartmentsList">
                                 <li>
                                     <label class="dropdown-item">
                                         <input type="checkbox" id="select-all-departments-checkbox">
@@ -130,7 +130,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                             <button class="btn btn-default btn-sort dropdown-toggle" type="button" id="dropdownViewDepartments" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 ตัวเลือก
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownViewDepartments">
+                            <ul class="dropdown-menu" aria-labelledby="dropdownViewDepartments" id="viewDepartmentsList">
                                 <li>
                                     <label class="dropdown-item">
                                         <input type="checkbox" id="select-all-view-departments-checkbox">
@@ -421,54 +421,89 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 
 <script>
     <!-- JavaScript ส่วนการใช้งาน AJAX -->
-        $(document).ready(function() {
-        $('.save-permission').on('click', function(e) {  // ใช้ class แทน ID
-            e.preventDefault(); // ป้องกันการทำงานปกติของปุ่ม
+    $(document).ready(function () {
+        var formId = document.getElementById("formId").value;
 
-            // var formId = $('#formId').val(); // ตรวจสอบว่า input นี้มีอยู่จริง
-            var formId = document.getElementById('formId').value;
+        // ✅ โหลดค่าที่เคยถูกเลือกไว้และติ๊ก checkbox
+        $.ajax({
+            url: "<?= Yii::$app->urlManager->createUrl(['home/get-selected-permissions']) ?>",
+            type: "GET",
+            data: { form_id: formId },
+            success: function (response) {
+                if (response.status === "success") {
+                    var viewDepartments = response.view_privilege.map(dep => parseInt(dep.id)); // แปลงค่าให้เป็น int
+                    var submitDepartments = response.submit_privilege.map(dep => parseInt(dep.id));
+
+                    $("input[name='view_departments[]']").each(function () {
+                        if (viewDepartments.includes(parseInt($(this).val()))) {
+                            $(this).prop("checked", true);
+                        }
+                    });
+
+                    $("input[name='departments[]']").each(function () {
+                        if (submitDepartments.includes(parseInt($(this).val()))) {
+                            $(this).prop("checked", true);
+                        }
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log("Error:", error);
+            }
+        });
+
+        // ✅ เมื่อกดปุ่ม "บันทึกสิทธิ์" ให้ส่งค่าใหม่ไปอัปเดต
+        $('.save-permission').on('click', function (e) {
+            e.preventDefault(); // ป้องกันการรีเฟรชหน้า
+
+            var formId = document.getElementById("formId").value;
             var departments = [];
             var viewDepartments = [];
             var viewUsers = [];
 
             // เก็บค่าจาก checkbox ของแผนกที่สามารถกรอกข้อมูล
-            $('input[name="departments[]"]:checked').each(function() {
+            $("input[name='departments[]']:checked").each(function () {
                 departments.push($(this).val());
             });
+
             // เก็บค่าจาก checkbox ของแผนกที่สามารถดูข้อมูล
-            $('input[name="view_departments[]"]:checked').each(function() {
+            $("input[name='view_departments[]']:checked").each(function () {
                 viewDepartments.push($(this).val());
             });
+
             // เก็บค่าจาก select ผู้ใช้ที่สามารถดูข้อมูล
-            $('#view_users option:selected').each(function() {
+            $("#view_users option:selected").each(function () {
                 viewUsers.push($(this).val());
             });
-            // ส่งข้อมูล AJAX
+
+            // ส่งข้อมูล AJAX ไปบันทึกสิทธิ์
             $.ajax({
-                url: "<?= Yii::$app->urlManager->createUrl(['home/update-permissions']) ?>",                type: 'POST',
+                url: "<?= Yii::$app->urlManager->createUrl(['home/update-permissions']) ?>",
+                type: "POST",
                 data: {
-                    _csrf: "<?= Yii::$app->request->csrfToken ?>",  // เพิ่ม CSRF Token
+                    _csrf: "<?= Yii::$app->request->csrfToken ?>", // ป้องกัน CSRF
                     form_id: formId,
                     departments: departments,
                     view_departments: viewDepartments,
                     view_users: viewUsers
                 },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        alert('อัปเดตสิทธิ์เรียบร้อย');
+                success: function (response) {
+                    if (response.status === "success") {
+                        alert("อัปเดตสิทธิ์เรียบร้อย");
                         location.reload();
                     } else {
-                        alert('เกิดข้อผิดพลาด: ' + response.message);
+                        alert("เกิดข้อผิดพลาด: " + response.message);
                     }
                 },
-                error: function(xhr, status, error) {
-                    console.log('Error: ' + error);
+                error: function (xhr, status, error) {
+                    console.log("Error: " + error);
                     console.log("XHR:", xhr.responseText);
-                    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+                    alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
                 }
             });
         });
     });
+
 
     document.addEventListener("DOMContentLoaded", function () {
         // ป้องกันการปิด dropdown เมื่อคลิกที่ submenu

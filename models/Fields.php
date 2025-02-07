@@ -90,4 +90,8 @@ class Fields extends \yii\db\ActiveRecord
         return $this->hasOne(Forms::className(), ['id' => 'form_id']);
     }
 
+//    public function getFieldFilters()
+//    {
+//        return $this->hasMany(FieldFilters::className(), ['field_name' => 'id']);
+//    }
 }

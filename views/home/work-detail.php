@@ -11,6 +11,7 @@ use yii\widgets\ActiveForm;
 
 $this->title='รายละเอียดงาน '. $form['form_name'];
 ?>
+<meta name="csrf-token" content="<?= Yii::$app->request->csrfToken ?>">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <?php
 $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
@@ -217,13 +218,40 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             <i class="fa-solid fa-eye-slash"></i>
             <span class="caret"></span>
         </button>
+<!--        <ul class="dropdown-menu">-->
+<!--            <div class="dropdown-search" style="margin-bottom: 5px;">-->
+<!--                <input type="search" id="fieldSearch" placeholder="ค้นหา fields">-->
+<!--                <i class="fa-solid fa-magnifying-glass search-icon"></i>-->
+<!--            </div>-->
+<!--            --><?php //if (!empty($fields)): ?>
+<!--            --><?php //var_dump($fields); ?>
+<!--                --><?php //foreach ($fields as $fieldName => $fieldValue): ?>
+<!--                    <li class="each-field">-->
+<!--                        <label class="switch submenu-link mb-0">-->
+<!--                            <input type="checkbox" class="field-toggle" data-field="--><?php //= Html::encode($fieldName) ?><!--" checked>-->
+<!--                            <span class="slider round"></span>-->
+<!--                        </label>-->
+<!--                        <p class="field-name">--><?php //= Html::encode($fieldName) ?><!--</p>-->
+<!--                    </li>-->
+<!--                --><?php //endforeach; ?>
+<!--            --><?php //else: ?>
+<!--                <li class="each-field">-->
+<!--                    <p>ไม่มีฟิลด์ในฟอร์มนี้</p>-->
+<!--                </li>-->
+<!--            --><?php //endif; ?>
+<!--            <div class="btn-sort-each">-->
+<!--                <button type="button" class="btn btn-cus" id="hideAllFields">Hide All</button>-->
+<!--                <button type="button" class="btn btn-cus" id="showAllFields">Show All</button>-->
+<!--            </div>-->
+<!--        </ul>-->
+
         <ul class="dropdown-menu">
             <div class="dropdown-search" style="margin-bottom: 5px;">
                 <input type="search" id="fieldSearch" placeholder="ค้นหา fields">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
             </div>
             <?php if (!empty($fields)): ?>
-                <?php foreach ($fields as $fieldName => $fieldValue): ?>
+                <?php foreach ($fields as $fieldName => $value): ?>
                     <li class="each-field">
                         <label class="switch submenu-link mb-0">
                             <input type="checkbox" class="field-toggle" data-field="<?= Html::encode($fieldName) ?>" checked>
@@ -237,6 +265,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                     <p>ไม่มีฟิลด์ในฟอร์มนี้</p>
                 </li>
             <?php endif; ?>
+
             <div class="btn-sort-each">
                 <button type="button" class="btn btn-cus" id="hideAllFields">Hide All</button>
                 <button type="button" class="btn btn-cus" id="showAllFields">Show All</button>
@@ -536,21 +565,49 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                 }
             });
         });
+
         // ตรวจสอบการเลือกแสดง/ซ่อนคอลัมน์
+        //let fieldToggles = document.querySelectorAll('.field-toggle');
+        //fieldToggles.forEach(function(toggle) {
+        //    toggle.addEventListener('change', function() {
+        //        let fieldName = this.getAttribute('data-field');
+        //        let isChecked = this.checked;
+        //        console.log("Toggled: " + fieldName + " Checked: " + isChecked);
+        //
+        //        let columnElements = document.querySelectorAll(`.field-column-${fieldName}`);
+        //        columnElements.forEach(function(columnElement) {
+        //            if (isChecked) {
+        //                columnElement.style.display = ''; // แสดงคอลัมน์
+        //            } else {
+        //                columnElement.style.display = 'none'; // ซ่อนคอลัมน์
+        //            }
+        //        });
+        //        //ส่งข้อมูลไปบันทึกที่ฐานข้อมูล
+        //        let formId = <?php //= $formId?>//;
+        //        let userId = <?php //= Yii::$app->user->id?>//;
+        //        updateFieldVisibility(fieldName, isChecked ? 1 : 0, formId, userId)
+        //    });
+        //});
+
         let fieldToggles = document.querySelectorAll('.field-toggle');
         fieldToggles.forEach(function(toggle) {
+            let fieldName = toggle.getAttribute('data-field');
+            let columnElements = document.querySelectorAll(`.field-column-${fieldName}`);
+
+            // ซ่อนคอลัมน์ตั้งแต่เริ่มต้นหาก checkbox ไม่ถูกเลือก
+            if (!toggle.checked) {
+                columnElements.forEach(column => column.style.display = 'none');
+            }
+
             toggle.addEventListener('change', function() {
-                let fieldName = this.getAttribute('data-field');
                 let isChecked = this.checked;
-                console.log("Toggled: " + fieldName + " Checked: " + isChecked);
-                let columnElements = document.querySelectorAll(`.field-column-${fieldName}`);
-                columnElements.forEach(function(columnElement) {
-                    if (isChecked) {
-                        columnElement.style.display = ''; // แสดงคอลัมน์
-                    } else {
-                        columnElement.style.display = 'none'; // ซ่อนคอลัมน์
-                    }
+                columnElements.forEach(column => {
+                    column.style.display = isChecked ? '' : 'none';
                 });
+
+                let formId = <?= $formId?>;
+                let userId = <?= Yii::$app->user->id?>;
+                updateFieldVisibility(fieldName, isChecked ? 1 : 0, formId, userId);
             });
         });
 
@@ -559,6 +616,10 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             let fieldToggles = document.querySelectorAll('.field-toggle');
             fieldToggles.forEach(function(toggle) {
                 toggle.checked = false;
+                let fieldName = toggle.getAttribute('data-field');
+                let formId = <?= $formId?>;
+                let userId = <?= Yii::$app->user->id ?>;
+                updateFieldVisibility(fieldName, 0, formId, userId)
             });
             let allColumns = document.querySelectorAll('[class^="field-column-"]');
             allColumns.forEach(function (column){
@@ -571,12 +632,38 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             let fieldToggles = document.querySelectorAll('.field-toggle');
             fieldToggles.forEach(function(toggle) {
                 toggle.checked = true;
+                let fieldName = toggle.getAttribute('data-field');
+                let formId = <?= $formId?>;
+                let userId = <?= Yii::$app->user->id ?>;
+                updateFieldVisibility(fieldName, 1, formId, userId);
+
             });
             let allColumns = document.querySelectorAll('[class^="field-column-"]');
             allColumns.forEach(function (column){
                 column.style.display = '';
             });
         });
+
+        function updateFieldVisibility(fieldName, isVisible, formId, userId) {
+            $.ajax({
+                url: '/update-visibility', // URL สำหรับอัปเดตข้อมูล
+                method: 'POST',
+                data: {
+                    _csrf: $('meta[name="csrf-token"]').attr('content'), // เพิ่ม CSRF Token
+                    fieldName: fieldName,
+                    isVisible: isVisible,
+                    formId: formId,
+                    userId: userId
+                },
+                success: function(response) {
+                    console.log('อัปเดตสถานะฟิลด์เรียบร้อยแล้ว');
+                },
+                error: function(error) {
+                    console.error('เกิดข้อผิดพลาดในการอัปเดตสถานะฟิลด์', error);
+                }
+            });
+        }
+
     });
 
     //  Search

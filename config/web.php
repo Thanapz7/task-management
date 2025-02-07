@@ -57,6 +57,8 @@ $config = [
 //                'user/update/<id:\d+>' => 'user/update',
 ////                'user/view/<id:\d+>' => 'user/view',
 //                'user/view-all' => 'user/view-all',
+                'update-visibility' => 'home/update-visibility',
+
             ],
         ],
         'view' => [

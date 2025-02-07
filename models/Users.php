@@ -133,4 +133,8 @@ class Users extends \yii\db\ActiveRecord implements IdentityInterface
         return $this->hasMany(Forms::class, ['user_id' => 'id']);
     }
 
+    public function getFieldFilters()
+    {
+        return $this->hasMany(FieldFilters::class, ['user_id' => 'id']);
+    }
 }

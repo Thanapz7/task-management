@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\FieldFilters;
 use app\models\Department;
 use app\models\DepartmentSubmissionPermissions;
 use app\models\FieldValues;
@@ -94,6 +95,19 @@ class HomeController extends Controller
             ->innerJoin('forms', 'forms.id = fields.form_id') // เชื่อมกับตาราง forms
             ->where(['forms.id' => $id]) // กรองข้อมูลโดยใช้ form_id
             ->all();
+
+//        $userId = Yii::$app->user->id;
+//        // คิวรีข้อมูลฟิลด์ที่เกี่ยวข้อง
+//        $fields = (new \yii\db\Query())
+//            ->select([
+//                'fields.field_name',
+//                'COALESCE(field_filters.is_visible, fields.is_visible) AS is_visible'
+//            ])
+//            ->from('fields')
+//            ->innerJoin('forms', 'forms.id = fields.form_id') // เชื่อมกับตาราง forms
+//            ->leftJoin('field_filters', 'fields.field_name = field_filters.field_name AND field_filters.user_id = :userId', [':userId' => $userId])
+//            ->where(['forms.id' => $id]) // กรองข้อมูลโดยใช้ form_id
+//            ->all();
 
         // การคิวรีข้อมูลที่เกี่ยวข้อง
         $query = (new \yii\db\Query())
@@ -247,7 +261,6 @@ class HomeController extends Controller
                     'end' => $endDate,
                 ];
             }
-
         }
 
         // สร้าง data provider
@@ -309,6 +322,43 @@ class HomeController extends Controller
             'view_privilege' => $view_privilege,
             'submit_privilege' => $submit_privilege,
         ];
+    }
+
+    public function actionUpdateVisibility()
+    {
+        $request = Yii::$app->request;
+        $fieldName = $request->post('fieldName');
+        $isVisible = $request->post('isVisible');
+        $formId = $request->post('formId');
+        $userId = $request->post('userId');
+
+        // ตรวจสอบว่ามีการแก้ไขมาก่อนหรือไม่
+        $fieldFilter = FieldFilters::find()
+            ->where([
+                'field_name' => $fieldName,
+                'form_id' => $formId,
+                'user_id' => $userId,
+            ])
+            ->one();
+
+        if ($fieldFilter) {
+            // ถ้ามีการแก้ไขมาก่อน ให้อัปเดตค่า is_visible
+            $fieldFilter->is_visible = $isVisible;
+        } else {
+            // ถ้าเป็นการแก้ไขครั้งแรก ให้สร้าง record ใหม่
+            $fieldFilter = new FieldFilters();
+            $fieldFilter->field_name = $fieldName;
+            $fieldFilter->form_id = $formId;
+            $fieldFilter->user_id = $userId;
+            $fieldFilter->is_visible = $isVisible;
+        }
+
+        // บันทึกข้อมูล
+        if ($fieldFilter->save()) {
+            return json_encode(['status' => 'success', 'message' => 'อัปเดตสถานะฟิลด์เรียบร้อยแล้ว']);
+        } else {
+            return json_encode(['status' => 'error', 'message' => 'เกิดข้อผิดพลาดในการอัปเดตสถานะฟิลด์']);
+        }
     }
 
     public function actionUpdateDepartment()

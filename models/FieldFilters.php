@@ -8,8 +8,9 @@ use Yii;
  * This is the model class for table "field_filters".
  *
  * @property int $id
+ * @property int $form_id
  * @property int $user_id
- * @property int $field_id
+ * @property string $field_name
  * @property int $is_visible 1 = แสดง , 0 = ซ่อน
  */
 class FieldFilters extends \yii\db\ActiveRecord
@@ -28,8 +29,9 @@ class FieldFilters extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'field_id', 'is_visible'], 'required'],
-            [['user_id', 'field_id', 'is_visible'], 'integer'],
+            [['user_id', 'is_visible', 'form_id'], 'required'],
+            [['user_id', 'is_visible', 'form_id'], 'integer'],
+            [['field_name'], 'string', 'max' => 255],
         ];
     }
 
@@ -40,8 +42,9 @@ class FieldFilters extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
+            'form_id' => 'Form ID',
             'user_id' => 'User ID',
-            'field_id' => 'Field ID',
+            'field_name' => 'Field Name',
             'is_visible' => 'Is Visible',
         ];
     }

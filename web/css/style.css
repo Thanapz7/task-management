@@ -101,7 +101,7 @@ body{
 }
 .logins .form-control {
     border-radius: 20px;
-    font-size: 18px;
+    font-size: 16px;
 }
 .password-input{
     position: relative;
@@ -837,6 +837,7 @@ label{
     border-radius: 20px;
     margin: 10px;
     background-color: #e0e0e0;
+    height: 85vh;
 }
 .data-item{
     margin-bottom: 10px;
@@ -1213,6 +1214,9 @@ ul.dropdown-menu.show {
     }
     .btn-next {
         right: 10px;
+    }
+    .data-type{
+        height: auto;
     }
 }
 

@@ -89,25 +89,25 @@ class HomeController extends Controller
         $users = Users::find()->all();
         $userID = Yii::$app->user->id;
 
-        $fields = (new \yii\db\Query())
-            ->select(['field_name'])
-            ->from('fields')
-            ->innerJoin('forms', 'forms.id = fields.form_id') // เชื่อมกับตาราง forms
-            ->where(['forms.id' => $id]) // กรองข้อมูลโดยใช้ form_id
-            ->all();
+//        $fields = (new \yii\db\Query())
+//            ->select(['field_name'])
+//            ->from('fields')
+//            ->innerJoin('forms', 'forms.id = fields.form_id') // เชื่อมกับตาราง forms
+//            ->where(['forms.id' => $id]) // กรองข้อมูลโดยใช้ form_id
+//            ->all();
 
 //        $userId = Yii::$app->user->id;
 //        // คิวรีข้อมูลฟิลด์ที่เกี่ยวข้อง
-//        $fields = (new \yii\db\Query())
-//            ->select([
-//                'fields.field_name',
-//                'COALESCE(field_filters.is_visible, fields.is_visible) AS is_visible'
-//            ])
-//            ->from('fields')
-//            ->innerJoin('forms', 'forms.id = fields.form_id') // เชื่อมกับตาราง forms
-//            ->leftJoin('field_filters', 'fields.field_name = field_filters.field_name AND field_filters.user_id = :userId', [':userId' => $userId])
-//            ->where(['forms.id' => $id]) // กรองข้อมูลโดยใช้ form_id
-//            ->all();
+        $fields = (new \yii\db\Query())
+            ->select([
+                'fields.field_name',
+                'COALESCE(field_filters.is_visible, fields.is_visible) AS is_visible'
+            ])
+            ->from('fields')
+            ->innerJoin('forms', 'forms.id = fields.form_id')
+            ->leftJoin('field_filters', 'fields.field_name COLLATE utf8_general_ci = field_filters.field_name COLLATE utf8_general_ci AND field_filters.user_id = :userId', [':userId' => $userID])
+            ->where(['forms.id' => $id])
+            ->all();
 
         // การคิวรีข้อมูลที่เกี่ยวข้อง
         $query = (new \yii\db\Query())
@@ -159,6 +159,11 @@ class HomeController extends Controller
             ->innerJoin('department', 'department_submission_permissions.department_id = department.id')
             ->where(['department_submission_permissions.can_submit' => 1])
             ->andWhere(['department_submission_permissions.form_id' => $id])
+            ->all();
+
+        $field_check = FieldFilters::find()
+            ->where(['form_id' => $id, 'user_id' => $userID])
+            ->asArray()
             ->all();
 
         if (empty($query)) {
@@ -293,6 +298,7 @@ class HomeController extends Controller
             'submit_privilege' => $submit_privilege,
             'person_privilege' => $person_privilege,
             'fields' => $fields,
+            'field_check' => $field_check,
         ]);
     }
 
@@ -438,7 +444,7 @@ class HomeController extends Controller
         $forms = Forms::find()
             ->select(['forms.*', 'users.department'])
             ->joinWith('users')
-            ->where(['forms.id' => [237, 1, 152]])
+            ->where(['forms.id' => [237, 1, 146]])
             ->all();
 
         $this->layout = 'layout';

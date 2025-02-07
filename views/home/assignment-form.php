@@ -83,7 +83,7 @@ $this->title = 'Assignment Form';
                         if (is_array($options)) {
                             foreach ($options as $option): ?>
                                 <label>
-                                    <input type="checkbox" name="DynamicForm[<?= $field['id'] ?>][]" value="<?= Html::encode($option) ?>" required> <?= Html::encode($option) ?>
+                                    <input type="checkbox" name="DynamicForm[<?= $field['id'] ?>][]" value="<?= Html::encode($option) ?>"> <?= Html::encode($option) ?>
                                 </label>
                             <?php endforeach;
                         } else {

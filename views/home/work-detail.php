@@ -244,7 +244,6 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 <!--                <button type="button" class="btn btn-cus" id="showAllFields">Show All</button>-->
 <!--            </div>-->
 <!--        </ul>-->
-
         <ul class="dropdown-menu">
             <div class="dropdown-search" style="margin-bottom: 5px;">
                 <input type="search" id="fieldSearch" placeholder="ค้นหา fields">
@@ -252,9 +251,18 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             </div>
             <?php if (!empty($fields)): ?>
                 <?php foreach ($fields as $fieldName => $value): ?>
+                <?php
+                    $isVisible = 1;
+                    foreach ($field_check as $fieldCheck) {
+                        if($fieldCheck['field_name'] === $fieldName){
+                            $isVisible = $fieldCheck['is_visible'];
+                            break;
+                        }
+                    }
+                ?>
                     <li class="each-field">
                         <label class="switch submenu-link mb-0">
-                            <input type="checkbox" class="field-toggle" data-field="<?= Html::encode($fieldName) ?>" checked>
+                            <input type="checkbox" class="field-toggle" data-field="<?= Html::encode($fieldName) ?>" <?= $isVisible ? 'checked' : '' ?>>
                             <span class="slider round"></span>
                         </label>
                         <p class="field-name"><?= Html::encode($fieldName) ?></p>
@@ -646,7 +654,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 
         function updateFieldVisibility(fieldName, isVisible, formId, userId) {
             $.ajax({
-                url: '/update-visibility', // URL สำหรับอัปเดตข้อมูล
+                url: '../home/update-visibility', // URL สำหรับอัปเดตข้อมูล
                 method: 'POST',
                 data: {
                     _csrf: $('meta[name="csrf-token"]').attr('content'), // เพิ่ม CSRF Token
@@ -660,6 +668,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                 },
                 error: function(error) {
                     console.error('เกิดข้อผิดพลาดในการอัปเดตสถานะฟิลด์', error);
+                    console.log(error.responseText);
                 }
             });
         }

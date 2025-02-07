@@ -29,6 +29,7 @@ $this->title = 'สร้างฟอร์ม';
         border-radius: 20px;
         margin: 10px;
         background-color: #e0e0e0;
+        height: 85vh;
     }
     .data-item{
         margin-bottom: 10px;
@@ -131,6 +132,9 @@ $this->title = 'สร้างฟอร์ม';
     @media screen and (max-width: 767px) {
         .btn-next {
             right: 10px;
+        }
+        .data-type{
+            height: auto;
         }
     }
 </style>

@@ -8,7 +8,8 @@ AppAsset::register($this);
     <div class="container-fluid logins">
         <div class="row w-100">
             <div class="col-md-6 info-log text-center">
-                    <h2 style="font-size: 20px">ระบบจัดการงาน <i class="fa-solid fa-briefcase"></i></h2>
+                <h2 style="font-size: 20px">ระบบจัดการงาน <i class="fa-solid fa-briefcase"></i></h2>
+                <?= Html::img('@web/images/planning.jpg', ['alt' => 'logo', 'class' => 'img-responsive', 'style'=>'width:500px; border-radius:15px']) ?>
                 <p>แพลตฟอร์มที่มีความแข็งแกร่งและใช้งานง่าย ออกแบบมาเพื่อทำให้การมอบหมายงาน การติดตาม
                     และการรายงานเป็นไปอย่างมีประสิทธิภาพสำหรับองค์กร ระบบนี้ถูกปรับให้เหมาะสมกับการทำงานร่วมกันอย่างมีประสิทธิภาพระหว่างทีมภายในและผู้ใช้ภายนอก
                     เพื่อให้มั่นใจในความโปร่งใสและความรับผิดชอบในทุกระดับของการดำเนินงาน</p>

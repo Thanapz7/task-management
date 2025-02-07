@@ -45,7 +45,7 @@ $this->title = 'Assigned Preview';
                             echo '<iframe src="'. $fileUrl .'" width="100%" height="600px" class="show-info"></iframe>';
                         } elseif (in_array($fileExtension, ['xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'txt', 'csv'])) {
                             $fileUrl = Yii::getAlias('@web/' . $value);
-                            echo '<a href="'. $fileUrl . '" target="_blank" class="btn btn-primary show-info">เปิดไฟล์</a>';
+                            echo '<a href="'. $fileUrl . '" target="_blank" class="btn btn-dark show-info">เปิดไฟล์</a>';
                         } else {
                             // ถ้าไม่ใช่ไฟล์ภาพหรือ PDF แสดงข้อความหรือข้อมูลอื่น ๆ
                             echo Html::encode($value);

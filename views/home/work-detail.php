@@ -43,11 +43,16 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     });
 </script>
 
-<?= Html::button('<i class="fa-solid fa-arrow-left back-btn"></i>', [
-    'class' => 'back-btn',
-    'onclick' => 'window.history.back();',
-    'encode' => false,
-]) ?>
+<?= Html::button(
+    Html::a('<i class="fa-solid fa-arrow-left"></i>', ['/home/work'],[
+        'style' => 'color: #000000;',
+    ]),
+    [
+        'class' => 'back-btn',
+        'encode' => false,
+    ]
+) ?>
+
 
 <div class="head-each-work">
     <h4 style="font-size: 36px"><?= Html::encode($form['form_name'])?></h4>
@@ -218,32 +223,6 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             <i class="fa-solid fa-eye-slash"></i>
             <span class="caret"></span>
         </button>
-<!--        <ul class="dropdown-menu">-->
-<!--            <div class="dropdown-search" style="margin-bottom: 5px;">-->
-<!--                <input type="search" id="fieldSearch" placeholder="ค้นหา fields">-->
-<!--                <i class="fa-solid fa-magnifying-glass search-icon"></i>-->
-<!--            </div>-->
-<!--            --><?php //if (!empty($fields)): ?>
-<!--            --><?php //var_dump($fields); ?>
-<!--                --><?php //foreach ($fields as $fieldName => $fieldValue): ?>
-<!--                    <li class="each-field">-->
-<!--                        <label class="switch submenu-link mb-0">-->
-<!--                            <input type="checkbox" class="field-toggle" data-field="--><?php //= Html::encode($fieldName) ?><!--" checked>-->
-<!--                            <span class="slider round"></span>-->
-<!--                        </label>-->
-<!--                        <p class="field-name">--><?php //= Html::encode($fieldName) ?><!--</p>-->
-<!--                    </li>-->
-<!--                --><?php //endforeach; ?>
-<!--            --><?php //else: ?>
-<!--                <li class="each-field">-->
-<!--                    <p>ไม่มีฟิลด์ในฟอร์มนี้</p>-->
-<!--                </li>-->
-<!--            --><?php //endif; ?>
-<!--            <div class="btn-sort-each">-->
-<!--                <button type="button" class="btn btn-cus" id="hideAllFields">Hide All</button>-->
-<!--                <button type="button" class="btn btn-cus" id="showAllFields">Show All</button>-->
-<!--            </div>-->
-<!--        </ul>-->
         <ul class="dropdown-menu">
             <div class="dropdown-search" style="margin-bottom: 5px;">
                 <input type="search" id="fieldSearch" placeholder="ค้นหา fields">
@@ -573,29 +552,6 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                 }
             });
         });
-
-        // ตรวจสอบการเลือกแสดง/ซ่อนคอลัมน์
-        //let fieldToggles = document.querySelectorAll('.field-toggle');
-        //fieldToggles.forEach(function(toggle) {
-        //    toggle.addEventListener('change', function() {
-        //        let fieldName = this.getAttribute('data-field');
-        //        let isChecked = this.checked;
-        //        console.log("Toggled: " + fieldName + " Checked: " + isChecked);
-        //
-        //        let columnElements = document.querySelectorAll(`.field-column-${fieldName}`);
-        //        columnElements.forEach(function(columnElement) {
-        //            if (isChecked) {
-        //                columnElement.style.display = ''; // แสดงคอลัมน์
-        //            } else {
-        //                columnElement.style.display = 'none'; // ซ่อนคอลัมน์
-        //            }
-        //        });
-        //        //ส่งข้อมูลไปบันทึกที่ฐานข้อมูล
-        //        let formId = <?php //= $formId?>//;
-        //        let userId = <?php //= Yii::$app->user->id?>//;
-        //        updateFieldVisibility(fieldName, isChecked ? 1 : 0, formId, userId)
-        //    });
-        //});
 
         let fieldToggles = document.querySelectorAll('.field-toggle');
         fieldToggles.forEach(function(toggle) {

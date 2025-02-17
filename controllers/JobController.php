@@ -44,7 +44,19 @@ class JobController extends Controller
             ->innerJoin('fields', 'forms.id = fields.form_id')
             ->where(['forms.id' => $id])
             ->all();
+
         if (Yii::$app->request->isPost) {
+            $recaptchaResponse = Yii::$app->request->post('recaptchaResponse');
+            $secretKey = '6LeQg9kqAAAAAAmTky91UqKOISyv2gvqORcHUCcO';
+            $url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . $secretKey . '&response=' . $recaptchaResponse;
+            $response = file_get_contents($url);
+            $responseKeys = json_decode($response, true);
+
+            if(!$responseKeys['success'] || $responseKeys['score'] < 0.5){
+                Yii::$app->session->setFlash('error', 'การตรวจสอบ reCAPTCHA ล้มเหลว หรือคุณดูเหมือนบอต');
+                return $this->redirect(['job/assignment']);
+            }
+
             $formData = Yii::$app->request->post('DynamicForm');
 
             // เริ่ม transaction

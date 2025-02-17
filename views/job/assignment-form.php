@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
+use himiklab\yii2\recaptcha\ReCaptcha2;
 
 $this->title = 'Assignment Form';
 ?>
@@ -42,6 +43,8 @@ $this->title = 'Assignment Form';
     <hr style="margin: 0; margin-bottom: 10px;">
     <?php $form = ActiveForm::begin([
         'action' => ['assignment-form', 'id' => $id],
+        'id' => 'assignment-form',
+        'method' => 'post',
         'options' => [
             'enctype' => 'multipart/form-data'
         ],
@@ -141,6 +144,7 @@ $this->title = 'Assignment Form';
             </div>
         </div>
     <?php endforeach; ?>
+    <input type="hidden" id="recaptchaResponse" name="recaptchaResponse">
 </div>
 <div class="group-btn-preview text-center" style="margin-top: 5px;">
     <?= Html::a('ยกเลิก', ['job/assignment'],
@@ -153,6 +157,15 @@ $this->title = 'Assignment Form';
     <?php ActiveForm::end(); ?>
 </div>
 
+<script src="https://www.google.com/recaptcha/api.js?render=6LeQg9kqAAAAAE_yOyxhIqzBtPeYoFr65F4NcnXO"></script>
+<script>
+    grecaptcha.ready(function() {
+        grecaptcha.execute('6LeQg9kqAAAAAE_yOyxhIqzBtPeYoFr65F4NcnXO', { action: 'submit' }).then(function(token) {
+            console.log("reCAPTCHA Token: ", token); // ตรวจสอบ token ใน Console
+            document.getElementById('recaptchaResponse').value = token;
+        });
+    });
+</script>
 <script>
     document.querySelectorAll('input[type="file"]').forEach(function (input){
         input.addEventListener('change', function(e){
@@ -169,5 +182,4 @@ $this->title = 'Assignment Form';
             }
         })
     })
-
 </script>

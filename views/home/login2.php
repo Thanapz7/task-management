@@ -14,6 +14,7 @@ AppAsset::register($this);
                     และการรายงานเป็นไปอย่างมีประสิทธิภาพสำหรับองค์กร ระบบนี้ถูกปรับให้เหมาะสมกับการทำงานร่วมกันอย่างมีประสิทธิภาพระหว่างทีมภายในและผู้ใช้ภายนอก
                     เพื่อให้มั่นใจในความโปร่งใสและความรับผิดชอบในทุกระดับของการดำเนินงาน</p>
                 <h5 style="color: #cc5555; font-size: 16px;">สนใจจ้างงาน? <?= Html::a('คลิกที่นี่',['job/assignment'], ['class'=>'btn btn-guest']) ?></h5>
+                <?= Html::a('<i class="fa-solid fa-book"></i> คู่มือการใช้งานสำหรับบุคลภายนอก',['/uploads/Manual_work-management_os.pdf'], ['class'=>'btn manual','style'=>'font-size:10px;', 'target'=>'_blank', 'rel' => 'noopener noreferrer']) ?>
             </div>
             <div class="col-md-1 divider"></div>
             <div class="col-md-5 login">
@@ -41,6 +42,7 @@ AppAsset::register($this);
                     <?= Html::submitButton('ล็อกอิน', ['class' => 'btn btn-custom', 'name'=>'login-button']) ?>
                 </form>
                 <?php ActiveForm::end(); ?>
+                <?= Html::a('<i class="fa-solid fa-book"></i> คู่มือการใช้งาน',['/uploads/Manual_work-management.pdf'], ['class'=>'btn manual manual-login','style'=>'font-size:10px;', 'target'=>'_blank', 'rel' => 'noopener noreferrer']) ?>
             </div>
         </div>
     </div>

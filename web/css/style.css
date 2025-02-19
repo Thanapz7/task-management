@@ -119,6 +119,24 @@ body{
     font-size: 16px;
     color: #656565cc;
 }
+.manual{
+    font-size: 12px;
+    font-weight: normal;
+    margin-left: 5px;
+    color: #ffffff;
+    background-color: rgba(109, 178, 229, 0.75);
+    border: 1px solid #ffffff;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+.manual:hover{
+    transform: scale(1.15);
+}
+.manual-login{
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
 /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
 .row.content {height: 100vh}
 
@@ -577,6 +595,21 @@ table th, table td {
 }
 .grid-view a:hover{
     text-decoration: underline;
+}
+.btn-charts{
+    display: flex;
+    flex-direction: row
+}
+#toggleControls{
+    display: flex;
+    flex-direction: row;
+    font-size: 12px
+}
+#toggleControls label{
+    margin-right: 10px;
+}
+.font12{
+    font-size: 12px;
 }
 /*assigned-preview*/
 .assignment-preview{

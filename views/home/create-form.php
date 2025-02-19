@@ -427,17 +427,15 @@ $this->title = 'สร้างฟอร์ม';
                 // case "text": return '<input type="text" class="form-control" placeholder="Text">';
                 case "short-text": return '<input type="text" class="form-control" placeholder="Short Text">';
                 case "long-text": return '<textarea class="form-control" placeholder="Long Text"></textarea>';
-                case "dropdown": return `<select class="form-control"><option>Option 1</option><option>Option 2</option></select>`;
+                case "dropdown": return `<select class="form-control"></select>`;
                 case "phone" : return '<input type="number" class="form-control" placeholder="Phone Number">';
                 case "date" : return '<input type="date" class="form-control" placeholder="Date">';
                 case "time" : return '<input type="time" class="form-control" placeholder="Time">';
                 case "file": return '<input type="file" class="form-control" placeholder="File">';
                 case "radio":
-                    return `<label><input type="radio" name="radio"> Option 1</label>
-                        <label><input type="radio" name="radio"> Option 2</label>`;
+                    return `<span style="font-size: 12px; color: #cc5555">คลิก <i class="fa-solid fa-pen edit-icon" style="color: #5bc0de"></i> เพื่อเพิ่มตัวเลือก</span>`;
                 case "checkbox":
-                    return `<label><input type="checkbox" value=""> Option 1</label>
-                        <label><input type="checkbox" value=""> Option 2</label>`;
+                    return `<span style="font-size: 12px; color: #cc5555">คลิก <i class="fa-solid fa-pen edit-icon" style="color: #5bc0de"></i> เพื่อเพิ่มตัวเลือก</span>`;
                 case "number": return '<input type="number" class="form-control" placeholder="Number">';
                 default: return '';
             }

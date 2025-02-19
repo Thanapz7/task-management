@@ -77,7 +77,7 @@ class Users extends \yii\db\ActiveRecord implements IdentityInterface
             }
             // แฮชรหัสผ่านถ้าถูกแก้ไข
             if (!empty($this->password_hash)) {
-                $this->password_hash = Yii::$app->security->generatePasswordHash($this->password_hash);
+                $this->password_hash = Yii::$app->security->generatePasswordHash($this->password_hash, 15);
             }
             return true;
         }

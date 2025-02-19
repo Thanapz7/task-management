@@ -13,6 +13,7 @@ $this->title='รายละเอียดงาน '. $form['form_name'];
 ?>
 <meta name="csrf-token" content="<?= Yii::$app->request->csrfToken ?>">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <?php
 $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
 
@@ -276,6 +277,9 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
             <div class="dropdown-item">
                 <?= Html::a('<i class="fa-regular fa-calendar-days" style="margin-right: 5px;"></i> ปฏิทิน', ['home/work-detail', 'id' => $form->id, 'viewType' => 'calendar'], ['class' => 'submenu-link']) ?>
             </div>
+            <div class="dropdown-item">
+                <?= Html::a('<i class="fa-solid fa-chart-simple" style="margin-right: 5px;"></i> กราฟ', ['home/work-detail', 'id' => $form->id, 'viewType' => 'grahp'], ['class' => 'submenu-link']) ?>
+            </div>
         </div>
     </div>
 </div>
@@ -426,8 +430,34 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 
         <?php elseif ($viewType == 'calendar' && isset($events) && !empty($events)): ?>
             <div id="calendar"></div>
-        <?php else: ?>
-            <p>No events available for the calendar view.</p>
+        <?php elseif ($viewType == 'grahp'):?>
+            <div class="btn-charts">
+                <div class="chart-controls" style="margin-left: 25px; margin-top: -20px;">
+                    <label>เลือกประเภทกราฟ:</label>
+                    <select name="" id="chartType" class="btn-sort" style="padding: 3px">
+                        <option value="bar">แท่ง</option>
+                        <option value="line">เส้น</option>
+                        <option value="pie">วงกลม</option>
+                        <option value="polarArea">Polar Area</option>
+                    </select>
+                </div>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span style="margin-top: -4px; margin-left: 5px;">เลือกแสดงกราฟย่อย:</span>
+                <div class="btn-group" style="margin-top: -20px; margin-left: 5px;">
+                    <button class="btn btn-default btn-sort dropdown-toggle" data-toggle="dropdown" style="font-size:14px">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <div id="fieldToggleContainer" class="font12"></div>
+                        <div class="btn-sort-each">
+                            <button type="button" class="btn btn-cus font12" id="hideAllFieldsGraph">Hide All</button>
+                            <button type="button" class="btn btn-cus font12" id="showAllFieldsGraph">Show All</button>
+                        </div>
+                    </ul>
+                </div>
+            </div>
+            <canvas id="summaryChart" width="700" height="250" style="max-width: 100%; height: auto"></canvas>
+            <div id="fieldCharts"></div>
         <?php endif; ?>
 
     </div>
@@ -722,4 +752,161 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
     });
 
 </script>
+<script>
+    const rawData = <?= json_encode($dataProvider->allModels) ?>;
+    const summaryData = {};
+    const fieldDetails = {};
 
+    rawData.forEach(item => {
+        Object.keys(item).forEach(key => {
+            if (!summaryData[key]) {
+                summaryData[key] = 0;
+                fieldDetails[key] = {};
+            }
+
+            if (item[key]) {
+                summaryData[key]++;
+
+                // นับค่าของฟิลด์แต่ละตัว
+                fieldDetails[key][item[key]] = (fieldDetails[key][item[key]] || 0) + 1;
+            }
+        });
+    });
+
+    let mainChart;
+    const chartTypeSelector = document.getElementById("chartType");
+    const fieldChartsContainer = document.getElementById("fieldCharts");
+    const fieldToggleContainer = document.getElementById("fieldToggleContainer");
+
+    function createChart(chartId, type, labels, data) {
+        const ctx = document.getElementById(chartId).getContext("2d");
+        return new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: chartId,
+                    data: data,
+                    backgroundColor: [
+                        "rgba(20, 116, 111, 0.6)",
+                        "rgba(36, 130, 119, 0.6)",
+                        "rgba(53, 143, 128, 0.6)",
+                        "rgba(70, 157, 137, 0.6)",
+                        "rgba(86, 171, 145, 0.6)",
+                        "rgba(103, 185, 154, 0.6)",
+                        "rgba(120, 198, 163, 0.6)",
+                    ],
+                    borderColor: [
+                        "rgba(20, 116, 111, 1)",
+                        "rgba(36, 130, 119, 1)",
+                        "rgba(53, 143, 128, 1)",
+                        "rgba(70, 157, 137, 1)",
+                        "rgba(86, 171, 145, 1)",
+                        "rgba(103, 185, 154, 1)",
+                        "rgba(120, 198, 163, 1)",
+
+                    ],
+                    borderWidth: 1.5
+                }]
+            },
+            options: { responsive: true }
+        });
+    }
+
+    function drawMainChart(type) {
+        if (mainChart) {
+            mainChart.destroy();
+        }
+        mainChart = createChart("summaryChart", type, Object.keys(summaryData), Object.values(summaryData));
+    }
+
+    const fieldCharts = {}; // เก็บ reference ของแต่ละกราฟย่อย
+
+    function createFieldToggles() {
+        fieldToggleContainer.innerHTML = "";
+        Object.keys(fieldDetails).forEach(field => {
+            const toggleWrapper = document.createElement("li");
+            toggleWrapper.classList.add("each-field");
+
+            const label = document.createElement("label");
+            label.classList.add("switch", "submenu-link", "mb-0");
+
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.classList.add("field-toggle");
+            input.dataset.field = field;
+            input.checked = false;
+            input.addEventListener("change", function () {
+                toggleFieldChart(field, this.checked);
+            });
+
+            const slider = document.createElement("span");
+            slider.classList.add("slider", "round");
+
+            const fieldName = document.createElement("p");
+            fieldName.classList.add("field-name");
+            fieldName.textContent = field;
+
+            label.appendChild(input);
+            label.appendChild(slider);
+            toggleWrapper.appendChild(label);
+            toggleWrapper.appendChild(fieldName);
+            fieldToggleContainer.appendChild(toggleWrapper);
+        });
+    }
+
+    function toggleFieldChart(field, show) {
+        const canvasId = `chart_${field}`;
+        const existingCanvas = document.getElementById(canvasId);
+
+        if (show) {
+            if (!existingCanvas) {
+                const canvas = document.createElement("canvas");
+                canvas.id = canvasId;
+                fieldChartsContainer.appendChild(canvas);
+
+                fieldCharts[field] = createChart(canvasId, chartTypeSelector.value, Object.keys(fieldDetails[field]), Object.values(fieldDetails[field]));
+            }
+        } else {
+            if (existingCanvas) {
+                existingCanvas.remove();
+                if (fieldCharts[field]) {
+                    fieldCharts[field].destroy();
+                    delete fieldCharts[field];
+                }
+            }
+        }
+    }
+
+    document.getElementById("fieldSearch").addEventListener("input", function () {
+        const searchTerm = this.value.toLowerCase();
+        document.querySelectorAll(".each-field").forEach(item => {
+            const fieldName = item.querySelector(".field-name").textContent.toLowerCase();
+            item.style.display = fieldName.includes(searchTerm) ? "" : "none";
+        });
+    });
+
+    document.getElementById("hideAllFieldsGraph").addEventListener("click", function () {
+        document.querySelectorAll(".field-toggle").forEach(toggle => {
+            toggle.checked = false;
+            toggleFieldChart(toggle.dataset.field, false);
+        });
+    });
+
+    document.getElementById("showAllFieldsGraph").addEventListener("click", function () {
+        document.querySelectorAll(".field-toggle").forEach(toggle => {
+            toggle.checked = true;
+            toggleFieldChart(toggle.dataset.field, true);
+        });
+    });
+
+    drawMainChart("bar");
+    createFieldToggles();
+
+    chartTypeSelector.addEventListener("change", function () {
+        drawMainChart(this.value);
+        Object.keys(fieldCharts).forEach(field => {
+            toggleFieldChart(field, true); // อัปเดตประเภทของกราฟย่อยที่เปิดอยู่
+        });
+    });
+</script>

@@ -280,6 +280,10 @@ class HomeController extends Controller
         $selectedViewDepartments = [];
         $selectedViewUsers = [];
 
+        $totalRecords = Records::find()
+            ->where(['form_id' => $id])
+            ->count();
+
         // ส่งข้อมูลไปที่ view
         return $this->render('work-detail', [
             'form' => $form,
@@ -299,6 +303,7 @@ class HomeController extends Controller
             'person_privilege' => $person_privilege,
             'fields' => $fields,
             'field_check' => $field_check,
+            'totalRecords' => $totalRecords,
         ]);
     }
 

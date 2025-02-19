@@ -103,8 +103,9 @@ $this->title = 'Create Form' . Html::encode($form_id);
                 <input type="text" id="searchUser" class="form-control" style="margin-bottom: 5px; border-radius: 20px" placeholder="พิมพ์ชื่อเพื่อค้นหา...">
                 <select class="form-control" name="view_users[]" id="view_users" multiple>
                     <?php foreach ($users as $user) : ?>
+                    <?php if($user->name === 'Guest' && $user->lastname === 'Guest') continue; ?>
                         <option value="<?= $user->id ?>" <?= in_array($user->id, $selectedViewUsers) ? 'selected' : '' ?>>
-                            <?= Html::encode($user->name) ?>
+                            <?= Html::encode($user->name) ?> <?= Html::encode($user->lastname) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

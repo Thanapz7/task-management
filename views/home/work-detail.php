@@ -56,7 +56,15 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
 
 
 <div class="head-each-work">
-    <h4 style="font-size: 36px"><?= Html::encode($form['form_name'])?></h4>
+    <div>
+        <h4 style="font-size: 36px"><?= Html::encode($form['form_name'])?>
+        <?php if($totalRecords):?>
+            <span class="badge badge-pill badge-info font12" style="background-color: #55AD9B">จำนวนการกรอก: <?= htmlspecialchars($totalRecords)?></span>
+        <?php else: ?>
+            <span class="badge badge-pill badge-dark font12">ยังไม่มีข้อมูล</span>
+        <?php endif;?>
+        </h4>
+    </div>
     <?php
         $formUser = $form['user_id'];
     ?>
@@ -185,8 +193,9 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                         <input type="text" id="searchUser" class="form-control" style="margin-bottom: 5px; border-radius: 20px" placeholder="พิมพ์ชื่อเพื่อค้นหา...">
                         <select class="form-control" name="view_users[]" id="view_users" multiple>
                             <?php foreach ($users as $user) : ?>
+                                <?php if($user->name === 'Guest' && $user->lastname === 'Guest') continue; ?>
                                 <option value="<?= $user->id ?>" <?= in_array($user->id, $selectedViewUsers) ? 'selected' : '' ?>>
-                                    <?= Html::encode($user->name) ?>
+                                    <?= Html::encode($user->name) ?> <?= Html::encode($user->lastname) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

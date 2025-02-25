@@ -47,7 +47,7 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                 </div>
                 <ul class="nav flex-column">
                     <?php if (!Yii::$app->user->isGuest): ?>
-                        <li class="<?= Yii::$app->controller->id ==='home' && Yii::$app->controller->action->id ==='work' ? 'actived' : '' ?> nav-item">
+                        <li class="<?= Yii::$app->controller->id ==='home' && Yii::$app->controller->action->id ==='work' || Yii::$app->controller->action->id === 'work-detail' ? 'actived' : '' ?> nav-item">
                             <a href="<?= Yii::$app->urlManager->createUrl(['home/work']) ?>" class="nav-link nav-fonts"><i class="fa-solid fa-clipboard" style="margin-right: 10px;"></i>งาน</a>
                         </li>
                         <li class="<?= Yii::$app->controller->id === 'home' && Yii::$app->controller->action->id === 'add-form' ? 'actived' : '' ?> nav-item">
@@ -56,11 +56,11 @@ $department = isset($this->params['department']) ? $this->params['department'] :
                         <li class="<?= Yii::$app->controller->id === 'home' && Yii::$app->controller->action->id === 'assigned' ? 'actived' : '' ?> nav-item">
                             <a href="<?= Yii::$app->urlManager->createUrl(['home/assigned']) ?>" class="nav-link nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>งานที่มอบหมาย</a>
                         </li>
-                        <li class="<?= Yii::$app->controller->id === 'home' && Yii::$app->controller->action->id === 'assignment' ? 'actived' : '' ?> nav-item">
+                        <li class="<?= Yii::$app->controller->id === 'home' && Yii::$app->controller->action->id === 'assignment' || Yii::$app->controller->action->id === 'assignment-form' ? 'actived' : '' ?> nav-item">
                             <a href="<?= Yii::$app->urlManager->createUrl(['home/assignment']) ?>" class="nav-link nav-fonts"><i class="fa-solid fa-circle-plus" style="margin-right: 10px;"></i>เพิ่มงาน</a>
                         </li>
                     <?php else: ?>
-                        <li class="<?= Yii::$app->controller->id === 'job' && Yii::$app->controller->action->id === 'assignment' ? 'actived' : '' ?> nav-item">
+                        <li class="<?= Yii::$app->controller->id === 'job' && Yii::$app->controller->action->id === 'assignment' || Yii::$app->controller->action->id === 'assignment-form' ? 'actived' : '' ?> nav-item">
                             <a href="<?= Yii::$app->urlManager->createUrl(['job/assignment']) ?>" class="nav-link nav-fonts"><i class="fa-solid fa-paper-plane" style="margin-right: 10px;"></i>จ้างงาน</a>
                         </li>
                         <li class="<?= Yii::$app->controller->id === 'job' && Yii::$app->controller->action->id === 'assigned' ? 'actived' : '' ?> nav-item">

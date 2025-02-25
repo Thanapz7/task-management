@@ -238,7 +238,7 @@ $encodedEvents = json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SL
                 <input type="search" id="fieldSearch" placeholder="ค้นหา fields">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
             </div>
-            <?php if (!empty($fields)): ?>
+            <?php if (!empty($fields) && array_filter($fields, 'is_string')): ?>
                 <?php foreach ($fields as $fieldName => $value): ?>
                 <?php
                     $isVisible = 1;

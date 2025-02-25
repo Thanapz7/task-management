@@ -41,7 +41,7 @@ class FieldValues extends \yii\db\ActiveRecord
 
         // ตรวจสอบว่าโฟลเดอร์มีอยู่แล้วหรือไม่ ถ้าไม่สร้างใหม่
         if (!is_dir($directory)) {
-            if (!mkdir($directory, 0777, true)) {
+            if (!mkdir($directory, 0775, true)) {
                 Yii::error('ไม่สามารถสร้างโฟลเดอร์: ' . $directory);
                 return false;
             }

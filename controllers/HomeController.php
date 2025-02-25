@@ -18,6 +18,7 @@ use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use app\widgets\DataDisplayWidget;
 use yii\db\Query;
+use yii\filters\AccessControl;
 use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
@@ -30,10 +31,19 @@ use yii\helpers\FileHelper;
 
 class HomeController extends Controller
 {
-
-    public function actionHome()
+    public function beforeAction($action)
     {
-        return $this->render('home');
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+        ];
     }
 
     public function actionWork()

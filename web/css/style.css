@@ -43,6 +43,9 @@ body{
     flex-direction: column;
     justify-content: center;
 }
+.mobile-os{
+    display: none;
+}
 .logins .logo {
     color: #95D2B3;
     margin: 50px;
@@ -102,6 +105,7 @@ body{
 .logins .form-control {
     border-radius: 20px;
     font-size: 16px;
+    padding: 20px 10px 20px 10px;
 }
 .password-input{
     position: relative;
@@ -109,8 +113,8 @@ body{
 .login-eye {
     position: absolute;
     right: 10px;
-    top: 43px;
-    font-size: 16px;
+    top: 45px;
+    font-size: 18px;
     color: #656565cc;
     cursor: pointer;
 }
@@ -1250,6 +1254,25 @@ ul.dropdown-menu.show {
     }
     .data-type{
         height: auto;
+    }
+    .login{
+        margin-left: 30px;
+    }
+    .logins .info-log{
+        display: none;
+    }
+    .mobile-os{
+        display: block;
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+    }
+    .mobile-os .btn-guest{
+        font-size: 12px;
+        border: 1px;
+        box-shadow: none;
+        border-radius: 10px;
+        padding: 5px;
     }
 }
 

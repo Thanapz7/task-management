@@ -43,6 +43,10 @@ AppAsset::register($this);
                 </form>
                 <?php ActiveForm::end(); ?>
                 <?= Html::a('<i class="fa-solid fa-book"></i> คู่มือการใช้งาน',['/uploads/Manual_work-management.pdf'], ['class'=>'btn manual manual-login','style'=>'font-size:10px;', 'target'=>'_blank', 'rel' => 'noopener noreferrer']) ?>
+                <div class="mobile-os">
+                    <?= Html::a('สนใจจ้างงาน',['job/assignment'], ['class'=>'btn btn-guest']) ?>
+                    <?= Html::a('<i class="fa-solid fa-book"></i> คู่มือภายนอก',['/uploads/Manual_work-management_os.pdf'], ['class'=>'btn manual','style'=>'font-size:10px;', 'target'=>'_blank', 'rel' => 'noopener noreferrer']) ?>
+                </div>
             </div>
         </div>
     </div>

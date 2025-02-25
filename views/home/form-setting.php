@@ -70,6 +70,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
                         </li>
                     <?php endforeach; ?>
                 </ul>
+                <span id="warning-message-submit" class="warning-text" style="display: none"><span class="spinner-grow spinner-grow-sm"></span> กรุณาเลือกแผนกที่สามารถกรอกข้อมูลได้</span>
             </div>
 
             <!-- เลือกแผนกที่สามารถดูข้อมูลได้ -->
@@ -95,6 +96,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
                         </li>
                     <?php endforeach; ?>
                 </ul>
+                <span id="warning-message-view" class="warning-text" style="display: none"><span class="spinner-grow spinner-grow-sm"></span> กรุณาเลือกแผนกที่สามารถดูข้อมูลได้</span>
             </div>
 
             <!-- เลือกบุคคลที่สามารถดูข้อมูลได้ -->
@@ -120,7 +122,7 @@ $this->title = 'Create Form' . Html::encode($form_id);
                     'data-confirm' => 'ยกเลิกการสร้างฟอร์มนี้?',
                 ])?>
                 <div class="text-end">
-                    <?= Html::submitButton('บันทึก', ['class' => 'btn btn-primary btn-save']) ?>
+                    <?= Html::submitButton('บันทึก', ['class' => 'btn btn-primary btn-save', 'onclick' => 'return validateForm()']) ?>
                 </div>
             </div>
             <?php ActiveForm::end(); ?>
@@ -298,5 +300,32 @@ function getFieldHtml($type, $id, $options) {
     }
 }
 ?>
+
+<script>
+    function validateForm() {
+        const checkboxesSubmit = document.querySelectorAll('input[name="departments[]"]:checked');
+        const warningMessageSubmit = document.getElementById('warning-message-submit');
+
+        const checkboxesView = document.querySelectorAll('input[name="view_departments[]"]:checked');
+        const warningMessageView = document.getElementById('warning-message-view');
+
+        if (checkboxesSubmit.length === 0) {
+            warningMessageSubmit.style.display = 'block';
+        } else {
+            warningMessageSubmit.style.display = 'none';
+        }
+
+        if (checkboxesView.length === 0) {
+            warningMessageView.style.display = 'block';
+        } else {
+            warningMessageView.style.display = 'none';
+        }
+
+        if (checkboxesSubmit.length === 0 || checkboxesView.length === 0) {
+            return false;
+        }
+        return true;
+    }
+</script>
 
 

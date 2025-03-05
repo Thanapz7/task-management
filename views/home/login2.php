@@ -39,6 +39,9 @@ AppAsset::register($this);
                     <div class="form-group w-100 forgot-pass text-right">
                         <?= Html::a('ลืมรหัสผ่าน', ['./users'],['class'=>'forgot-pass']) ?>
                     </div>
+                    <div class="form-group w-100 forgot-pass text-right">
+                        <?= Html::a('สมัคร', ['./users/create'],['class'=>'forgot-pass']) ?>
+                    </div>
                     <?= Html::submitButton('ล็อกอิน', ['class' => 'btn btn-custom', 'name'=>'login-button']) ?>
                 </form>
                 <?php ActiveForm::end(); ?>

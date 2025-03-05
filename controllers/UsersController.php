@@ -67,6 +67,7 @@ class UsersController extends Controller
      */
     public function actionCreate()
     {
+        $this->layout = 'layout';
         $model = new Users();
 
         if ($this->request->isPost) {

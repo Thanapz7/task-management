@@ -47,7 +47,7 @@ class JobController extends Controller
 
         if (Yii::$app->request->isPost) {
             $recaptchaResponse = Yii::$app->request->post('recaptchaResponse');
-            $secretKey = '6LeQg9kqAAAAAAmTky91UqKOISyv2gvqORcHUCcO';
+            $secretKey = 'Your Secret Key';
             $url = 'https://www.google.com/recaptcha/api/siteverify?secret=' . $secretKey . '&response=' . $recaptchaResponse;
             $response = file_get_contents($url);
             $responseKeys = json_decode($response, true);
